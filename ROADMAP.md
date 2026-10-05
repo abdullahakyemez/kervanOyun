@@ -100,11 +100,11 @@
 - **Çıktı:** Bursa'dan ucuz ipek alıp Bilecik'te kârla satabildiğimiz, aşırı satışta fiyatın düştüğü canlı bir ekonomi motoru. (Tamamlandı ✅)
 
 ### 🔹 Aşama 6: İstihbarat, Beylik İtibarı & Sabit Dükkân (Meta Game)
-- [ ] Şehirlerde bilgi parçacıkları (IntelItem) toplama mekaniği.
-- [ ] Beylik Nüfuzu (Osmanlı, Germiyanoğlu, Karaman, Bizans) ve itibar seviyeleri.
-- [ ] Görev teslimi (Hand-in) ve ödül sistemi (Akçe, berat, özel zırh).
-- [ ] Güvenli Osmanlı şehirlerinde "Han Dükkânı / Pazar Tezgâhı" açma ve pasif gelir sistemi.
-- **Çıktı:** Tüccar-alp kimliğinin tam oturduğu, pasif gelir ve görev zincirlerinin çalıştığı derin meta döngü.
+- [x] Şehirlerde bilgi parçacıkları (IntelItem) toplama mekaniği (`IntelDataSO.cs` & 4 Tarihsel Havadis).
+- [x] Beylik Nüfuzu (Osmanlı, Germiyanoğlu, Karaman, Bizans) ve itibar seviyeleri (`ReputationManager.cs`).
+- [x] Görev teslimi (Hand-in) ve ödül sistemi (`QuestManager.cs` - Akçe, Nüfuz ve Vergi Muafiyeti).
+- [x] Güvenli Osmanlı şehirlerinde "Han Dükkânı / Pazar Tezgâhı" açma ve pasif gelir sistemi (`ShopManager.cs` & `TownHubUI.cs` & `TownHubScene.unity`).
+- **Çıktı:** Tüccar-alp kimliğinin tam oturduğu, pasif gelir ve görev zincirlerinin çalıştığı derin meta döngü. (Tamamlandı ✅)
 
 ### 🔹 Aşama 7: Minyatür Sanat Tarzı Varlık Üretimi & Entegrasyon
 - [ ] Yapay Zeka Promptları (FLUX/Midjourney) ile tarihsel minyatür tarzında 2D sprite ve UI dokuları üretimi.
@@ -128,4 +128,4 @@
 
 ---
 
-## 🚦 Mevcut Durum: **Aşama 5 Tamamlandı ✅ | Aşama 6'ya (Meta Game & İstihbarat) Başlamaya Hazır**
+## 🚦 Mevcut Durum: **Aşama 6 Tamamlandı ✅ | Aşama 7'ye (Görsel Sanat & Minyatür Entegrasyonu) Başlamaya Hazır**

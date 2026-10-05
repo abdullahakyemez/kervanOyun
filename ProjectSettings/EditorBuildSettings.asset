@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Scenes/MarketScene.unity
     guid: a66b15a4be2ec1041ab58ba9d08bcc6c
+  - enabled: 1
+    path: Assets/_Project/Scenes/TownHubScene.unity
+    guid: cebe763416274d14080705d6ee1a4a76
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

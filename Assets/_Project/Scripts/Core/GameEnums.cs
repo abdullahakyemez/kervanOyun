@@ -46,4 +46,23 @@ namespace Kervan.Core
         EnemyTurn,
         RoundEnd
     }
+
+    public enum ReputationLevel
+    {
+        Hostile,    // Düşman (-100 .. -50)
+        Suspicious, // Şüpheli (-49 .. -1)
+        Neutral,    // Nötr (0 .. 24)
+        Friendly,   // Dost (25 .. 74)
+        Allied      // Müttefik (75 .. 100)
+    }
+
+    public enum IntelType
+    {
+        MilitarySupply,    // Askeri ikmal / konvoy bilgisi
+        FortressWeakness,  // Kale / sur zafiyeti
+        LocalRebellion,    // Yerel isyan / hoşnutsuzluk
+        TradeSecret,       // Gizli ticaret rotası / kaçakçılık
+        RivalPlan          // Rakip beylik akın planı
+    }
 }
+

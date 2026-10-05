@@ -5,6 +5,18 @@ using Kervan.Core;
 
 namespace Kervan.TradeAndTravel
 {
+    public struct TravelCompletedEvent : IGameEvent
+    {
+        public LocationNodeSO Destination;
+        public TravelRouteSO Route;
+
+        public TravelCompletedEvent(LocationNodeSO dest, TravelRouteSO route)
+        {
+            Destination = dest;
+            Route = route;
+        }
+    }
+
     /// <summary>
     /// Kervanin seyahatini, yol sartlarini, erzak tuketimini ve
     /// pusu/olay zarlarini yoneten merkezi seyahat motoru.
@@ -163,10 +175,12 @@ namespace Kervan.TradeAndTravel
             _isTraveling = false;
             _currentLocation = _activeRoute.ToNode;
             var arrived = _currentLocation;
+            var completedRoute = _activeRoute;
             _activeRoute = null;
 
             Debug.Log($"[Travel] Hedefe varildi: {arrived?.NodeName}");
             OnDestinationReached?.Invoke(arrived);
+            EventBus.Publish(new TravelCompletedEvent(arrived, completedRoute));
         }
 
         public bool RestAtCaravanserai(int days)

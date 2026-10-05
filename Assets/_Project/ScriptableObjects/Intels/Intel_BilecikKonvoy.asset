@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2833b4060a43c142a53ac0eac73ab7e, type: 3}
+  m_Name: Intel_BilecikKonvoy
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.IntelSystem.IntelDataSO
+  _intelId: Intel_BilecikKonvoy
+  _title: "Bilecik Tekfurunun \u0130kmal Konvoyu"
+  _description: "Tekfurun \u0130znik surlar\u0131na g\xF6nderece\u011Fi demir ve silah sevkiyat\u0131n\u0131n \xE7\u0131k\u0131\u015F saati."
+  _intelType: 0
+  _sourceCity: Bilecik
+  _targetFaction: 0
+  _discoveryRisk: 20
+  _rewardAkce: 200
+  _rewardReputation: 15
+  _taxDiscountPercent: 2

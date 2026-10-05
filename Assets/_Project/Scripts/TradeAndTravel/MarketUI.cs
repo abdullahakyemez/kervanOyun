@@ -44,6 +44,11 @@ namespace Kervan.TradeAndTravel
 
         private void Start()
         {
+            if (CaravanManager.Instance != null)
+            {
+                _caravanData = CaravanManager.Instance.Caravan;
+            }
+
             if (_cityMarket == null)
             {
                 _cityMarket = FindAnyObjectByType<CityMarket>();

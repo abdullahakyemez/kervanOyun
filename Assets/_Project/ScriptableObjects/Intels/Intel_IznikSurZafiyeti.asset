@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2833b4060a43c142a53ac0eac73ab7e, type: 3}
+  m_Name: Intel_IznikSurZafiyeti
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.IntelSystem.IntelDataSO
+  _intelId: Intel_IznikSurZafiyeti
+  _title: "\u0130znik Do\u011Fu Kap\u0131s\u0131 Savunma Zaaf\u0131"
+  _description: "\u0130znik surlar\u0131n\u0131n g\xF6l taraf\u0131ndaki ta\u015F temellerinde ya\u015Fanan \xE7\xF6kmeler ve n\xF6bet\xE7i de\u011Fi\u015Fim saatleri."
+  _intelType: 1
+  _sourceCity: "\u0130znik"
+  _targetFaction: 0
+  _discoveryRisk: 35
+  _rewardAkce: 350
+  _rewardReputation: 25
+  _taxDiscountPercent: 4
