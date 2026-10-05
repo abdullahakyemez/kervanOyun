@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e69b82a6e36afa344b7a3b6bb8e250ed, type: 3}
+  m_Name: Market_Bursa
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.CityMarketDataSO
+  _cityNode: {fileID: 11400000, guid: 9a4224f1801b232469d7ac14fbde0aa2, type: 2}
+  _baseTaxRate: 0.08
+  _localGoods:
+  - Item: {fileID: 11400000, guid: d345f2a2c1d05ce43a3af7ca31bea51a, type: 2}
+    BaseStock: 80
+    PriceMultiplier: 0.65
+  _demandedGoods:
+  - Item: {fileID: 11400000, guid: 62b3d1148ec5d3c47b474270f65e5254, type: 2}
+    BaseStock: 40
+    PriceMultiplier: 1.7
+  - Item: {fileID: 11400000, guid: 88448c92acf237a4c88d8d4317fd8f9b, type: 2}
+    BaseStock: 60
+    PriceMultiplier: 1.45
+  _standardGoods:
+  - Item: {fileID: 11400000, guid: 7c239fb879e38dc44a9d7a09458ee870, type: 2}
+    BaseStock: 20
+    PriceMultiplier: 1.1

@@ -93,11 +93,11 @@
 - **Çıktı:** Bir şehirden diğerine erzak harcayarak seyahat edilen, pusuya düşüldüğünde savaş ekranını tetikleyen harita döngüsü. (Tamamlandı ✅)
 
 ### 🔹 Aşama 5: Dinamik Pazar Ekonomisi & Arbitraj Sistemi
-- [ ] Şehir Pazar Verileri: Yerel üretim ve talep listeleri.
-- [ ] Fiyat Formülü: Taban Fiyat + Mesafe Faktörü + Kıtlık/Bolluk + Doygunluk Çarpanı (Market Saturation).
-- [ ] Alış-Satış Arayüzü: Parşömen tarzı envanter ve pazar listesi, kâr marjı renk göstergeleri.
-- [ ] Enflasyon ve gün geçtikçe piyasanın kendini dengelemesi.
-- **Çıktı:** Bursa'dan ucuz ipek alıp Konya'da kârla satabildiğimiz, aşırı satışta fiyatın düştüğü canlı bir ekonomi motoru.
+- [x] Şehir Pazar Verileri: Yerel üretim ve talep listeleri (`CityMarketDataSO.cs` & 4 Şehir Pazar Verisi: Bursa, Bilecik, Söğüt, İznik).
+- [x] Fiyat Formülü: Taban Fiyat + Mesafe Faktörü + Kıtlık/Bolluk + Doygunluk Çarpanı (`CityMarket.cs`).
+- [x] Alış-Satış Arayüzü: Parşömen tarzı envanter ve pazar listesi, kâr marjı ve ağırlık göstergeleri (`MarketUI.cs` & `MarketScene.unity`).
+- [x] Enflasyon ve gün geçtikçe piyasanın kendini dengelemesi (`PassMarketDay`).
+- **Çıktı:** Bursa'dan ucuz ipek alıp Bilecik'te kârla satabildiğimiz, aşırı satışta fiyatın düştüğü canlı bir ekonomi motoru. (Tamamlandı ✅)
 
 ### 🔹 Aşama 6: İstihbarat, Beylik İtibarı & Sabit Dükkân (Meta Game)
 - [ ] Şehirlerde bilgi parçacıkları (IntelItem) toplama mekaniği.
@@ -128,5 +128,4 @@
 
 ---
 
-## 🚦 Mevcut Durum: **Aşama 0'a Başlamaya Hazır**
-Herhangi bir koda veya dosya değişikliğine geçmeden önce bu yol haritası ve geliştirme ilkeleri doğrultusunda onayınız beklenmektedir.
+## 🚦 Mevcut Durum: **Aşama 5 Tamamlandı ✅ | Aşama 6'ya (Meta Game & İstihbarat) Başlamaya Hazır**
