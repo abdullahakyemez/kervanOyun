@@ -78,11 +78,12 @@
 - **Çıktı:** Prototip sprite'larla oynanabilir, altıgen üzerinde hareket eden ve sırayla vuran 1v1 veya 3v3 savaş prototipi. (Tamamlandı ✅)
 
 ### 🔹 Aşama 3: Mobil Ergonomik Savaş Arayüzü (Combat UI / HUD)
-- [ ] Sol Başparmak: Aktif Birim Kartı (Dinamik Portre, HP/Zırh barları, Stamina altıgenleri, Hilal moral ikonu).
-- [ ] Sağ Başparmak: Eylem Komuta Kümesi (Turu Bitir, Saldır/Mod Değiştir, Siper Al, Özel Yetenek).
-- [ ] Üst Güvenli Alan: Tur sayacı ve 1.5 sn basılı tutmalı "Geri Çekil" düğmesi.
-- [ ] İki Dokunuşlu Onay (Two-Tap Execution) ve yol/menzil önizleme çizgileri (Floating Combat Prediction).
-- **Çıktı:** Mobil dokunmatik hissiyatı tam, yanlış basmayı önleyen, `EKRAN.md` standartlarında savaş arayüzü.
+- [x] Sol Başparmak: Aktif Birim Kartı (Dinamik Portre, HP/Zırh barları, Stamina altıgenleri, Hilal moral ikonu `UnitHUD.cs`).
+- [x] Sağ Başparmak: Eylem Komuta Kümesi (Turu Bitir, Saldır/Mod Değiştir, Siper Al, Özel Yetenek `ActionCluster.cs`).
+- [x] Üst Güvenli Alan: Tur sayacı ve 1.5 sn basılı tutmalı "Geri Çekil" düğmesi (`CombatHeaderUI.cs` & `HoldButton.cs`).
+- [x] İki Dokunuşlu Onay (Two-Tap Execution) ve yol/menzil önizleme çizgileri ile Hedef Odak Balonu (`CombatPredictionUI.cs`).
+- [x] Mobil Çentik & Safe Area uyumlayıcısı (`SafeAreaFitter.cs`) ve Zafer/Yenilgi paneli (`CombatResultUI.cs`).
+- **Çıktı:** Mobil dokunmatik hissiyatı tam, yanlış basmayı önleyen, `EKRAN.md` standartlarında savaş arayüzü. (Tamamlandı ✅)
 
 ### 🔹 Aşama 4: Harita, Rota & Kervan Seyahati (Node Travel)
 - [ ] 2D Harita Düğümleri: Kervansaraylar, Şehirler, Dağ Geçitleri.

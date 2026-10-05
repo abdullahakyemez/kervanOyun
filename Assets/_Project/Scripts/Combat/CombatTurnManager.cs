@@ -40,6 +40,8 @@ namespace Kervan.Combat
         public event Action<CombatUnit> OnUnitSelected;
         public event Action<CombatTurnPhase, int> OnTurnChanged;
         public event Action<bool> OnCombatEnded; // True: Zafer, False: Yenilgi
+        public event Action<CombatUnit, CombatUnit> OnTargetEnemyFocused;
+        public event Action OnTargetEnemyUnfocused;
 
         public CombatState CurrentState => _currentState;
         public int RoundNumber => _roundNumber;
@@ -51,7 +53,7 @@ namespace Kervan.Combat
         {
             if (_grid == null)
             {
-                _grid = FindFirstObjectByType<HexGrid>();
+                _grid = FindAnyObjectByType<HexGrid>();
             }
 
             // Birimlerin olum olaylarini dinle
@@ -104,6 +106,7 @@ namespace Kervan.Combat
             _selectedUnit = unit;
             _previewTargetCoords = null;
             _grid.ClearAllHighlights();
+            OnTargetEnemyUnfocused?.Invoke();
 
             OnUnitSelected?.Invoke(_selectedUnit);
 
@@ -180,6 +183,7 @@ namespace Kervan.Combat
                     if (_previewTargetCoords == clickedCoords)
                     {
                         _previewTargetCoords = null;
+                        OnTargetEnemyUnfocused?.Invoke();
                         _selectedUnit.ExecuteAttack(targetEnemy);
                         UpdateMovementAndAttackHighlights();
                         CheckBattleOutcome();
@@ -189,6 +193,7 @@ namespace Kervan.Combat
                         // Ilk dokunus: Hedefe odaklan (Floating Prediction UI guncellenir)
                         _previewTargetCoords = clickedCoords;
                         clickedTile.SetHighlight(TileHighlightState.Selected);
+                        OnTargetEnemyFocused?.Invoke(_selectedUnit, targetEnemy);
                     }
                 }
                 return;
@@ -226,6 +231,7 @@ namespace Kervan.Combat
             _grid.ClearAllHighlights();
             _previewTargetCoords = null;
             _selectedUnit = null;
+            OnTargetEnemyUnfocused?.Invoke();
 
             StartCoroutine(EnemyTurnCoroutine());
         }

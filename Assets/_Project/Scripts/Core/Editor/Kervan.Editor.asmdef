@@ -2,7 +2,10 @@
     "name": "Kervan.Editor",
     "rootNamespace": "Kervan.EditorTools",
     "references": [
-        "Kervan.Runtime"
+        "Kervan.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"
