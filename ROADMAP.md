@@ -67,13 +67,15 @@
 - **Çıktı:** Kodların birbirine bağımlı olmadan haberleştiği veri temeli ve ScriptableObject kütüphanesi. (Tamamlandı ✅)
 
 ### 🔹 Aşama 2: 2D İzometrik Altıgen Savaş Motoru (Combat Core)
-- [ ] Axial koordinat sistemi `(q, r)` ve World-to-Hex / Hex-to-World izometrik matematik matrisi.
-- [ ] Engel haritası (Kaya, ağaç, bataklık) ve geçilemez hücreler.
-- [ ] Izgara tabanlı hareket menzili hesaplaması (Breadth-First Search / BFS ile Stamina bazlı yol bulma).
-- [ ] Sıra Tabanlı Durum Makinesi (PlayerTurn vs EnemyTurn FSM).
-- [ ] Savaş hesaplayıcısı (`DamageCalculator`): İsabet oranı zarı, zırh sönümlemesi ve moral kırılma kontrolü.
-- [ ] Temel Düşman Yapay Zekası (Bandit AI): En yakın hedefe yaklaşma ve vurma mantığı.
-- **Çıktı:** Prototip sprite'larla oynanabilir, altıgen üzerinde hareket eden ve sırayla vuran 1v1 veya 3v3 savaş prototipi.
+- [x] Axial koordinat sistemi `(q, r)` ve World-to-Hex / Hex-to-World izometrik matematik matrisi (`HexCoordinates.cs`).
+- [x] Engel haritası ve altıgen karo yapısı (`HexGrid.cs` & `HexTile.cs`).
+- [x] Izgara tabanlı hareket menzili hesaplaması (Breadth-First Search / BFS ile Stamina bazlı yol bulma `HexPathfinder.cs`).
+- [x] Sıra Tabanlı Durum Makinesi (PlayerTurn vs EnemyTurn FSM `CombatTurnManager.cs`).
+- [x] Savaş hesaplayıcısı (`DamageCalculator.cs`): İsabet oranı zarı, zırh sönümlemesi ve moral kırılma kontrolü.
+- [x] Canlı savaş birimi kontrolcüsü (`CombatUnit.cs`) ve iki dokunuşlu girdi sistemi (`CombatInputHandler.cs`).
+- [x] Temel Düşman Yapay Zekası (`BanditAI.cs`): En yakın hedefe yaklaşma ve vurma mantığı.
+- [x] Oynanabilir savaş test sahnesi (`CombatScene.unity`) kurulumu.
+- **Çıktı:** Prototip sprite'larla oynanabilir, altıgen üzerinde hareket eden ve sırayla vuran 1v1 veya 3v3 savaş prototipi. (Tamamlandı ✅)
 
 ### 🔹 Aşama 3: Mobil Ergonomik Savaş Arayüzü (Combat UI / HUD)
 - [ ] Sol Başparmak: Aktif Birim Kartı (Dinamik Portre, HP/Zırh barları, Stamina altıgenleri, Hilal moral ikonu).
