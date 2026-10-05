@@ -86,11 +86,11 @@
 - **Çıktı:** Mobil dokunmatik hissiyatı tam, yanlış basmayı önleyen, `EKRAN.md` standartlarında savaş arayüzü. (Tamamlandı ✅)
 
 ### 🔹 Aşama 4: Harita, Rota & Kervan Seyahati (Node Travel)
-- [ ] 2D Harita Düğümleri: Kervansaraylar, Şehirler, Dağ Geçitleri.
-- [ ] Seyahat Motoru: Rota uzunluğu, zemin tipi (Ova, Dağ, Orman), hava şartları.
-- [ ] Yol Olayları (Random Encounters): Pusular, bozuk yollar, tüccar karşılaşmaları, kervansaray konaklama masrafı.
-- [ ] 2D Side-View Seyahat Ekranı: Yürüyen kervan silüeti ve gün/gece döngüsü.
-- **Çıktı:** Bir şehirden diğerine erzak harcayarak seyahat edilen, pusuya düşüldüğünde savaş ekranını tetikleyen harita döngüsü.
+- [x] 2D Harita Düğümleri: Kervansaraylar, Şehirler, Dağ Geçitleri (`LocationNodeSO.cs` & 6 Tarihsel Düğüm).
+- [x] Seyahat Motoru: Rota uzunluğu, zemin tipi (Ova, Dağ, Orman), hava şartları (`TravelRouteSO.cs` & 4 Ana Rota).
+- [x] Yol Olayları (Random Encounters): Pusular, bozuk yollar, kervansaray konaklama masrafı ve erzak tüketimi (`TravelManager.cs`).
+- [x] 2D Side-View Seyahat Ekranı: Yürüyen kervan görseli, ilerleme çubuğu ve mola kontrolleri (`TravelUI.cs` & `TravelScene.unity`).
+- **Çıktı:** Bir şehirden diğerine erzak harcayarak seyahat edilen, pusuya düşüldüğünde savaş ekranını tetikleyen harita döngüsü. (Tamamlandı ✅)
 
 ### 🔹 Aşama 5: Dinamik Pazar Ekonomisi & Arbitraj Sistemi
 - [ ] Şehir Pazar Verileri: Yerel üretim ve talep listeleri.

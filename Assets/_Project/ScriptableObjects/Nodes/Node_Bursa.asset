@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c7ad5de2e29f0c4bb77fbd30b6f97dc, type: 3}
+  m_Name: Node_Bursa
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.LocationNodeSO
+  _nodeId: node_bursa
+  _nodeName: Bursa (Prusa)
+  _nodeType: 0
+  _rulingFaction: 0
+  _description: "\u0130pek Yolu'nun Anadolu'daki en zengin pazarlar\u0131na ve dev kervansaraylar\u0131na ev sahipli\u011Fi yapar."
+  _hasMarket: 1
+  _hasInn: 1
+  _dailyRestCost: 20
+  _dailyHealAmount: 20
+  _dailyMoraleRestore: 20
+  _mapCoordinates: {x: 80, y: 50}
+  _nodeIcon: {fileID: 0}

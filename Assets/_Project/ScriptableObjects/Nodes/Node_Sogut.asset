@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c7ad5de2e29f0c4bb77fbd30b6f97dc, type: 3}
+  m_Name: Node_Sogut
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.LocationNodeSO
+  _nodeId: node_sogut
+  _nodeName: "S\xF6\u011F\xFCt"
+  _nodeType: 0
+  _rulingFaction: 0
+  _description: "Osmanl\u0131 U\xE7 Beyli\u011Fi'nin kutlu ba\u015Fkenti ve kervan\u0131m\u0131z\u0131n ana oca\u011F\u0131."
+  _hasMarket: 1
+  _hasInn: 1
+  _dailyRestCost: 10
+  _dailyHealAmount: 15
+  _dailyMoraleRestore: 20
+  _mapCoordinates: {x: 0, y: 0}
+  _nodeIcon: {fileID: 0}
