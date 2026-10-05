@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 662fb735e5d4ecc4cbb340a8f8af4385, type: 3}
+  m_Name: Item_Ipek
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.ItemDataSO
+  _itemId: item_silk
+  _itemName: "Bursa \u0130pe\u011Fi"
+  _category: 2
+  _description: "Do\u011Fu Roma ve Bursa tezgahlar\u0131n\u0131n y\xFCksek k\u0131ymetli kuma\u015F\u0131. \u0130\xE7 b\xF6lgelerde y\xFCksek k\xE2r sa\u011Flar."
+  _basePrice: 180
+  _unitWeightKg: 0.5
+  _icon: {fileID: 0}

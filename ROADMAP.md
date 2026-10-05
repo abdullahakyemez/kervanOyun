@@ -52,18 +52,19 @@
 ## 📋 Detaylı Aşama Planı
 
 ### 🔹 Aşama 0: Proje Kurulumu, Unity 6 Yapılandırması & Dizin Hiyerarşisi
-- [ ] Unity 6 2D (URP) şablonu ile temiz proje yapısının oluşturulması.
-- [ ] Mobil 1920x1080 Landscape, Canvas Scaler ve Safe Area yapılandırması.
-- [ ] Dizin mimarisinin kurulması (`Assets/_Project/Scripts/`, `Art/`, `Audio/`, `Prefabs/`, `ScriptableObjects/`).
-- [ ] Kodlama ve naming standartları dokümantasyonu.
-- **Çıktı:** Boş ama tüm ayarları ve klasörleri eksiksiz yapılandırılmış çalışan bir Unity projesi.
+- [x] Unity 6 2D (URP) şablonu ile temiz proje yapısının oluşturulması.
+- [x] Mobil 1920x1080 Landscape, Canvas Scaler ve Safe Area yapılandırması.
+- [x] Dizin mimarisinin kurulması (`Assets/_Project/Scripts/`, `Art/`, `Audio/`, `Prefabs/`, `ScriptableObjects/`).
+- [x] Kodlama ve naming standartları dokümantasyonu & Kervan.Runtime.asmdef oluşturulması.
+- **Çıktı:** Boş ama tüm ayarları ve klasörleri eksiksiz yapılandırılmış çalışan bir Unity projesi. (Tamamlandı ✅)
 
 ### 🔹 Aşama 1: Veri Modelleri (ScriptableObjects) & Olay İletişim Hattı (EventBus)
-- [ ] Gevşek bağlı (Decoupled) `EventBus` mimarisi.
-- [ ] `UnitDataSO`: Can, Zırh, Stamina, Moral, Menzil, Silah tipi verileri.
-- [ ] `ItemDataSO`: Emtia türleri (İpek, Demir, Buğday vb.), ağırlık, taban fiyat.
-- [ ] `CaravanData`: Kervan kapasitesi, mevcut akçe, muhafız listesi ve erzak durumu.
-- **Çıktı:** Kodların birbirine bağımlı olmadan haberleştiği veri temeli ve ScriptableObject kütüphanesi.
+- [x] Gevşek bağlı (Decoupled) `EventBus` mimarisi.
+- [x] `UnitDataSO`: Can, Zırh, Stamina, Moral, Menzil, Silah tipi verileri.
+- [x] `ItemDataSO`: Emtia türleri (İpek, Demir, Buğday vb.), ağırlık, taban fiyat.
+- [x] `CaravanData`: Kervan kapasitesi, mevcut akçe, muhafız listesi ve erzak durumu.
+- [x] Başlangıç ScriptableObject `.asset` dosyalarının üretilmesi (Alp, Okçu, Muhafız, Haydut, Emtialar).
+- **Çıktı:** Kodların birbirine bağımlı olmadan haberleştiği veri temeli ve ScriptableObject kütüphanesi. (Tamamlandı ✅)
 
 ### 🔹 Aşama 2: 2D İzometrik Altıgen Savaş Motoru (Combat Core)
 - [ ] Axial koordinat sistemi `(q, r)` ve World-to-Hex / Hex-to-World izometrik matematik matrisi.

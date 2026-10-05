@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d0658922114bde4f9a27c40bb37ba1e, type: 3}
+  m_Name: Unit_Muhafiz
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Combat.UnitDataSO
+  _unitId: caravan_guard
+  _unitName: "Kervan Muhaf\u0131z\u0131"
+  _combatRole: 0
+  _faction: 2
+  _description: "A\u011F\u0131r kalkanl\u0131 ve zincir z\u0131rhl\u0131 tecr\xFCbeli muhaf\u0131z. \xD6n safta darbe s\xF6n\xFCmleyici."
+  _maxHealth: 110
+  _maxArmor: 50
+  _maxStamina: 5
+  _baseMorale: 100
+  _minDamage: 10
+  _maxDamage: 15
+  _meleeRange: 1
+  _rangedRange: 1
+  _baseAccuracy: 0.8
+  _staminaCostMovePerTile: 1
+  _staminaCostAttack: 2
+  _staminaCostDefend: 1
+  _portrait: {fileID: 0}
+  _defaultSprite: {fileID: 0}
+  _unitPrefab: {fileID: 0}

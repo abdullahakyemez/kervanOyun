@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d0658922114bde4f9a27c40bb37ba1e, type: 3}
+  m_Name: Unit_Haydut
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Combat.UnitDataSO
+  _unitId: mountain_bandit
+  _unitName: "Da\u011F Haydudu"
+  _combatRole: 0
+  _faction: 4
+  _description: "Ge\xE7itleri tutan ac\u0131mas\u0131z da\u011F e\u015Fk\u0131yas\u0131. D\xFC\u015F\xFCk z\u0131rh, kontrols\xFCz ve sald\u0131rgan vuru\u015Flar."
+  _maxHealth: 80
+  _maxArmor: 10
+  _maxStamina: 5
+  _baseMorale: 70
+  _minDamage: 14
+  _maxDamage: 22
+  _meleeRange: 1
+  _rangedRange: 1
+  _baseAccuracy: 0.75
+  _staminaCostMovePerTile: 1
+  _staminaCostAttack: 2
+  _staminaCostDefend: 1
+  _portrait: {fileID: 0}
+  _defaultSprite: {fileID: 0}
+  _unitPrefab: {fileID: 0}
