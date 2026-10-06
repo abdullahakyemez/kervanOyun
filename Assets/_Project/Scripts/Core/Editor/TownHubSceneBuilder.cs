@@ -113,11 +113,13 @@ namespace Kervan.EditorTools
             SetSerializedRef(hubUI, "_tabIntelButton", tab2Btn);
             SetSerializedRef(hubUI, "_tabShopButton", tab3Btn);
 
+            var divanFrame = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Project/Art/Sprites/UI/UI_Frame_Divan.png");
+
             // --- 3. İÇERİK ALANI (1420x800 px) ---
             var contentArea = CreatePanel("ContentArea", safeAreaObj.transform,
                 new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
                 new Vector2(-60f, -40f), new Vector2(1420f, 800f),
-                new Color(0.95f, 0.90f, 0.81f, 0.95f)); // Parşömen
+                Color.white, divanFrame);
 
             // Panel A: Divan & İtibar
             var panelDivan = CreatePanel("Panel_Divan", contentArea.transform,
@@ -218,7 +220,7 @@ namespace Kervan.EditorTools
 
         #region UI Yardimcilar
 
-        private static GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 pos, Vector2 size, Color color)
+        private static GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 pos, Vector2 size, Color color, Sprite sprite = null)
         {
             var obj = new GameObject(name);
             obj.transform.SetParent(parent, false);
@@ -231,6 +233,11 @@ namespace Kervan.EditorTools
 
             var img = obj.AddComponent<Image>();
             img.color = color;
+            if (sprite != null)
+            {
+                img.sprite = sprite;
+                img.type = Image.Type.Simple;
+            }
             return obj;
         }
 

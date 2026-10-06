@@ -18,4 +18,4 @@ MonoBehaviour:
   _description: "Do\u011Fu Roma ve Bursa tezgahlar\u0131n\u0131n y\xFCksek k\u0131ymetli kuma\u015F\u0131. \u0130\xE7 b\xF6lgelerde y\xFCksek k\xE2r sa\u011Flar."
   _basePrice: 180
   _unitWeightKg: 0.5
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: e819b34845313104caf22ed39f4d93bc, type: 3}

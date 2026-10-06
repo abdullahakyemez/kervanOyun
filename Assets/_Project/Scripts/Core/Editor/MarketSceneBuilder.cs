@@ -78,11 +78,13 @@ namespace Kervan.EditorTools
             var marketUI = canvasObj.AddComponent<MarketUI>();
             SetSerializedRef(marketUI, "_cityMarket", cityMarket);
 
+            var marketFrame = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Project/Art/Sprites/UI/UI_Frame_Market.png");
+
             // --- 1. SOL PANEL: KERVAN ENVANTERI (500x700 px) ---
             var leftPanel = CreatePanel("LeftPanel_Caravan", safeAreaObj.transform,
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(60f, 40f), new Vector2(500f, 720f),
-                new Color(0.95f, 0.90f, 0.81f, 0.95f)); // Parsomen
+                Color.white, marketFrame);
 
             CreateText("CaravanTitle", leftPanel.transform, new Vector2(250f, 680f), new Vector2(460f, 40f), "KERVAN YÜKÜ & KASA", 22, FontStyles.Bold, new Color(0.12f, 0.10f, 0.08f));
 
@@ -99,21 +101,25 @@ namespace Kervan.EditorTools
             var rightPanel = CreatePanel("RightPanel_CityMarket", safeAreaObj.transform,
                 new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
                 new Vector2(-60f, 40f), new Vector2(1100f, 720f),
-                new Color(0.95f, 0.90f, 0.81f, 0.95f));
+                Color.white, marketFrame);
 
             var marketTitle = CreateText("MarketTitle", rightPanel.transform, new Vector2(550f, 680f), new Vector2(1000f, 40f), "BURSA PAZARI (Vergi: %8)", 24, FontStyles.Bold, new Color(0.12f, 0.10f, 0.08f));
             SetSerializedRef(marketUI, "_marketTitleText", marketTitle);
 
-            // Ornek Mal Secim Butonlari (Ipek, Demir, Bugday, Baharat)
+            // Ornek Mal Secim Butonlari (Ipek, Demir, Celik, Kurk, Bugday, Baharat)
             var ipekItem = AssetDatabase.LoadAssetAtPath<ItemDataSO>("Assets/_Project/ScriptableObjects/Items/Item_Ipek.asset");
             var demirItem = AssetDatabase.LoadAssetAtPath<ItemDataSO>("Assets/_Project/ScriptableObjects/Items/Item_Demir.asset");
+            var celikItem = AssetDatabase.LoadAssetAtPath<ItemDataSO>("Assets/_Project/ScriptableObjects/Items/Item_Celik.asset");
+            var kurkItem = AssetDatabase.LoadAssetAtPath<ItemDataSO>("Assets/_Project/ScriptableObjects/Items/Item_Kurk.asset");
             var bugdayItem = AssetDatabase.LoadAssetAtPath<ItemDataSO>("Assets/_Project/ScriptableObjects/Items/Item_Bugday.asset");
             var baharatItem = AssetDatabase.LoadAssetAtPath<ItemDataSO>("Assets/_Project/ScriptableObjects/Items/Item_Baharat.asset");
 
-            CreateItemRow("Row_Ipek", rightPanel.transform, new Vector2(550f, 580f), "Bursa İpeği", "Stok: 80 | Alış: 126 Akçe | Satış: 108 Akçe [BOL / UCUZ]", marketUI, ipekItem);
-            CreateItemRow("Row_Demir", rightPanel.transform, new Vector2(550f, 500f), "Bilecik Demiri", "Stok: 40 | Alış: 82 Akçe | Satış: 70 Akçe [KIT / PAHALI]", marketUI, demirItem);
-            CreateItemRow("Row_Bugday", rightPanel.transform, new Vector2(550f, 420f), "Konya Buğdayı", "Stok: 60 | Alış: 24 Akçe | Satış: 20 Akçe [TALEP VAR]", marketUI, bugdayItem);
-            CreateItemRow("Row_Baharat", rightPanel.transform, new Vector2(550f, 340f), "Doğu Baharatı", "Stok: 20 | Alış: 142 Akçe | Satış: 122 Akçe [STANDART]", marketUI, baharatItem);
+            CreateItemRow("Row_Ipek", rightPanel.transform, new Vector2(550f, 610f), "Bursa İpeği", "Stok: 80 | Alış: 126 Akçe | Satış: 108 Akçe [BOL / UCUZ]", marketUI, ipekItem);
+            CreateItemRow("Row_Demir", rightPanel.transform, new Vector2(550f, 545f), "Bilecik Demiri", "Stok: 40 | Alış: 82 Akçe | Satış: 70 Akçe [KIT / PAHALI]", marketUI, demirItem);
+            CreateItemRow("Row_Celik", rightPanel.transform, new Vector2(550f, 480f), "Şam Çeliği", "Stok: 20 | Alış: 145 Akçe | Satış: 130 Akçe [TALEP YÜKSEK]", marketUI, celikItem);
+            CreateItemRow("Row_Kurk", rightPanel.transform, new Vector2(550f, 415f), "Bozkır Kürkü", "Stok: 30 | Alış: 105 Akçe | Satış: 92 Akçe [LÜKS EMKİA]", marketUI, kurkItem);
+            CreateItemRow("Row_Bugday", rightPanel.transform, new Vector2(550f, 350f), "Konya Buğdayı", "Stok: 60 | Alış: 24 Akçe | Satış: 20 Akçe [STANDART]", marketUI, bugdayItem);
+            CreateItemRow("Row_Baharat", rightPanel.transform, new Vector2(550f, 285f), "Doğu Baharatı", "Stok: 20 | Alış: 142 Akçe | Satış: 122 Akçe [STANDART]", marketUI, baharatItem);
 
             // --- 3. ALT ISLEM PANELI (1700x160 px) ---
             var bottomPanel = CreatePanel("BottomPanel_Trade", safeAreaObj.transform,
@@ -172,7 +178,7 @@ namespace Kervan.EditorTools
 
         #region UI Yardimcilari
 
-        private static GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 pos, Vector2 size, Color color)
+        private static GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 pos, Vector2 size, Color color, Sprite sprite = null)
         {
             var obj = new GameObject(name);
             obj.transform.SetParent(parent, false);
@@ -185,6 +191,11 @@ namespace Kervan.EditorTools
 
             var img = obj.AddComponent<Image>();
             img.color = color;
+            if (sprite != null)
+            {
+                img.sprite = sprite;
+                img.type = Image.Type.Simple;
+            }
             return obj;
         }
 

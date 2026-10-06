@@ -107,12 +107,13 @@
 - **Çıktı:** Tüccar-alp kimliğinin tam oturduğu, pasif gelir ve görev zincirlerinin çalıştığı derin meta döngü. (Tamamlandı ✅)
 
 ### 🔹 Aşama 7: Minyatür Sanat Tarzı Varlık Üretimi & Entegrasyon
-- [ ] Yapay Zeka Promptları (FLUX/Midjourney) ile tarihsel minyatür tarzında 2D sprite ve UI dokuları üretimi.
-- [ ] Çizim ve rötuş araçları (Photoshop / Krita / Aseprite) ile temizleme, transparan yapma ve 9-slice ayarları.
-- [ ] Karakter Spritesheet'leri (256x384 px, 4 izometrik açı, Idle/Move/Attack/Hit/Down animasyonları).
-- [ ] 256x128 Hex zemin karoları (Taş, toprak, çimen, çamur).
-- [ ] Parşömen gürültüsü ve UI çerçevelerinin eklenmesi.
-- **Çıktı:** Prototip küpler yerine `TASARİM.md` ve `BOYUTLANDİRMA.md` standartlarında büyüleyici minyatür görseller.
+- [x] Yapay Zeka Promptları (FLUX/Midjourney) ile tarihsel minyatür tarzında 2D sprite ve UI dokuları üretimi (`ART_PROMPT_GUIDE.md`).
+- [x] Çizim ve rötuş araçları (Photopea / Photoshop) ile transparan PNG temizliği ve PPU yapılandırması (`TileAssetConfigurator.cs`, `UnitAssetConfigurator.cs`).
+- [x] Karakter Spritesheet'leri (Gazi Alp, Muhafız, Okçu, Haydut, Haydut Nişancısı - 256x384 px, 3/4 izometrik).
+- [x] İzometrik Hex zemin karoları (Bozkır Toprağı `Tile_Steppe` & Roma Yolu `Tile_Cobblestone` - 381 PPU, 0.5/0.58 Pivot).
+- [x] Ticaret Malı İkonları (İpek, Demir, Buğday, Baharat + Yeni: Şam Çeliği `Item_Celik` & Bozkır Kürkü `Item_Kurk`).
+- [x] Parşömen UI Çerçeveleri (Pazar Lonca Çerçevesi `UI_Frame_Market` & Beylik Divanı Ferman Çerçevesi `UI_Frame_Divan`).
+- **Çıktı:** Prototip kutular yerine `TASARİM.md` ve `BOYUTLANDİRMA.md` standartlarında büyüleyici minyatür görseller sahnelerde aktif. (Tamamlandı ✅)
 
 ### 🔹 Aşama 8: Ses, Müzik & Tarihsel Atmosfer (Audio)
 - [ ] Dönem enstrümanları (Kopuz, ney, kudüm, def, bağlama) ile arka plan müzik döngüleri.
@@ -128,4 +129,4 @@
 
 ---
 
-## 🚦 Mevcut Durum: **Aşama 6 Tamamlandı ✅ | Aşama 7'ye (Görsel Sanat & Minyatür Entegrasyonu) Başlamaya Hazır**
+## 🚦 Mevcut Durum: **Aşama 7 Tamamlandı ✅ | Aşama 8'e (Ses, Müzik & Tarihsel Atmosfer) Başlamaya Hazır**

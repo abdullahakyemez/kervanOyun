@@ -18,4 +18,4 @@ MonoBehaviour:
   _description: "\u0130pek Yolu kervanlar\u0131yla uzak diyarlardan gelen k\u0131ymetli baharatlar."
   _basePrice: 120
   _unitWeightKg: 0.3
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 105609eb1ee93784a976a78970698dcf, type: 3}

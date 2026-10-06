@@ -18,4 +18,4 @@ MonoBehaviour:
   _description: "U\xE7 beyliklerinin k\u0131l\u0131\xE7 ve z\u0131rh d\xF6v\xFCm\xFCnde kulland\u0131\u011F\u0131 kaliteli maden."
   _basePrice: 45
   _unitWeightKg: 2.5
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 8643f0e3a37ad074e881a0e6bdd297ca, type: 3}
