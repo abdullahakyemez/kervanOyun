@@ -31,6 +31,8 @@ namespace Kervan.EditorTools
             // 2. Izgara Yoneticisi
             var gridObj = new GameObject("HexGrid");
             var hexGrid = gridObj.AddComponent<HexGrid>();
+            var tilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/Tiles/HexTile_Steppe.prefab");
+            SetSerializedRef(hexGrid, "_tilePrefab", tilePrefab);
 
             // Kamerayi izgaranin ortasina ortala
             cameraObj.transform.position = new Vector3(5.5f, 1.8f, -10f);
