@@ -46,12 +46,13 @@ namespace Kervan.EditorTools
             var alpData = AssetDatabase.LoadAssetAtPath<UnitDataSO>("Assets/_Project/ScriptableObjects/Units/Unit_Alp.asset");
             var guardData = AssetDatabase.LoadAssetAtPath<UnitDataSO>("Assets/_Project/ScriptableObjects/Units/Unit_Muhafiz.asset");
             var banditData = AssetDatabase.LoadAssetAtPath<UnitDataSO>("Assets/_Project/ScriptableObjects/Units/Unit_Haydut.asset");
+            var banditArcherData = AssetDatabase.LoadAssetAtPath<UnitDataSO>("Assets/_Project/ScriptableObjects/Units/Unit_Haydut_Okcu.asset");
 
             var alpUnit = CreateUnitObject("Unit_Alp_Player", alpData, new HexCoordinates(1, 2), true, new Color(0.16f, 0.45f, 0.25f)); // Sancak Yesili
             var guardUnit = CreateUnitObject("Unit_Muhafiz_Player", guardData, new HexCoordinates(1, 3), true, new Color(0.25f, 0.35f, 0.45f)); // Zirh Grisi
 
             var bandit1 = CreateUnitObject("Unit_Haydut_1", banditData, new HexCoordinates(5, 2), false, new Color(0.55f, 0.15f, 0.12f)); // Koyu Al
-            var bandit2 = CreateUnitObject("Unit_Haydut_2", banditData, new HexCoordinates(5, 3), false, new Color(0.55f, 0.15f, 0.12f));
+            var bandit2 = CreateUnitObject("Unit_Haydut_2", banditArcherData != null ? banditArcherData : banditData, new HexCoordinates(5, 3), false, new Color(0.55f, 0.15f, 0.12f));
 
             turnManager.RegisterUnit(alpUnit);
             turnManager.RegisterUnit(guardUnit);
@@ -374,9 +375,22 @@ namespace Kervan.EditorTools
             var unitObj = new GameObject(name);
             var sr = unitObj.AddComponent<SpriteRenderer>();
             sr.sortingLayerName = "Entities";
-            sr.color = placeholderColor;
 
-            sr.sprite = CreatePlaceholderSprite();
+            if (data != null && data.DefaultSprite != null)
+            {
+                sr.sprite = data.DefaultSprite;
+                sr.color = Color.white;
+                // Düşmanlar oyuncuya (sola/güneybatıya) baksın diye x ekseninde çevrilir
+                if (!isPlayer)
+                {
+                    sr.flipX = true;
+                }
+            }
+            else
+            {
+                sr.sprite = CreatePlaceholderSprite();
+                sr.color = placeholderColor;
+            }
 
             var unit = unitObj.AddComponent<CombatUnit>();
             unit.Initialize(data, coords, isPlayer);

@@ -29,6 +29,6 @@ MonoBehaviour:
   _staminaCostMovePerTile: 1
   _staminaCostAttack: 2
   _staminaCostDefend: 1
-  _portrait: {fileID: 0}
-  _defaultSprite: {fileID: 0}
+  _portrait: {fileID: 21300000, guid: 72c153cff0a70aa41bf7b06d56006ceb, type: 3}
+  _defaultSprite: {fileID: 21300000, guid: 72c153cff0a70aa41bf7b06d56006ceb, type: 3}
   _unitPrefab: {fileID: 0}
