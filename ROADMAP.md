@@ -116,17 +116,18 @@
 - **Çıktı:** Prototip kutular yerine `TASARİM.md` ve `BOYUTLANDİRMA.md` standartlarında büyüleyici minyatür görseller sahnelerde aktif. (Tamamlandı ✅)
 
 ### 🔹 Aşama 8: Ses, Müzik & Tarihsel Atmosfer (Audio)
-- [ ] Dönem enstrümanları (Kopuz, ney, kudüm, def, bağlama) ile arka plan müzik döngüleri.
-- [ ] Ortam sesleri (Kervan çıngırakları, rüzgar uğultusu, han kalabalığı, kılıç-kalkan şakırtısı).
-- [ ] FMOD veya Unity Audio Mixer ile dinamik ses geçişleri (Seyahat -> Pazar -> Savaş).
-- **Çıktı:** Atmosferi tamamlayan tarihsel ses tasarımı.
+- [x] Dönem enstrümanları (Kopuz, ney, kudüm, def) ile arka plan müzik döngüleri (Suno AI ile üretilen 4 ana BGM: Savaş, Seyahat, Pazar, Divan).
+- [x] Taktiksel ve arayüz ses efektleri (Kılıç darbesi, ok atışı, kalkan blok, akçe, ferman, zafer, yenilgi, kervan adımı).
+- [x] Merkezi ses motoru (`AudioManager.cs`, `AudioDataSO.cs`, `SceneAudioPlayer.cs`, `UIButtonSound.cs`).
+- [x] EventBus entegrasyonu (Vuruş, ticaret, istihbarat, zafer/yenilgi olaylarına duyarlı dinamik ses tetikleyicileri).
+- **Çıktı:** 4 ana sahnede kesintisiz çalan ambient müzikler, dokunsal UI tıklama sesleri ve savaş sesleri aktif. (Tamamlandı ✅)
 
 ### 🔹 Aşama 9: Optimizasyon, Kayıt Sistemi & Mobil Paket (Release)
-- [ ] JSON / Binary tabanlı sağlam Kayıt & Yükleme (Save/Load) mimarisi.
+- [ ] JSON tabanlı sağlam Kayıt & Yükleme (Save/Load) mimarisi (Kervan envanteri, akçe, itibar, konum ve istihbarat).
 - [ ] Mobil bellek (Texture Compression: ASTC, Sprite Atlas) ve batarya optimizasyonu.
-- [ ] Android APK / AAB paketleme ve dokunmatik ekran son testleri.
+- [ ] Android APK / AAB paketleme hazırlığı, Player Settings ve dokunmatik ekran son testleri.
 - **Çıktı:** Mobil cihaza yüklenip baştan sona oynanabilen nihai sürüm.
 
 ---
 
-## 🚦 Mevcut Durum: **Aşama 7 Tamamlandı ✅ | Aşama 8'e (Ses, Müzik & Tarihsel Atmosfer) Başlamaya Hazır**
+## 🚦 Mevcut Durum: **Aşama 8 Tamamlandı ✅ | Aşama 9'a (Optimizasyon, Kayıt Sistemi & Mobil Paket) Başlamaya Hazır**
