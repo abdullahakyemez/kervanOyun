@@ -284,6 +284,7 @@ namespace Kervan.Combat
                 _currentState = CombatState.Victory;
                 _grid.ClearAllHighlights();
                 OnCombatEnded?.Invoke(true);
+                EventBus.Publish(new CombatEndedEvent(true));
                 Debug.Log("[Combat] ZAFER! Tum haydutlar etkisiz hale getirildi.");
                 return true;
             }
@@ -294,6 +295,7 @@ namespace Kervan.Combat
                 _currentState = CombatState.Defeat;
                 _grid.ClearAllHighlights();
                 OnCombatEnded?.Invoke(false);
+                EventBus.Publish(new CombatEndedEvent(false));
                 Debug.Log("[Combat] YENILGI! Kervan muhafizlari dustu.");
                 return true;
             }

@@ -119,6 +119,52 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &38322320
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 38322322}
+  - component: {fileID: 38322321}
+  m_Layer: 0
+  m_Name: SceneAudioPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &38322321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 38322320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ece907126d473a94495d26f7950353b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.SceneAudioPlayer
+  _musicType: 2
+  _crossFadeDuration: 1
+--- !u!4 &38322322
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 38322320}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &54354235
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,6 +432,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33d43be873375614badbfceeebdf450a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Kervan.Runtime::Kervan.UI.SafeAreaFitter
+--- !u!1001 &278661852
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420743128514886878, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7650095767202523046, guid: bcae0003f09fbf047b2b512251372005, type: 3}
+      propertyPath: m_Name
+      value: AudioManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bcae0003f09fbf047b2b512251372005, type: 3}
 --- !u!1 &288135743
 GameObject:
   m_ObjectHideFlags: 0
@@ -1456,6 +1559,7 @@ GameObject:
   - component: {fileID: 711556266}
   - component: {fileID: 711556265}
   - component: {fileID: 711556264}
+  - component: {fileID: 711556267}
   m_Layer: 0
   m_Name: Row_Ipek
   m_TagString: Untagged
@@ -1566,6 +1670,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 711556262}
   m_CullTransparentMesh: 1
+--- !u!114 &711556267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711556262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &729187091
 GameObject:
   m_ObjectHideFlags: 0
@@ -1715,6 +1831,7 @@ GameObject:
   - component: {fileID: 780509338}
   - component: {fileID: 780509337}
   - component: {fileID: 780509339}
+  - component: {fileID: 780509340}
   m_Layer: 0
   m_Name: BuyButton
   m_TagString: Untagged
@@ -1824,6 +1941,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &780509340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 780509335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &796932499
 GameObject:
   m_ObjectHideFlags: 0
@@ -2110,6 +2239,7 @@ GameObject:
   - component: {fileID: 939407709}
   - component: {fileID: 939407708}
   - component: {fileID: 939407707}
+  - component: {fileID: 939407710}
   m_Layer: 0
   m_Name: Row_Demir
   m_TagString: Untagged
@@ -2220,6 +2350,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 939407705}
   m_CullTransparentMesh: 1
+--- !u!114 &939407710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939407705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &978266230
 GameObject:
   m_ObjectHideFlags: 0
@@ -3599,6 +3741,7 @@ GameObject:
   - component: {fileID: 1560574020}
   - component: {fileID: 1560574019}
   - component: {fileID: 1560574018}
+  - component: {fileID: 1560574021}
   m_Layer: 0
   m_Name: Row_Celik
   m_TagString: Untagged
@@ -3709,6 +3852,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1560574016}
   m_CullTransparentMesh: 1
+--- !u!114 &1560574021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560574016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &1566970408
 GameObject:
   m_ObjectHideFlags: 0
@@ -3995,6 +4150,7 @@ GameObject:
   - component: {fileID: 1663093691}
   - component: {fileID: 1663093690}
   - component: {fileID: 1663093692}
+  - component: {fileID: 1663093693}
   m_Layer: 0
   m_Name: SellButton
   m_TagString: Untagged
@@ -4104,6 +4260,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1663093693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1663093688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &1679873848
 GameObject:
   m_ObjectHideFlags: 0
@@ -4274,6 +4442,7 @@ GameObject:
   - component: {fileID: 1735529439}
   - component: {fileID: 1735529438}
   - component: {fileID: 1735529437}
+  - component: {fileID: 1735529440}
   m_Layer: 0
   m_Name: Row_Baharat
   m_TagString: Untagged
@@ -4384,6 +4553,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1735529435}
   m_CullTransparentMesh: 1
+--- !u!114 &1735529440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1735529435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &1752825481
 GameObject:
   m_ObjectHideFlags: 0
@@ -4533,6 +4714,7 @@ GameObject:
   - component: {fileID: 1813368281}
   - component: {fileID: 1813368280}
   - component: {fileID: 1813368279}
+  - component: {fileID: 1813368282}
   m_Layer: 0
   m_Name: Row_Kurk
   m_TagString: Untagged
@@ -4643,6 +4825,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1813368277}
   m_CullTransparentMesh: 1
+--- !u!114 &1813368282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813368277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &1813752899
 GameObject:
   m_ObjectHideFlags: 0
@@ -4867,6 +5061,7 @@ GameObject:
   - component: {fileID: 1840895448}
   - component: {fileID: 1840895447}
   - component: {fileID: 1840895446}
+  - component: {fileID: 1840895449}
   m_Layer: 0
   m_Name: Row_Bugday
   m_TagString: Untagged
@@ -4977,6 +5172,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1840895444}
   m_CullTransparentMesh: 1
+--- !u!114 &1840895449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1840895444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &1848103974
 GameObject:
   m_ObjectHideFlags: 0
@@ -5172,6 +5379,7 @@ GameObject:
   - component: {fileID: 1950628476}
   - component: {fileID: 1950628475}
   - component: {fileID: 1950628474}
+  - component: {fileID: 1950628478}
   m_Layer: 0
   m_Name: LeaveButton
   m_TagString: Untagged
@@ -5281,6 +5489,18 @@ RectTransform:
   m_AnchoredPosition: {x: 1630, y: 80}
   m_SizeDelta: {x: 120, y: 54}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1950628478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950628473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ca5f2c4d67eb24d811a73948b9f9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.Audio.UIButtonSound
 --- !u!1 &1953141663
 GameObject:
   m_ObjectHideFlags: 0
@@ -5563,3 +5783,5 @@ SceneRoots:
   - {fileID: 1848103976}
   - {fileID: 54354238}
   - {fileID: 1360614931}
+  - {fileID: 278661852}
+  - {fileID: 38322322}

@@ -204,6 +204,8 @@ namespace Kervan.Combat
             _currentHealth = result.RemainingHealth;
             _currentArmor = result.RemainingArmor;
 
+            EventBus.Publish(new CombatHitEvent(result.ArmorDamage, result.HealthDamage));
+
             if (result.TargetPanicked)
             {
                 _isRouting = true;

@@ -70,8 +70,24 @@ namespace Kervan.Core
             _subscribers.Clear();
         }
     }
+    #region Temel Oyun Olaylari
 
-    #region Temel Oyun Olaylari (Common Game Events)
+    /// <summary>
+    /// Savas sirasinda darbe alindiginda veya bloklandiginda ses ve efektler icin yayinlanir.
+    /// </summary>
+    public readonly struct CombatHitEvent : IGameEvent
+    {
+        public readonly int DamageAbsorbed;
+        public readonly int DamageToHealth;
+        public readonly bool IsMiss;
+
+        public CombatHitEvent(int damageAbsorbed, int damageToHealth, bool isMiss = false)
+        {
+            DamageAbsorbed = damageAbsorbed;
+            DamageToHealth = damageToHealth;
+            IsMiss = isMiss;
+        }
+    }
 
     /// <summary>
     /// Savas turu degistiginde yayinlanir.
@@ -140,6 +156,19 @@ namespace Kervan.Core
             IntelId = intelId;
             Title = title;
             TargetFaction = targetFaction;
+        }
+    }
+
+    /// <summary>
+    /// Savas zafer veya yenilgi ile sonuclandiginda yayinlanir.
+    /// </summary>
+    public readonly struct CombatEndedEvent : IGameEvent
+    {
+        public readonly bool IsVictory;
+
+        public CombatEndedEvent(bool isVictory)
+        {
+            IsVictory = isVictory;
         }
     }
 
