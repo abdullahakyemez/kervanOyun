@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 using Kervan.Combat;
 
@@ -90,6 +91,7 @@ namespace Kervan.UI
         {
             Debug.Log("[CombatResultUI] Savas tamamlandi, harita/seyahat ekranina donuluyor.");
             if (_panelRoot != null) _panelRoot.SetActive(false);
+            SceneManager.LoadScene("TravelScene");
         }
     }
 }
