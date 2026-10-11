@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Project/Scenes/MainMenuScene.unity
+    guid: 1a41483743e26ab4e9708600c2b26adf
+  - enabled: 1
     path: Assets/_Project/Scenes/TravelScene.unity
     guid: 22fa757d8aa882e46981bf8373f21c33
   - enabled: 1
@@ -17,5 +20,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Scenes/CombatScene.unity
     guid: 78b9f7d50722dec44b5466e10aa3c707
+  - enabled: 1
+    path: Assets/_Project/Scenes/WorldMapScene.unity
+    guid: 5e4455ee1cea65c45874b2decedb58f6
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

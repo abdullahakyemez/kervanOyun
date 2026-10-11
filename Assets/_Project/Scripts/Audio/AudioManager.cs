@@ -30,6 +30,9 @@ namespace Kervan.Audio
         private Coroutine _fadeCoroutine;
 
         public AudioDataSO Library => _library;
+        public float MasterVolume => _masterVolume;
+        public float MusicVolume => _musicVolume;
+        public float SfxVolume => _sfxVolume;
 
         private void Awake()
         {

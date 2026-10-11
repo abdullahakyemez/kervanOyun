@@ -7,10 +7,6 @@ using Kervan.Core;
 
 namespace Kervan.TradeAndTravel
 {
-    /// <summary>
-    /// EKRAN.md standardinda cift panelli parsomen sehir pazari arayuzu (Market UI).
-    /// Kervan envanteri ile sehir tezgahini, miktar kaydiricisini ve arbitraj kar gostergelerini yonetir.
-    /// </summary>
     public class MarketUI : MonoBehaviour
     {
         [Header("Yoneticiler")]
@@ -22,10 +18,12 @@ namespace Kervan.TradeAndTravel
         [SerializeField] private Slider _weightSlider;
         [SerializeField] private TextMeshProUGUI _weightText;
         [SerializeField] private Transform _caravanListContainer;
+        [SerializeField] private GameObject _caravanRowTemplate; // DYNAMIC UI TEMPLATE
 
         [Header("Sag Panel: Sehir Pazari")]
         [SerializeField] private TextMeshProUGUI _marketTitleText;
         [SerializeField] private Transform _marketListContainer;
+        [SerializeField] private GameObject _marketRowTemplate; // DYNAMIC UI TEMPLATE
 
         [Header("Alt Panel: Islem & Miktar")]
         [SerializeField] private TextMeshProUGUI _selectedItemNameText;
@@ -68,7 +66,9 @@ namespace Kervan.TradeAndTravel
             if (_sellButton != null) _sellButton.onClick.AddListener(OnSellClicked);
             if (_leaveMarketButton != null) _leaveMarketButton.onClick.AddListener(OnLeaveMarketClicked);
 
-            // Test icin baslangicta kervana biraz mal ve akce ver
+            if (_caravanRowTemplate != null) _caravanRowTemplate.SetActive(false);
+            if (_marketRowTemplate != null) _marketRowTemplate.SetActive(false);
+
             if (_caravanData.Inventory.Count == 0 && _cityMarket != null && _cityMarket.MarketItems.Count > 0)
             {
                 _caravanData.ModifyAkce(400);
@@ -89,6 +89,11 @@ namespace Kervan.TradeAndTravel
         {
             _selectedItem = item;
             _selectedQuantity = 1;
+
+            if (_quantitySlider != null)
+            {
+                _quantitySlider.value = 1;
+            }
 
             if (_selectedItemNameText != null)
             {
@@ -138,7 +143,6 @@ namespace Kervan.TradeAndTravel
                 _totalWeightChangeText.text = $"Ağırlık: ±{totalWeight:F1} Kg";
             }
 
-            // Buton aktiflik kontrolleri
             var liveItem = FindLiveItem(_selectedItem.ItemId);
             bool canBuy = (liveItem != null && liveItem.CurrentStock >= _selectedQuantity &&
                            _caravanData.CurrentAkce >= totalBuyPrice && _caravanData.CanCarry(totalWeight));
@@ -150,9 +154,20 @@ namespace Kervan.TradeAndTravel
             if (_sellButton != null) _sellButton.interactable = canSell;
         }
 
+        private void ClearContainer(Transform container, GameObject template)
+        {
+            if (container == null) return;
+            foreach (Transform child in container)
+            {
+                if (child.gameObject != template)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+        }
+
         private void RefreshAll()
         {
-            // 1. Kervan Bilgileri
             if (_caravanAkceText != null) _caravanAkceText.text = $"{_caravanData.CurrentAkce} Akçe";
             if (_weightSlider != null)
             {
@@ -164,11 +179,60 @@ namespace Kervan.TradeAndTravel
                 _weightText.text = $"{_caravanData.CalculateCurrentWeight():F1} / {_caravanData.MaxWeightCapacity} Kg";
             }
 
-            // 2. Sehir Basligi
             if (_marketTitleText != null && _cityMarket != null && _cityMarket.Data != null)
             {
                 string cityName = _cityMarket.Data.CityNode != null ? _cityMarket.Data.CityNode.NodeName : "Şehir Pazarı";
                 _marketTitleText.text = $"{cityName} (Vergi: %{Mathf.RoundToInt(_cityMarket.Data.BaseTaxRate * 100)})";
+            }
+
+            // DYNAMIC LIST: MARKET
+            if (_marketListContainer != null && _marketRowTemplate != null && _cityMarket != null)
+            {
+                ClearContainer(_marketListContainer, _marketRowTemplate);
+                foreach (var liveItem in _cityMarket.MarketItems)
+                {
+                    if (liveItem.Item == null) continue;
+                    var go = Instantiate(_marketRowTemplate, _marketListContainer);
+                    go.SetActive(true);
+                    
+                    var titleTxt = go.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+                    var subTxt = go.transform.Find("Sub")?.GetComponent<TextMeshProUGUI>();
+                    var btn = go.GetComponent<Button>();
+
+                    if (titleTxt != null) titleTxt.text = liveItem.Item.ItemName;
+                    if (subTxt != null) subTxt.text = $"Stok: {liveItem.CurrentStock} | Alış: {_cityMarket.GetBuyPrice(liveItem.Item.ItemId)} | Satış: {_cityMarket.GetSellPrice(liveItem.Item.ItemId)}";
+                    
+                    if (btn != null)
+                    {
+                        var capturedItem = liveItem.Item;
+                        btn.onClick.AddListener(() => SelectItem(capturedItem));
+                    }
+                }
+            }
+
+            // DYNAMIC LIST: CARAVAN INVENTORY
+            if (_caravanListContainer != null && _caravanRowTemplate != null)
+            {
+                ClearContainer(_caravanListContainer, _caravanRowTemplate);
+                foreach (var slot in _caravanData.Inventory)
+                {
+                    if (slot.Item == null || slot.Quantity <= 0) continue;
+                    var go = Instantiate(_caravanRowTemplate, _caravanListContainer);
+                    go.SetActive(true);
+                    
+                    var titleTxt = go.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+                    var subTxt = go.transform.Find("Sub")?.GetComponent<TextMeshProUGUI>();
+                    var btn = go.GetComponent<Button>();
+
+                    if (titleTxt != null) titleTxt.text = slot.Item.ItemName;
+                    if (subTxt != null) subTxt.text = $"Miktar: {slot.Quantity} | Top.Ağırlık: {slot.Item.UnitWeightKg * slot.Quantity}kg";
+                    
+                    if (btn != null)
+                    {
+                        var capturedItem = slot.Item;
+                        btn.onClick.AddListener(() => SelectItem(capturedItem));
+                    }
+                }
             }
 
             UpdateTradeCalculations();
@@ -220,3 +284,4 @@ namespace Kervan.TradeAndTravel
         }
     }
 }
+

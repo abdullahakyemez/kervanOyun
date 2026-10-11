@@ -7,9 +7,6 @@ using Kervan.TradeAndTravel;
 
 namespace Kervan.IntelSystem
 {
-    /// <summary>
-    /// Şehir / Han merkezinde Beylik Divanı, İstihbarat Toplama ve Sabit Dükkân yönetim arayüzü.
-    /// </summary>
     public class TownHubUI : MonoBehaviour
     {
         [Header("Yönetici Referansları")]
@@ -47,6 +44,7 @@ namespace Kervan.IntelSystem
         [Header("Han & İstihbarat Elemanları")]
         [SerializeField] private List<IntelDataSO> _availableLocalIntels = new List<IntelDataSO>();
         [SerializeField] private Transform _intelListContainer;
+        [SerializeField] private GameObject _intelRowTemplate;
 
         [Header("Dükkân Elemanları")]
         [SerializeField] private TextMeshProUGUI _shopStatusText;
@@ -61,9 +59,11 @@ namespace Kervan.IntelSystem
             if (_shopManager == null) _shopManager = ShopManager.Instance;
             if (_caravanData == null && CaravanManager.Instance != null) _caravanData = CaravanManager.Instance.Caravan;
 
+            if (_intelRowTemplate != null) _intelRowTemplate.SetActive(false);
+
             SetupTabButtons();
             RefreshAllViews();
-            ShowTab(0); // Varsayılan Divan sekmesi
+            ShowTab(0);
         }
 
         private void SetupTabButtons()
@@ -89,6 +89,7 @@ namespace Kervan.IntelSystem
         {
             UpdateHeader();
             UpdateDivanTab();
+            UpdateIntelTab();
             UpdateShopTab();
         }
 
@@ -111,14 +112,73 @@ namespace Kervan.IntelSystem
         {
             if (_reputationManager == null) return;
 
-            if (_repOttomanText != null)
-                _repOttomanText.text = FormatRepText(FactionType.Ottoman);
-            if (_repSteppeText != null)
-                _repSteppeText.text = FormatRepText(FactionType.Steppe);
-            if (_repSeljukText != null)
-                _repSeljukText.text = FormatRepText(FactionType.SeljukLegacy);
-            if (_repByzantineText != null)
-                _repByzantineText.text = FormatRepText(FactionType.Byzantine);
+            if (_repOttomanText != null) _repOttomanText.text = FormatRepText(FactionType.Ottoman);
+            if (_repSteppeText != null) _repSteppeText.text = FormatRepText(FactionType.Steppe);
+            if (_repSeljukText != null) _repSeljukText.text = FormatRepText(FactionType.SeljukLegacy);
+            if (_repByzantineText != null) _repByzantineText.text = FormatRepText(FactionType.Byzantine);
+
+            // Populate Submitted Intels
+            if (_submittedIntelContainer != null && _intelRowTemplate != null && _questManager != null)
+            {
+                ClearContainer(_submittedIntelContainer, _intelRowTemplate);
+                foreach (var intel in _questManager.CollectedIntels)
+                {
+                    // Basic display for collected ones
+                    var go = Instantiate(_intelRowTemplate, _submittedIntelContainer);
+                    go.SetActive(true);
+                    var titleTxt = go.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+                    var btn = go.GetComponent<Button>();
+                    if (titleTxt != null) titleTxt.text = $"Sunulabilir Bilgi: {intel.Title}";
+                    if (btn != null) btn.interactable = false; // Add real submit logic later
+                }
+            }
+        }
+
+        private void UpdateIntelTab()
+        {
+            if (_intelListContainer != null && _intelRowTemplate != null && _questManager != null)
+            {
+                ClearContainer(_intelListContainer, _intelRowTemplate);
+                foreach (var intel in _availableLocalIntels)
+                {
+                    if (intel == null) continue;
+                    var go = Instantiate(_intelRowTemplate, _intelListContainer);
+                    go.SetActive(true);
+                    
+                    var titleTxt = go.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+                    if (titleTxt != null) titleTxt.text = intel.Title;
+                    
+                    var btn = go.GetComponent<Button>();
+                    if (btn != null)
+                    {
+                        var capturedIntel = intel;
+                        btn.onClick.AddListener(() => TryGatherIntelFromUI(capturedIntel));
+                        // Instead of HasIntel, check if the list Contains it
+                        bool hasIntel = false;
+                        foreach(var collected in _questManager.CollectedIntels)
+                        {
+                            if (collected.IntelId == intel.IntelId)
+                            {
+                                hasIntel = true;
+                                break;
+                            }
+                        }
+                        btn.interactable = !hasIntel;
+                    }
+                }
+            }
+        }
+
+        private void ClearContainer(Transform container, GameObject template)
+        {
+            if (container == null) return;
+            foreach (Transform child in container)
+            {
+                if (child.gameObject != template)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
         }
 
         private string FormatRepText(FactionType faction)
@@ -183,7 +243,6 @@ namespace Kervan.IntelSystem
         public void TryGatherIntelFromUI(IntelDataSO intel)
         {
             if (_questManager == null) return;
-
             bool success = _questManager.TryGatherIntel(intel, out string msg);
             ShowNotification(msg);
             RefreshAllViews();
@@ -192,7 +251,6 @@ namespace Kervan.IntelSystem
         public void TrySubmitIntelFromUI(IntelDataSO intel)
         {
             if (_questManager == null) return;
-
             bool success = _questManager.SubmitIntel(intel, out string summary);
             ShowNotification(summary);
             RefreshAllViews();
@@ -201,7 +259,6 @@ namespace Kervan.IntelSystem
         private void OnBuyShopClicked()
         {
             if (_shopManager == null) return;
-
             bool success = _shopManager.TryPurchaseShop(_currentCityName, out string msg);
             ShowNotification(msg);
             RefreshAllViews();
@@ -210,7 +267,6 @@ namespace Kervan.IntelSystem
         private void OnCollectIncomeClicked()
         {
             if (_shopManager == null) return;
-
             int amount = _shopManager.CollectShopProfit(_currentCityName);
             if (amount > 0)
             {
@@ -233,3 +289,4 @@ namespace Kervan.IntelSystem
         }
     }
 }
+// Trigger recompile
