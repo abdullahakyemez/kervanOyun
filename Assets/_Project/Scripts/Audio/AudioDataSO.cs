@@ -23,7 +23,10 @@ namespace Kervan.Audio
 
         [Header("Ticaret & Arayüz Ses Efektleri (Trade & UI SFX)")]
         [SerializeField] private AudioClip _sfxCoins;
+        [Tooltip("Eski parşömen klibi yuvası (Geriye dönük uyumluluk için)")]
         [SerializeField] private AudioClip _sfxParchment;
+        [Tooltip("Sayfa, çekmece ve kart açılışlarında kullanılan parşömen hışırtısı sesi (SFX_PaperRustle)")]
+        [SerializeField] private AudioClip _sfxPaperRustle;
         [SerializeField] private AudioClip _sfxButtonClick;
         [SerializeField] private AudioClip _sfxTravelStep;
 
@@ -40,14 +43,16 @@ namespace Kervan.Audio
         public AudioClip SfxDefeat => _sfxDefeat;
 
         public AudioClip SfxCoins => _sfxCoins;
-        public AudioClip SfxParchment => _sfxParchment;
+        public AudioClip SfxPaperRustle => _sfxPaperRustle != null ? _sfxPaperRustle : _sfxParchment;
+        public AudioClip SfxParchment => SfxPaperRustle;
         public AudioClip SfxButtonClick => _sfxButtonClick;
         public AudioClip SfxTravelStep => _sfxTravelStep;
 
         public void SetAudioClips(
             AudioClip combat, AudioClip travel, AudioClip market, AudioClip townHub,
             AudioClip sword, AudioClip arrow, AudioClip shield, AudioClip victory, AudioClip defeat,
-            AudioClip coins, AudioClip parchment, AudioClip buttonClick, AudioClip travelStep)
+            AudioClip coins, AudioClip parchment, AudioClip buttonClick, AudioClip travelStep,
+            AudioClip paperRustle = null)
         {
             _bgmCombat = combat;
             _bgmTravel = travel;
@@ -62,6 +67,7 @@ namespace Kervan.Audio
 
             _sfxCoins = coins;
             _sfxParchment = parchment;
+            _sfxPaperRustle = paperRustle != null ? paperRustle : parchment;
             _sfxButtonClick = buttonClick;
             _sfxTravelStep = travelStep;
         }

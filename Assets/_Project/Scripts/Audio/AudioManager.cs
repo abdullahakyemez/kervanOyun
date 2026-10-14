@@ -13,7 +13,20 @@ namespace Kervan.Audio
     /// </summary>
     public class AudioManager : MonoBehaviour
     {
-        public static AudioManager Instance { get; private set; }
+        private static AudioManager _instance;
+
+        public static AudioManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindAnyObjectByType<AudioManager>();
+                }
+                return _instance;
+            }
+            private set => _instance = value;
+        }
 
         [Header("Ses Kütüphanesi")]
         [SerializeField] private AudioDataSO _library;
@@ -36,12 +49,12 @@ namespace Kervan.Audio
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
+            if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
-            Instance = this;
+            _instance = this;
             DontDestroyOnLoad(gameObject);
 
             InitializeAudioSources();
@@ -50,6 +63,10 @@ namespace Kervan.Audio
 
         private void OnDestroy()
         {
+            if (_instance == this)
+            {
+                _instance = null;
+            }
             UnregisterEventBus();
         }
 
@@ -159,8 +176,26 @@ namespace Kervan.Audio
         public void PlayArrowShot() => PlaySFX(_library != null ? _library.SfxArrowShot : null);
         public void PlayShieldBlock() => PlaySFX(_library != null ? _library.SfxShieldBlock : null);
         public void PlayCoins() => PlaySFX(_library != null ? _library.SfxCoins : null);
-        public void PlayParchment() => PlaySFX(_library != null ? _library.SfxParchment : null);
-        public void PlayButtonClick() => PlaySFX(_library != null ? _library.SfxButtonClick : null, 0.7f, 0.02f);
+        public void PlayPaperRustle()
+        {
+            AudioClip clip = _library != null ? _library.SfxPaperRustle : null;
+            if (clip == null)
+            {
+                clip = Resources.Load<AudioClip>("Audio/SFX/SFX_PaperRustle");
+            }
+            PlaySFX(clip, 0.85f, 0.03f);
+        }
+
+        public void PlayParchment() => PlayPaperRustle();
+        public void PlayButtonClick()
+        {
+            AudioClip clip = _library != null ? _library.SfxButtonClick : null;
+            if (clip == null)
+            {
+                clip = Resources.Load<AudioClip>("Audio/SFX/SFX_ButtonClick");
+            }
+            PlaySFX(clip, 0.7f, 0.02f);
+        }
         public void PlayVictory() => PlaySFX(_library != null ? _library.SfxVictory : null);
         public void PlayDefeat() => PlaySFX(_library != null ? _library.SfxDefeat : null);
 

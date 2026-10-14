@@ -53,6 +53,11 @@ namespace Kervan.TradeAndTravel
         [SerializeField] private int _currentFood = 20; // 20 gunluk temel erzak
         [SerializeField] private float _maxWeightCapacity = 300f; // 300 Kg temel yuk kapasitesi
 
+        [Header("Binek ve Yük Hayvanları")]
+        [SerializeField] private int _horses = 2; // At
+        [SerializeField] private int _mules = 2;  // Katır
+        [SerializeField] private int _camels = 1; // Deve
+
         [Header("Kadro ve Envanter")]
         [SerializeField] private List<CaravanItemSlot> _inventory = new List<CaravanItemSlot>();
         [SerializeField] private List<CaravanGuardRecord> _guards = new List<CaravanGuardRecord>();
@@ -61,8 +66,19 @@ namespace Kervan.TradeAndTravel
         public int CurrentAkce => _currentAkce;
         public int CurrentFood => _currentFood;
         public float MaxWeightCapacity => _maxWeightCapacity;
+        public int Horses => _horses;
+        public int Mules => _mules;
+        public int Camels => _camels;
         public IReadOnlyList<CaravanItemSlot> Inventory => _inventory;
         public IReadOnlyList<CaravanGuardRecord> Guards => _guards;
+
+        public void SetAnimals(int horses, int mules, int camels)
+        {
+            _horses = Mathf.Max(0, horses);
+            _mules = Mathf.Max(0, mules);
+            _camels = Mathf.Max(0, camels);
+            NotifyStatsChanged();
+        }
 
         public float CalculateCurrentWeight()
         {

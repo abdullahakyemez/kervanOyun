@@ -445,8 +445,8 @@ Assets/_Project/
 │   │   │   ├── Icons/
 │   │   │   │   ├── Login/                      # Icon_Login_<Sağlayıcı>.png (Örn: Icon_Login_Google.png)
 │   │   │   │   └── Utility/                    # Icon_Util_<Fonksiyon>.png (Örn: Icon_Util_Gear.png, Icon_Util_ArrowLeft.png)
-│   │   │   └── Logos/                          # UI_Logo_<Adı>.png (Örn: UI_Logo_GameTitle.png)
-│   │   └── Units/                              # Unit_<BirimAdı>.png (Örn: Unit_Alp.png, Unit_Haydut.png)
+│   │   ├── Units/                              # Unit_<BirimAdı>.png (Örn: Unit_Alp.png, Unit_Haydut.png)
+│   │   └── Items/                              # Item_<EmtiaAdı>.png (Örn: Item_Ipek.png, Item_Demir.png)
 │   └── UI/
 │       └── Mockups/                            # Ekran tasarımı referans ve plan görselleri
 ├── Audio/

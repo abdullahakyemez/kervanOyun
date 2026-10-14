@@ -36,6 +36,20 @@ namespace Kervan.UI
 
         [Header("Açılır Pencereler (Popups)")]
         [SerializeField] private SettingsPopupUI _settingsPopup;
+        [SerializeField] private QuitConfirmPopupUI _quitConfirmPopup;
+
+        [Header("Ekran Geçişi & Kararma (Screen Fader)")]
+        [Tooltip("Sahneler arası yumuşak kararma sağlayan fader referansı")]
+        [SerializeField] private ScreenFader _screenFader;
+        [SerializeField] private float _fadeDuration = 0.5f;
+
+        [Header("Sürüm Bilgisi (Version Tag)")]
+        [SerializeField] private TextMeshProUGUI _versionText;
+        [SerializeField] private string _versionString = "v0.1.0 Alpha — Uç Beyliği Kervanı";
+
+        [Header("Geliştirici / Test Seçenekleri")]
+        [Tooltip("Test amaçlı Devam Et butonunu daima aktif tutmak için işaretleyin.")]
+        [SerializeField] private bool _forceEnableContinueForTesting = false;
 
         [Header("Müzik & Ses Ayarları")]
         [Tooltip("Ana menü fon müziği (BGM_Main)")]
@@ -52,6 +66,7 @@ namespace Kervan.UI
             RegisterButtons();
             PlayMainMenuMusic();
             CheckSaveFileStatus();
+            InitVersionText();
         }
 
         private void OnDestroy()
@@ -120,7 +135,17 @@ namespace Kervan.UI
         {
             if (_continueButton != null)
             {
-                _continueButton.interactable = true;
+                // Test amaçlı zorlama aktifse veya kayıt verisi mevcutsa tıklanabilir
+                bool hasSave = _forceEnableContinueForTesting || PlayerPrefs.GetInt("HasSavedGame", 0) == 1;
+                _continueButton.interactable = hasSave;
+            }
+        }
+
+        private void InitVersionText()
+        {
+            if (_versionText != null)
+            {
+                _versionText.text = _versionString;
             }
         }
 
@@ -130,32 +155,63 @@ namespace Kervan.UI
         {
             PlayClickSound();
             Debug.Log("[MainMenuUI] Yeni Oyun başlatılıyor. Hedef sahne: " + _gameSceneName);
-            SceneManager.LoadScene(_gameSceneName);
+
+            // Yeni oyun için temel verileri ve başlangıç konumunu Söğüt olarak ayarla
+            PlayerPrefs.SetString("CurrentCity", "Söğüt");
+            PlayerPrefs.SetInt("HasSavedGame", 1);
+            PlayerPrefs.Save();
+
+            TransitionToGameScene();
         }
 
         private void OnContinueClicked()
         {
             PlayClickSound();
-            Debug.Log("[MainMenuUI] Devam Et (Kayıt Yükle) tıklandı.");
-            SceneManager.LoadScene(_gameSceneName);
+            Debug.Log("[MainMenuUI] Devam Et (Kayıt Yükle) tıklandı. Hedef sahne: " + _gameSceneName);
+
+            TransitionToGameScene();
+        }
+
+        private void TransitionToGameScene()
+        {
+            if (_screenFader != null && _screenFader.gameObject.activeInHierarchy)
+            {
+                _screenFader.FadeToScene(_gameSceneName, _fadeDuration);
+                // Emniyet zaman aşımı: Eğer fader herhangi bir sebeple sahneyi yükleyemezse doğrudan yükle
+                StartCoroutine(FallbackSceneLoadRoutine(_gameSceneName, _fadeDuration + 0.35f));
+            }
+            else
+            {
+                SceneManager.LoadScene(_gameSceneName);
+            }
+        }
+
+        private System.Collections.IEnumerator FallbackSceneLoadRoutine(string sceneName, float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            if (SceneManager.GetActiveScene().name != sceneName)
+            {
+                Debug.LogWarning($"[MainMenuUI] ScreenFader zaman aşımına uğradı, sahne doğrudan yükleniyor: {sceneName}");
+                SceneManager.LoadScene(sceneName);
+            }
         }
 
         private void OnGoogleLoginClicked()
         {
             PlayClickSound();
-            Debug.Log("[MainMenuUI] Google Play Girişi seçildi.");
+            Debug.Log("[MainMenuUI] Google Play Girişi seçildi. (Geliştirme aşamasında)");
         }
 
         private void OnAppleLoginClicked()
         {
             PlayClickSound();
-            Debug.Log("[MainMenuUI] Apple Game Center Girişi seçildi.");
+            Debug.Log("[MainMenuUI] Apple Game Center Girişi seçildi. (Geliştirme aşamasında)");
         }
 
         private void OnEmailLoginClicked()
         {
             PlayClickSound();
-            Debug.Log("[MainMenuUI] E-posta / Hesap Girişi seçildi.");
+            Debug.Log("[MainMenuUI] E-posta / Hesap Girişi seçildi. (Geliştirme aşamasında)");
         }
 
         private void OnSettingsClicked()
@@ -200,8 +256,19 @@ namespace Kervan.UI
         private void OnExitClicked()
         {
             PlayClickSound();
-            Debug.Log("[MainMenuUI] Oyundan çıkılıyor...");
-            Application.Quit();
+            if (_quitConfirmPopup != null)
+            {
+                _quitConfirmPopup.Show();
+            }
+            else
+            {
+                Debug.Log("[MainMenuUI] Oyundan çıkılıyor...");
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#else
+                Application.Quit();
+#endif
+            }
         }
 
         private void PlayClickSound()

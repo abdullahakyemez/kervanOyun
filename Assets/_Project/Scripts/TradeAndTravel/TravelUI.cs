@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Kervan.Audio;
 
 namespace Kervan.TradeAndTravel
 {
@@ -13,6 +14,10 @@ namespace Kervan.TradeAndTravel
     {
         [Header("Yoneticiler")]
         [SerializeField] private TravelManager _travelManager;
+
+        [Header("Müzik & Ses")]
+        [Tooltip("Seyahat fon müziği (BGM_Travel)")]
+        [SerializeField] private AudioClip _bgmTravelClip;
 
         [Header("Ust Bolge Gostergeleri")]
         [SerializeField] private Slider _foodSlider;
@@ -40,6 +45,8 @@ namespace Kervan.TradeAndTravel
 
         private void Start()
         {
+            PlayTravelMusic();
+
             if (_travelManager == null)
             {
                 _travelManager = FindAnyObjectByType<TravelManager>();
@@ -61,6 +68,20 @@ namespace Kervan.TradeAndTravel
             if (_ambushPanelRoot != null) _ambushPanelRoot.SetActive(false);
 
             RefreshStaticStats();
+        }
+
+        private void PlayTravelMusic()
+        {
+            AudioClip clip = _bgmTravelClip;
+            if (clip == null && AudioManager.Instance != null && AudioManager.Instance.Library != null)
+            {
+                clip = AudioManager.Instance.Library.BgmTravel;
+            }
+
+            if (clip != null && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayMusic(clip, 1.0f);
+            }
         }
 
         private void OnDestroy()
