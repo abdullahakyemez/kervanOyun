@@ -64,6 +64,7 @@ namespace Kervan.UI
         private void Start()
         {
             RegisterButtons();
+            InitVolumeState();
             PlayMainMenuMusic();
             CheckSaveFileStatus();
             InitVersionText();
@@ -102,6 +103,12 @@ namespace Kervan.UI
             if (_volumeToggleButton != null) _volumeToggleButton.onClick.RemoveListener(OnVolumeToggleClicked);
         }
 
+        private void InitVolumeState()
+        {
+            _isMuted = AudioManager.Instance != null && AudioManager.Instance.IsMuted;
+            UpdateVolumeIcon();
+        }
+
         private void PlayMainMenuMusic()
         {
             if (_bgmMainMenu == null)
@@ -127,6 +134,7 @@ namespace Kervan.UI
                 }
                 _localAudioSource.clip = _bgmMainMenu;
                 _localAudioSource.volume = 0.75f;
+                _localAudioSource.mute = _isMuted;
                 _localAudioSource.Play();
             }
         }
@@ -156,8 +164,8 @@ namespace Kervan.UI
             PlayClickSound();
             Debug.Log("[MainMenuUI] Yeni Oyun başlatılıyor. Hedef sahne: " + _gameSceneName);
 
-            // Yeni oyun için temel verileri ve başlangıç konumunu Söğüt olarak ayarla
-            PlayerPrefs.SetString("CurrentCity", "Söğüt");
+            // Yeni oyun için temel verileri ve başlangıç düğüm kimliğini Söğüt (node_sogut) olarak ayarla
+            PlayerPrefs.SetString("CurrentNodeId", "node_sogut");
             PlayerPrefs.SetInt("HasSavedGame", 1);
             PlayerPrefs.Save();
 
@@ -229,16 +237,22 @@ namespace Kervan.UI
 
         private void OnVolumeToggleClicked()
         {
-            PlayClickSound();
-            _isMuted = !_isMuted;
-
             if (AudioManager.Instance != null)
             {
-                AudioManager.Instance.SetMasterVolume(_isMuted ? 0f : 1f);
+                _isMuted = AudioManager.Instance.ToggleMute();
             }
-            else if (_localAudioSource != null)
+            else
             {
-                _localAudioSource.mute = _isMuted;
+                _isMuted = !_isMuted;
+                if (_localAudioSource != null)
+                {
+                    _localAudioSource.mute = _isMuted;
+                }
+            }
+
+            if (!_isMuted)
+            {
+                PlayClickSound();
             }
 
             UpdateVolumeIcon();

@@ -19,6 +19,7 @@ MonoBehaviour:
   _description: "G\xF6l k\u0131y\u0131s\u0131nda antik surlar\u0131 ve Bizans at\xF6lyeleriyle kadim bir ticaret \u015Fehri."
   _hasMarket: 1
   _hasInn: 1
+  _marketGoodsSummary: "Pazar: \xC7ini, Zeytin, \u0130pek"
   _dailyRestCost: 18
   _dailyHealAmount: 15
   _dailyMoraleRestore: 15

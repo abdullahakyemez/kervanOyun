@@ -19,6 +19,7 @@ MonoBehaviour:
   _description: "Yaz aylar\u0131nda konaklanan serin yayla kamp\u0131 ve at yeti\u015Ftirme merkezi."
   _hasMarket: 1
   _hasInn: 1
+  _marketGoodsSummary: "Han: Dinlenme & \u0130kmal"
   _dailyRestCost: 8
   _dailyHealAmount: 25
   _dailyMoraleRestore: 25

@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
 namespace Kervan.UI
 {
@@ -11,6 +14,9 @@ namespace Kervan.UI
     /// </summary>
     public class MapPanZoomController : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IScrollHandler
     {
+        private const float DefaultScreenDpi = 160f;
+        private const float PinchZoomMultiplier = 0.4f;
+
         [Header("Hedef İçerik ve Görünüm")]
         [Tooltip("Yakınlaştırılıp kaydırılacak harita görseli ve düğümlerin bulunduğu RectTransform")]
         [SerializeField] private RectTransform _contentRect;
@@ -62,6 +68,16 @@ namespace Kervan.UI
             }
 
             EnsureMapBackgroundFit();
+        }
+
+        private void OnEnable()
+        {
+            EnhancedTouchSupport.Enable();
+        }
+
+        private void OnDisable()
+        {
+            EnhancedTouchSupport.Disable();
         }
 
         private void Start()
@@ -174,25 +190,26 @@ namespace Kervan.UI
 
         private void HandleMobilePinchZoom()
         {
-            if (Input.touchCount == 2)
+            var activeTouches = Touch.activeTouches;
+            if (activeTouches.Count == 2)
             {
-                Touch touch0 = Input.GetTouch(0);
-                Touch touch1 = Input.GetTouch(1);
+                Touch touch0 = activeTouches[0];
+                Touch touch1 = activeTouches[1];
 
                 if (touch0.phase == TouchPhase.Began || touch1.phase == TouchPhase.Began)
                 {
-                    _lastTouchDistance = Vector2.Distance(touch0.position, touch1.position);
+                    _lastTouchDistance = Vector2.Distance(touch0.screenPosition, touch1.screenPosition);
                     return;
                 }
 
                 if (touch0.phase == TouchPhase.Moved || touch1.phase == TouchPhase.Moved)
                 {
-                    float newDistance = Vector2.Distance(touch0.position, touch1.position);
+                    float newDistance = Vector2.Distance(touch0.screenPosition, touch1.screenPosition);
                     float deltaDistance = newDistance - _lastTouchDistance;
                     _lastTouchDistance = newDistance;
 
-                    float dpi = Screen.dpi > 0 ? Screen.dpi : 160f;
-                    float zoomDelta = (deltaDistance / dpi) * 0.4f;
+                    float dpi = Screen.dpi > 0f ? Screen.dpi : DefaultScreenDpi;
+                    float zoomDelta = (deltaDistance / dpi) * PinchZoomMultiplier;
                     SetTargetZoom(_targetZoom + zoomDelta);
                 }
             }
@@ -223,13 +240,17 @@ namespace Kervan.UI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (Input.touchCount > 1) return;
+            if (Touch.activeTouches.Count > 1) return;
             _isDragging = true;
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (_contentRect == null || Input.touchCount > 1) return;
+            if (_contentRect == null || Touch.activeTouches.Count > 1)
+            {
+                _isDragging = false;
+                return;
+            }
 
             float scaleFactor = _rootCanvas != null && _rootCanvas.scaleFactor > 0f ? _rootCanvas.scaleFactor : 1f;
             Vector2 delta = eventData.delta / scaleFactor;

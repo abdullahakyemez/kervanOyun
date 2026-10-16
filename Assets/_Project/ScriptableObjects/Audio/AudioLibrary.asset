@@ -22,6 +22,7 @@ MonoBehaviour:
   _sfxVictory: {fileID: 8300000, guid: eb0c6a8d438d2074b9e60658182919b1, type: 3}
   _sfxDefeat: {fileID: 8300000, guid: c2c3cbe6d4091ec429273148b126d696, type: 3}
   _sfxCoins: {fileID: 8300000, guid: bba16f46b7164f648b9ae56ed4ce8a47, type: 3}
-  _sfxParchment: {fileID: 8300000, guid: 27009bf8fe4517844a471a28af78e52c, type: 3}
+  _sfxParchment: {fileID: 8300000, guid: 95c1c33dfb0f1044d99eda40de3d4860, type: 3}
+  _sfxPaperRustle: {fileID: 0}
   _sfxButtonClick: {fileID: 8300000, guid: 4a5a8c8fddbcf864b98a94fc8186691d, type: 3}
   _sfxTravelStep: {fileID: 8300000, guid: ba5b21699ea837341990a433765eb602, type: 3}

@@ -1,4 +1,4 @@
-﻿# **Oyun Tasarım Belgesi (GDD): Uç Beyliği Kervanı (14. Yüzyıl Anadolu \& Rumeli)**
+# **Oyun Tasarım Belgesi (GDD): Uç Beyliği Kervanı (14. Yüzyıl Anadolu \& Rumeli)**
 
 ## 
 
@@ -138,6 +138,8 @@ Pusuya düşüldüğünde veya avlanma kararı alındığında ekran 2D İzometr
 
 
 #### **7. C# / Unity İçin Veri ve Kod Mimarisi**
+
+> ⚠️ **Not (14.10.2026):** Bu bölüm ilk taslak mimaridir ve tarihsel referans olarak korunmuştur. **Güncel ve bağlayıcı mimari:** `Docs/04-Mimari-ve-Kod-Standartlari.md` (Boot + Servisler + GameSession + SaveData + EventBus). Çelişki olursa 04 geçerlidir.
 
 
 
@@ -381,3 +383,21 @@ Pusuya düşüldüğünde veya avlanma kararı alındığında ekran 2D İzometr
 6. **Zaman:** Gerçek zamanlı akış yerine, rotalar üzerinde gün gün ilerleme (turn-based gibi) uygulanacaktır.
 7. **Harita:** İlk sürümde sadece Anadolu/Bitinya haritası olacaktır, Balkanlar güncelleme ile eklenebilecek yapıdadır.
 8. **Yorum Dili:** Koddaki açıklama satırları Türkçe karakter kullanılarak Türkçe yazılacaktır.
+
+---
+# 12. AÇIK TASARIM KARARLARI VE TASARIM ↔ KOD UYUMU (14.10.2026)
+
+> Bu bölüm, tasarım belgesi ile mevcut proje arasında tespit edilen farkları kayıt altına alır. Kararlar verildikçe ilgili maddeye **"Karar:"** satırı eklenir ve `03-Proje-Durumu.md` → Açık Kararlar listesinden çıkarılır.
+
+1. **KR-1 Harita Kapsamı:** Madde 11/7 "ilk sürümde sadece Anadolu/Bitinya" der. `WorldMapScene`'de ise 13 düğüm var (Ahlat, Ankara, Antalya, Bursa, Çakallı, Eskişehir, İzmir, İznik, Karatay, Kütahya, Söğüt, Taşhan, Trabzon). Madde 8'deki düğüm listesi (Domaniç, Bilecik, Karacahisar…) ile de birebir örtüşmüyor.
+   - **Karar (16.10.2026):** Sahnedeki mevcut 13 şehir korunacak; konumlarında bozulma varsa sonradan düzeltilecek.
+2. **KR-2 Fraksiyonlar:** Madde 11/4 dört fraksiyon tanımlar (Osmanlı, Bizans, Eşkıya, Vahşi Hayvanlar). Koddaki `FactionType`: Ottoman, Steppe, SeljukLegacy, Byzantine, Bandit (Vahşi Hayvan yok; Anadolu Beylikleri ayrı değil).
+   - **Karar (16.10.2026):** GDD'deki 4'lü fraksiyon listesi geçerli (Osmanlı, Bizans, Eşkıya, Vahşi Hayvanlar).
+3. **KR-3 Eski Sahneler (Travel/Market/TownHub/Combat):**
+   - **Karar (16.10.2026):** Plan mantığına uygun, temiz ve çalışan kodlar (`DamageCalculator`, `HexPathfinder` vb.) korunacak, diğerleri baştan yazılacak; tüm sahne tasarımları sıfırdan yapılacak.
+4. **KR-4 3. Parti Paketler & KR-5 Varlık/Git LFS Düzeni:**
+   - **Karar (16.10.2026):** DOTween, Newtonsoft JSON, Unity Localization, Addressables ilgili adımlarda eklenecek (KR-4). Ham `.ai` ve mockup dosyaları `Assets/` dışına (`ArtSource/`) taşınacak ve Git LFS kurulacak (KR-5).
+5. **Kayıt zamanlaması:** Madde 10 otomatik kayıt noktalarını tanımlar. Uygulama sırası güncellendi: Kayıt/Yükleme artık Aşama 2'de (A2.3) yapılacak.
+6. **Olay çözümü (Madde 11/5):** "Kaç / Haraç Ver / Savaş" penceresi ve Manuel/Otomatik savaş seçimi → A5.1–A5.2 olarak planlandı. Otomatik savaş çözümleme formülü henüz tasarlanmadı.
+7. **Zaman (Madde 11/6):** Gün gün ilerleme. Takvim başlangıç tarihi (şu an kodda sabit "14 Mayıs 1326") tasarım kararı olarak netleştirilmeli; mevsim etkisi (kışın dağ geçitleri) isteniyor mu?
+8. **Login (Madde 11/2):** Google/Apple/Mail butonları menüde var fakat işlevsiz. Alpha için "misafir oyun" yeterli mi, yoksa A8'de mi bağlanacak?

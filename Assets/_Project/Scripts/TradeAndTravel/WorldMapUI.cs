@@ -55,9 +55,6 @@ namespace Kervan.UI
         [Tooltip("Yeni modüler alttan açılan şehir/han bilgi kartı")]
         [SerializeField] private BottomNodeInfoCardUI _bottomNodeInfoCard;
 
-        [Header("Veri Referansları (ScriptableObjects)")]
-        [SerializeField] private LocationNodeSO[] _locationNodeDataList;
-
         [Header("Müzik & Ses Ayarları")]
         [Tooltip("Harita ve seyahat arka plan müziği (BGM_Travel)")]
         [SerializeField] private AudioClip _bgmMapMusic;
@@ -67,25 +64,24 @@ namespace Kervan.UI
         [SerializeField] private string _travelSceneName = "TravelScene";
         [SerializeField] private string _townHubSceneName = "TownHubScene";
 
-        private string _currentCityName = "Söğüt";
-        private string _selectedNodeName = "";
+        private const string DefaultStartNodeId = "node_sogut";
+        private const string PrefCurrentNodeId = "CurrentNodeId";
+        private const string PrefTravelDestinationNodeId = "TravelDestinationNodeId";
+
+        private string _currentNodeId = DefaultStartNodeId;
         private bool _isMuted = false;
         private AudioSource _localAudioSource;
-        private readonly Dictionary<string, LocationNodeSO> _nodeDataMap = new Dictionary<string, LocationNodeSO>(StringComparer.OrdinalIgnoreCase);
-
-        private void Awake()
-        {
-            BuildNodeDataDictionary();
-        }
+        private MapNodeView[] _mapNodeViews;
+        private readonly Dictionary<string, MapNodeView> _nodeViewsById = new Dictionary<string, MapNodeView>(StringComparer.Ordinal);
 
         private void Start()
         {
             FindMissingReferences();
             PlayMapMusic();
             LoadCurrentLocation();
+            SetupNodeViews();
             RegisterListeners();
             UpdateTopResourceHUD();
-            SetupNodeButtons();
             InitCurrentLocationMarker();
             InitVolumeState();
 
@@ -95,37 +91,14 @@ namespace Kervan.UI
                 _bottomNodeInfoCard.HideCard();
             }
 
-            // Başlangıçta mevcut konuma (örn: Söğüt) yumuşakça odaklan
+            // Başlangıçta mevcut konuma (örn: node_sogut) yumuşakça odaklan
             FocusOnCurrentCity(true);
         }
 
         private void OnDestroy()
         {
+            UnregisterNodeViews();
             UnregisterListeners();
-        }
-
-        private void BuildNodeDataDictionary()
-        {
-            if (_locationNodeDataList == null || _locationNodeDataList.Length == 0)
-            {
-                // Resources veya ScriptableObjects klasöründen dinamik yükleme dene
-                _locationNodeDataList = Resources.LoadAll<LocationNodeSO>("Nodes");
-            }
-
-            if (_locationNodeDataList != null)
-            {
-                foreach (var node in _locationNodeDataList)
-                {
-                    if (node != null && !string.IsNullOrEmpty(node.NodeName))
-                    {
-                        _nodeDataMap[node.NodeName] = node;
-                        if (!string.IsNullOrEmpty(node.NodeId))
-                        {
-                            _nodeDataMap[node.NodeId] = node;
-                        }
-                    }
-                }
-            }
         }
 
         private void FindMissingReferences()
@@ -136,29 +109,16 @@ namespace Kervan.UI
             if (_currentNodeMarker == null) _currentNodeMarker = FindAnyObjectByType<CurrentNodeMarkerUI>();
             if (_utilityDrawer == null) _utilityDrawer = FindAnyObjectByType<MenuDrawerController>();
             if (_settingsPopup == null) _settingsPopup = FindAnyObjectByType<SettingsPopupUI>();
-
-            // Sol alt Kervan butonu
-            if (_bottomLeftInventoryButton == null)
-            {
-                GameObject invBtn = GameObject.Find("Btn_Inventory") ?? 
-                                   GameObject.Find("BtnInventory") ?? 
-                                   GameObject.Find("Btn_Caravan") ?? 
-                                   GameObject.Find("BtnCaravan");
-                if (invBtn != null) _bottomLeftInventoryButton = invBtn.GetComponent<Button>();
-            }
-
-            // Geri butonu
-            if (_backToMenuButton == null)
-            {
-                GameObject backBtn = GameObject.Find("Btn_Back") ?? GameObject.Find("BtnBack") ?? GameObject.Find("Btn_Exit");
-                if (backBtn != null) _backToMenuButton = backBtn.GetComponent<Button>();
-            }
         }
 
         private void LoadCurrentLocation()
         {
-            _currentCityName = PlayerPrefs.GetString("CurrentCity", "Söğüt");
-            Debug.Log($"[WorldMapUI] Oyuncunun mevcut konumu yüklendi: {_currentCityName}");
+            _currentNodeId = PlayerPrefs.GetString(PrefCurrentNodeId, DefaultStartNodeId);
+            if (string.IsNullOrWhiteSpace(_currentNodeId))
+            {
+                _currentNodeId = DefaultStartNodeId;
+            }
+            Debug.Log($"[WorldMapUI] Oyuncunun mevcut düğüm kimliği yüklendi: {_currentNodeId}");
         }
 
         private void RegisterListeners()
@@ -181,28 +141,50 @@ namespace Kervan.UI
             EventBus.Unsubscribe<CaravanStatsChangedEvent>(OnCaravanStatsChanged);
         }
 
-        private void SetupNodeButtons()
+        private void SetupNodeViews()
         {
-            // Sahnede adı "Node_" ile başlayan tüm şehir/han düğüm butonlarını dinamik bul ve bağla
-            Button[] allButtons = GetComponentsInChildren<Button>(true);
-            foreach (var btn in allButtons)
-            {
-                if (btn.gameObject.name.StartsWith("Node_"))
-                {
-                    string rawName = btn.gameObject.name.Substring(5);
-                    string formattedName = rawName.Replace("_", " ");
-                    RectTransform nodeRect = btn.GetComponent<RectTransform>();
+            _nodeViewsById.Clear();
+            _mapNodeViews = GetComponentsInChildren<MapNodeView>(true);
 
-                    // DİKKAT: RemoveAllListeners() çağrılmıyor; böylece UIButtonSound gibi ses dinleyicileri korunur
-                    btn.onClick.AddListener(() => OnNodeClicked(formattedName, nodeRect));
+            if (_mapNodeViews == null || _mapNodeViews.Length == 0)
+            {
+                Debug.LogError("[WorldMapUI] Sahnede hiçbir MapNodeView bileşeni bulunamadı! Harita düğümlerine MapNodeView ekleyip LocationNodeSO atayın.", this);
+                return;
+            }
+
+            foreach (var nodeView in _mapNodeViews)
+            {
+                if (nodeView == null) continue;
+
+                nodeView.Clicked += OnNodeViewClicked;
+
+                if (!string.IsNullOrWhiteSpace(nodeView.NodeId))
+                {
+                    if (_nodeViewsById.ContainsKey(nodeView.NodeId))
+                    {
+                        Debug.LogWarning($"[WorldMapUI] Yinelenen NodeId tespit edildi: '{nodeView.NodeId}' ({nodeView.gameObject.name}).", nodeView);
+                    }
+                    _nodeViewsById[nodeView.NodeId] = nodeView;
+                }
+            }
+        }
+
+        private void UnregisterNodeViews()
+        {
+            if (_mapNodeViews == null) return;
+
+            foreach (var nodeView in _mapNodeViews)
+            {
+                if (nodeView != null)
+                {
+                    nodeView.Clicked -= OnNodeViewClicked;
                 }
             }
         }
 
         private void InitCurrentLocationMarker()
         {
-            RectTransform currentRect = FindNodeRectByName(_currentCityName);
-            if (currentRect != null && _currentNodeMarker != null)
+            if (_currentNodeMarker != null && TryGetCurrentNodeRect(out RectTransform currentRect))
             {
                 _currentNodeMarker.AttachToNode(currentRect);
             }
@@ -210,29 +192,28 @@ namespace Kervan.UI
 
         private void FocusOnCurrentCity(bool instant)
         {
-            RectTransform currentRect = FindNodeRectByName(_currentCityName);
-            if (currentRect != null && _panZoomController != null)
+            if (_panZoomController != null && TryGetCurrentNodeRect(out RectTransform currentRect))
             {
                 _panZoomController.FocusOnTarget(currentRect, 1.4f, instant);
             }
         }
 
-        private RectTransform FindNodeRectByName(string cityName)
+        private bool TryGetCurrentNodeRect(out RectTransform rect)
         {
-            string cleanSearch = cityName.Replace(" ", "_").ToLowerInvariant();
-
-            Button[] allButtons = GetComponentsInChildren<Button>(true);
-            foreach (var btn in allButtons)
+            if (_nodeViewsById.TryGetValue(_currentNodeId, out MapNodeView currentView) && currentView != null)
             {
-                if (btn.gameObject.name.ToLowerInvariant().Contains(cleanSearch))
-                {
-                    return btn.GetComponent<RectTransform>();
-                }
+                rect = currentView.RectTransform;
+                return rect != null;
             }
 
-            // Fallback: Söğüt düğümü
-            GameObject sogut = GameObject.Find("Node_Sogut");
-            return sogut != null ? sogut.GetComponent<RectTransform>() : null;
+            if (_nodeViewsById.TryGetValue(DefaultStartNodeId, out MapNodeView fallbackView) && fallbackView != null)
+            {
+                rect = fallbackView.RectTransform;
+                return rect != null;
+            }
+
+            rect = null;
+            return false;
         }
 
         public void UpdateTopResourceHUD()
@@ -255,69 +236,72 @@ namespace Kervan.UI
 
         #region Düğüm Seçimi & Bilgi Kartı (Node Interaction)
 
-        private void OnNodeClicked(string nodeName, RectTransform nodeRect)
+        private void OnNodeViewClicked(MapNodeView nodeView)
         {
-            _selectedNodeName = nodeName;
-            Debug.Log($"[WorldMapUI] Düğüm seçildi: {nodeName}");
+            if (nodeView == null || nodeView.NodeData == null) return;
+
+            LocationNodeSO nodeSO = nodeView.NodeData;
+            string clickedNodeId = nodeSO.NodeId;
+            Debug.Log($"[WorldMapUI] Düğüm seçildi: {nodeSO.NodeName} ({clickedNodeId})");
 
             // 1. Haritayı yumuşakça bu düğüme odakla
-            if (_panZoomController != null && nodeRect != null)
+            if (_panZoomController != null && nodeView.RectTransform != null)
             {
-                _panZoomController.FocusOnTarget(nodeRect, 1.4f, false);
+                _panZoomController.FocusOnTarget(nodeView.RectTransform, 1.4f, false);
             }
 
-            // 2. Düğüm verisini çözümle
-            _nodeDataMap.TryGetValue(nodeName, out LocationNodeSO nodeSO);
+            // 2. Mevcut konum kontrolü (yalnızca ASCII NodeId ile)
+            bool isCurrentLocation = string.Equals(clickedNodeId, _currentNodeId, StringComparison.Ordinal);
 
-            bool isCurrentLocation = string.Equals(_selectedNodeName, _currentCityName, StringComparison.OrdinalIgnoreCase);
+            // 3. Mesafe ve Erzak hesaplaması (A2.4'te RouteGraph'a geçilecek)
+            int distanceDays = isCurrentLocation ? 0 : CalculateEstimatedDays(_currentNodeId, clickedNodeId);
+            int foodRequired = distanceDays;
 
-            // Mesafe ve Erzak hesaplaması (Mock/Prosedürel rota formülü)
-            int distanceDays = isCurrentLocation ? 0 : CalculateEstimatedDays(_currentCityName, nodeName);
-            int foodRequired = distanceDays; // Gün başına 1 erzak birimi
-
-            // 3. Alttan açılan detay kartını göster
+            // 4. Alttan açılan detay kartını göster
             if (_bottomNodeInfoCard != null)
             {
                 _bottomNodeInfoCard.ShowNode(
-                    nodeName, 
-                    nodeSO, 
-                    isCurrentLocation, 
-                    distanceDays, 
-                    foodRequired, 
-                    () => OnNodeActionConfirmed(nodeName, isCurrentLocation)
+                    nodeSO,
+                    isCurrentLocation,
+                    distanceDays,
+                    foodRequired,
+                    () => OnNodeActionConfirmed(nodeSO, isCurrentLocation)
                 );
             }
         }
 
-        private int CalculateEstimatedDays(string fromCity, string toCity)
+        private int CalculateEstimatedDays(string fromNodeId, string toNodeId)
         {
-            // Komşu şehir mesafeleri (Temel formül)
-            string f = fromCity.ToLowerInvariant();
-            string t = toCity.ToLowerInvariant();
+            // A2.4'te RouteGraph ile değiştirilecek geçici komşuluk tablosu (ASCII NodeId bazlı)
+            if (string.Equals(fromNodeId, "node_sogut", StringComparison.Ordinal))
+            {
+                if (string.Equals(toNodeId, "node_iznik", StringComparison.Ordinal)) return 2;
+                if (string.Equals(toNodeId, "node_bursa", StringComparison.Ordinal)) return 3;
+                if (string.Equals(toNodeId, "node_bilecik", StringComparison.Ordinal)) return 1;
+                if (string.Equals(toNodeId, "node_kutahya", StringComparison.Ordinal)) return 3;
+                if (string.Equals(toNodeId, "node_domanic", StringComparison.Ordinal)) return 1;
+                if (string.Equals(toNodeId, "node_eskisehir", StringComparison.Ordinal)) return 1;
+            }
 
-            if (f.Contains("sogut") && t.Contains("iznik")) return 2;
-            if (f.Contains("sogut") && t.Contains("bursa")) return 3;
-            if (f.Contains("sogut") && t.Contains("bilecik")) return 1;
-            if (f.Contains("sogut") && t.Contains("kutahya")) return 3;
-            if (f.Contains("sogut") && t.Contains("domanic")) return 1;
-
-            return UnityEngine.Random.Range(2, 5); // Varsayılan seyahat süresi
+            return 3;
         }
 
-        private void OnNodeActionConfirmed(string targetNodeName, bool isCurrentLocation)
+        private void OnNodeActionConfirmed(LocationNodeSO targetNode, bool isCurrentLocation)
         {
+            if (targetNode == null) return;
+
             if (isCurrentLocation)
             {
                 // Bulunulan merkeze giriş yap (Pazar / Divan / Han)
-                Debug.Log($"[WorldMapUI] {targetNodeName} merkezine giriş yapılıyor.");
+                Debug.Log($"[WorldMapUI] {targetNode.NodeName} ({targetNode.NodeId}) merkezine giriş yapılıyor.");
                 SceneManager.LoadScene(!string.IsNullOrEmpty(_townHubSceneName) ? _townHubSceneName : "MarketScene");
             }
             else
             {
                 // Yeni merkeze seyahat başlat
-                Debug.Log($"[WorldMapUI] {_currentCityName} noktasından {targetNodeName} yönüne seyahat başlatılıyor.");
-                PlayerPrefs.SetString("TravelDestination", targetNodeName);
-                PlayerPrefs.SetString("CurrentCity", targetNodeName); // Varış şehri olarak güncelle
+                Debug.Log($"[WorldMapUI] {_currentNodeId} noktasından {targetNode.NodeName} ({targetNode.NodeId}) yönüne seyahat başlatılıyor.");
+                PlayerPrefs.SetString(PrefTravelDestinationNodeId, targetNode.NodeId);
+                PlayerPrefs.SetString(PrefCurrentNodeId, targetNode.NodeId);
                 PlayerPrefs.Save();
 
                 SceneManager.LoadScene(!string.IsNullOrEmpty(_travelSceneName) ? _travelSceneName : "TravelScene");
@@ -360,32 +344,27 @@ namespace Kervan.UI
 
         private void InitVolumeState()
         {
-            _isMuted = AudioListener.volume <= 0.01f || (AudioManager.Instance != null && AudioManager.Instance.MasterVolume <= 0.01f);
+            _isMuted = AudioManager.Instance != null && AudioManager.Instance.IsMuted;
             UpdateVolumeIcon();
         }
 
         private void OnVolumeToggleClicked()
         {
-            _isMuted = !_isMuted;
             if (AudioManager.Instance != null)
             {
-                AudioManager.Instance.SetMasterVolume(_isMuted ? 0f : 1f);
+                _isMuted = AudioManager.Instance.ToggleMute();
+                if (!_isMuted)
+                {
+                    AudioManager.Instance.PlayButtonClick();
+                }
             }
-
-            // Global ses seviyesini doğrudan kontrol et
-            AudioListener.volume = _isMuted ? 0f : 1f;
-            AudioListener.pause = _isMuted;
-
-            if (_localAudioSource != null)
+            else
             {
-                _localAudioSource.mute = _isMuted;
-            }
-
-            // Sahnede var olabilecek bağımsız AudioSource bileşenlerini de sustur
-            var allSources = FindObjectsByType<AudioSource>();
-            foreach (var src in allSources)
-            {
-                src.mute = _isMuted;
+                _isMuted = !_isMuted;
+                if (_localAudioSource != null)
+                {
+                    _localAudioSource.mute = _isMuted;
+                }
             }
 
             UpdateVolumeIcon();
@@ -422,12 +401,6 @@ namespace Kervan.UI
                 clip = AudioManager.Instance.Library.BgmTravel;
             }
 
-            if (clip == null)
-            {
-                // Resources veya varsayılan arama
-                clip = Resources.Load<AudioClip>("Audio/Music/BGM_Travel");
-            }
-
             if (clip != null)
             {
                 if (AudioManager.Instance != null)
@@ -445,6 +418,7 @@ namespace Kervan.UI
                     }
                     _localAudioSource.clip = clip;
                     _localAudioSource.volume = 0.75f;
+                    _localAudioSource.mute = _isMuted;
                     _localAudioSource.Play();
                 }
             }

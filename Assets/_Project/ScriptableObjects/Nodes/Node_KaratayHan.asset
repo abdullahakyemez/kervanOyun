@@ -19,6 +19,7 @@ MonoBehaviour:
   _description: "Sel\xE7uklu miras\u0131 kesme ta\u015F duvarlar\u0131 ve \xE7inileriyle korunakl\u0131 s\u0131\u011F\u0131nak."
   _hasMarket: 1
   _hasInn: 1
+  _marketGoodsSummary: "Han: Dinlenme & \u0130kmal"
   _dailyRestCost: 15
   _dailyHealAmount: 30
   _dailyMoraleRestore: 25

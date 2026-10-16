@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Node_Bursa
   m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.LocationNodeSO
   _nodeId: node_bursa
-  _nodeName: Bursa (Prusa)
+  _nodeName: Bursa
   _nodeType: 0
   _rulingFaction: 0
   _description: "\u0130pek Yolu'nun Anadolu'daki en zengin pazarlar\u0131na ve dev kervansaraylar\u0131na ev sahipli\u011Fi yapar."
   _hasMarket: 1
   _hasInn: 1
+  _marketGoodsSummary: "Pazar: \u0130pek, \xC7elik, K\xFCrk"
   _dailyRestCost: 20
   _dailyHealAmount: 20
   _dailyMoraleRestore: 20

@@ -2185,6 +2185,7 @@ GameObject:
   - component: {fileID: 74956634}
   - component: {fileID: 74956633}
   - component: {fileID: 74956632}
+  - component: {fileID: 74956636}
   m_Layer: 0
   m_Name: Node_Izmir
   m_TagString: Untagged
@@ -2309,6 +2310,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 74956630}
   m_CullTransparentMesh: 1
+--- !u!114 &74956636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 74956630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: e388c6b6edd6b1d469eb5432843e69ed, type: 2}
 --- !u!1 &80801613
 GameObject:
   m_ObjectHideFlags: 0
@@ -6734,6 +6748,7 @@ GameObject:
   - component: {fileID: 242129922}
   - component: {fileID: 242129921}
   - component: {fileID: 242129920}
+  - component: {fileID: 242129924}
   m_Layer: 0
   m_Name: Node_Antalya
   m_TagString: Untagged
@@ -6858,6 +6873,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 242129918}
   m_CullTransparentMesh: 1
+--- !u!114 &242129924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 242129918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 5129951f3e3dacb41b20fe516cb379fe, type: 2}
 --- !u!1 &243806989
 GameObject:
   m_ObjectHideFlags: 0
@@ -9380,6 +9408,7 @@ GameObject:
   - component: {fileID: 329356812}
   - component: {fileID: 329356811}
   - component: {fileID: 329356810}
+  - component: {fileID: 329356814}
   m_Layer: 0
   m_Name: Node_Eskisehir
   m_TagString: Untagged
@@ -9504,6 +9533,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 329356808}
   m_CullTransparentMesh: 1
+--- !u!114 &329356814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 329356808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 829224109666b8043889448a881007c3, type: 2}
 --- !u!1 &330127114
 GameObject:
   m_ObjectHideFlags: 0
@@ -12373,6 +12415,8 @@ MonoBehaviour:
   _hanIconSprite: {fileID: 21300000, guid: 6e69a98659ea89a4b97e29abdcae9c4c, type: 3}
   _enterCityColor: {r: 0.2, g: 0.55, b: 0.3, a: 1}
   _travelColor: {r: 0.65, g: 0.45, b: 0.2, a: 1}
+  _openSoundOverride: {fileID: 0}
+  _closeSoundOverride: {fileID: 0}
 --- !u!114 &443141150
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12770,6 +12814,7 @@ GameObject:
   - component: {fileID: 474022851}
   - component: {fileID: 474022850}
   - component: {fileID: 474022849}
+  - component: {fileID: 474022853}
   m_Layer: 0
   m_Name: Node_Sogut
   m_TagString: Untagged
@@ -12894,6 +12939,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 474022847}
   m_CullTransparentMesh: 1
+--- !u!114 &474022853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 474022847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: f79f9a2cbd7d57f4fb13cc2987804849, type: 2}
 --- !u!1 &474711080
 GameObject:
   m_ObjectHideFlags: 0
@@ -13582,6 +13640,7 @@ GameObject:
   - component: {fileID: 498096416}
   - component: {fileID: 498096415}
   - component: {fileID: 498096414}
+  - component: {fileID: 498096418}
   m_Layer: 0
   m_Name: Node_Karatay
   m_TagString: Untagged
@@ -13706,6 +13765,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 498096412}
   m_CullTransparentMesh: 1
+--- !u!114 &498096418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498096412}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 212a54e26d83cf14bb1b11eb3aef06bc, type: 2}
 --- !u!1 &500928441
 GameObject:
   m_ObjectHideFlags: 0
@@ -16085,6 +16157,7 @@ GameObject:
   - component: {fileID: 591286976}
   - component: {fileID: 591286975}
   - component: {fileID: 591286974}
+  - component: {fileID: 591286978}
   m_Layer: 0
   m_Name: Node_Tashan
   m_TagString: Untagged
@@ -16209,6 +16282,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 591286972}
   m_CullTransparentMesh: 1
+--- !u!114 &591286978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591286972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: e1725bea60eebb54d9fa33e14ebf7003, type: 2}
 --- !u!1 &597461830
 GameObject:
   m_ObjectHideFlags: 0
@@ -19586,7 +19672,6 @@ MonoBehaviour:
   _settingsPopup: {fileID: 1678251750}
   _currentNodeMarker: {fileID: 1591944438}
   _bottomNodeInfoCard: {fileID: 443141149}
-  _locationNodeDataList: []
   _bgmMapMusic: {fileID: 8300000, guid: 45432063e31d0334884f67dae6422853, type: 3}
   _mainMenuSceneName: MainMenuScene
   _travelSceneName: TravelScene
@@ -20787,6 +20872,7 @@ GameObject:
   - component: {fileID: 803559495}
   - component: {fileID: 803559494}
   - component: {fileID: 803559493}
+  - component: {fileID: 803559497}
   m_Layer: 0
   m_Name: Node_Ankara
   m_TagString: Untagged
@@ -20911,6 +20997,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 803559491}
   m_CullTransparentMesh: 1
+--- !u!114 &803559497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 803559491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 7dea4bf98c4f5384fb966c39ec2584c5, type: 2}
 --- !u!1 &807250265
 GameObject:
   m_ObjectHideFlags: 0
@@ -21074,6 +21173,7 @@ GameObject:
   - component: {fileID: 812225490}
   - component: {fileID: 812225489}
   - component: {fileID: 812225488}
+  - component: {fileID: 812225492}
   m_Layer: 0
   m_Name: Node_Iznik
   m_TagString: Untagged
@@ -21198,6 +21298,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 812225486}
   m_CullTransparentMesh: 1
+--- !u!114 &812225492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 812225486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: f04c7353c6d23c741afbce7848f340f9, type: 2}
 --- !u!1 &812340594
 GameObject:
   m_ObjectHideFlags: 0
@@ -23475,6 +23588,7 @@ GameObject:
   - component: {fileID: 909413284}
   - component: {fileID: 909413283}
   - component: {fileID: 909413282}
+  - component: {fileID: 909413286}
   m_Layer: 0
   m_Name: "Node_Domanic_Obas\uFFFD"
   m_TagString: Untagged
@@ -23599,6 +23713,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 909413280}
   m_CullTransparentMesh: 1
+--- !u!114 &909413286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909413280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 10bf1a7904a75c14493a91ee4162c778, type: 2}
 --- !u!1 &920071519
 GameObject:
   m_ObjectHideFlags: 0
@@ -25884,6 +26011,7 @@ GameObject:
   - component: {fileID: 996661213}
   - component: {fileID: 996661212}
   - component: {fileID: 996661211}
+  - component: {fileID: 996661215}
   m_Layer: 0
   m_Name: Node_Cakalli
   m_TagString: Untagged
@@ -26008,6 +26136,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 996661209}
   m_CullTransparentMesh: 1
+--- !u!114 &996661215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 996661209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 042bd5d6162e62f48b791726ebcb3b5a, type: 2}
 --- !u!1 &998140209
 GameObject:
   m_ObjectHideFlags: 0
@@ -27674,6 +27815,7 @@ GameObject:
   - component: {fileID: 1048323007}
   - component: {fileID: 1048323006}
   - component: {fileID: 1048323005}
+  - component: {fileID: 1048323009}
   m_Layer: 0
   m_Name: Node_Trabzon
   m_TagString: Untagged
@@ -27798,6 +27940,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1048323003}
   m_CullTransparentMesh: 1
+--- !u!114 &1048323009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048323003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 72d9770750d91b849920a8b193f548e6, type: 2}
 --- !u!1 &1048623388
 GameObject:
   m_ObjectHideFlags: 0
@@ -28695,6 +28850,7 @@ GameObject:
   - component: {fileID: 1077968207}
   - component: {fileID: 1077968206}
   - component: {fileID: 1077968205}
+  - component: {fileID: 1077968209}
   m_Layer: 0
   m_Name: Node_Bursa
   m_TagString: Untagged
@@ -28819,6 +28975,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1077968203}
   m_CullTransparentMesh: 1
+--- !u!114 &1077968209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1077968203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 9a4224f1801b232469d7ac14fbde0aa2, type: 2}
 --- !u!1 &1078829935
 GameObject:
   m_ObjectHideFlags: 0
@@ -32247,7 +32416,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1355732126}
   m_HandleRect: {fileID: 1355732125}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -40502,7 +40671,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 307079718}
   m_HandleRect: {fileID: 307079717}
   m_Direction: 0
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -43118,6 +43287,7 @@ GameObject:
   - component: {fileID: 1609541733}
   - component: {fileID: 1609541732}
   - component: {fileID: 1609541731}
+  - component: {fileID: 1609541735}
   m_Layer: 0
   m_Name: Node_Ahlat
   m_TagString: Untagged
@@ -43242,6 +43412,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1609541729}
   m_CullTransparentMesh: 1
+--- !u!114 &1609541735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1609541729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: fa84bb5620136a34cb53b240b37ad286, type: 2}
 --- !u!1 &1609719213
 GameObject:
   m_ObjectHideFlags: 0
@@ -44594,6 +44777,7 @@ GameObject:
   - component: {fileID: 1658720705}
   - component: {fileID: 1658720704}
   - component: {fileID: 1658720703}
+  - component: {fileID: 1658720707}
   m_Layer: 0
   m_Name: Node_Kutahya
   m_TagString: Untagged
@@ -44718,6 +44902,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1658720701}
   m_CullTransparentMesh: 1
+--- !u!114 &1658720707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1658720701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: 2d4975513f6918b4294d6dced7d0b693, type: 2}
 --- !u!1 &1667617534
 GameObject:
   m_ObjectHideFlags: 0
@@ -51535,8 +51732,9 @@ GameObject:
   - component: {fileID: 1921534825}
   - component: {fileID: 1921534824}
   - component: {fileID: 1921534823}
+  - component: {fileID: 1921534827}
   m_Layer: 0
-  m_Name: "Node_Inegol_Han\uFFFD"
+  m_Name: Node_Inegol_Hani
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -51659,6 +51857,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1921534821}
   m_CullTransparentMesh: 1
+--- !u!114 &1921534827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921534821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c34875774787454ebafe7aba93a4b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.MapNodeView
+  _nodeData: {fileID: 11400000, guid: b7b0ae6f3a9d5a2468cc5114c8354934, type: 2}
 --- !u!1 &1923909715
 GameObject:
   m_ObjectHideFlags: 0

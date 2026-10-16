@@ -1,15 +1,18 @@
 using UnityEngine;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using UnityEngine.SceneManagement;
-using Kervan.Audio;
+#endif
 
 namespace Kervan.DevTools
 {
     /// <summary>
     /// Test ve geliştirme sürecinde sahneler arasında (Savaş, Seyahat, Pazar, Divan)
-    /// tek tıkla geçiş yapmayı ve ses/müzik durumunu kontrol etmeyi sağlayan test arayüzü.
+    /// tek tıkla geçiş yapmayı sağlayan geliştirici arayüzü.
+    /// Yalnızca Editör ve Development Build sürümlerinde aktif olur.
     /// </summary>
     public class KervanSceneNavOverlay : MonoBehaviour
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private static bool _initialized = false;
         private bool _isCollapsed = false;
 
@@ -78,5 +81,6 @@ namespace Kervan.DevTools
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
+#endif
     }
 }

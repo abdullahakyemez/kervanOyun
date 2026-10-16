@@ -19,6 +19,7 @@ MonoBehaviour:
   _description: "Osmanl\u0131 U\xE7 Beyli\u011Fi'nin kutlu ba\u015Fkenti ve kervan\u0131m\u0131z\u0131n ana oca\u011F\u0131."
   _hasMarket: 1
   _hasInn: 1
+  _marketGoodsSummary: "Pazar: Bu\u011Fday, \u0130pek, Pusat"
   _dailyRestCost: 10
   _dailyHealAmount: 15
   _dailyMoraleRestore: 20

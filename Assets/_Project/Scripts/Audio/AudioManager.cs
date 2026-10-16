@@ -13,6 +13,11 @@ namespace Kervan.Audio
     /// </summary>
     public class AudioManager : MonoBehaviour
     {
+        private const string PrefMasterVol = "Kervan_Audio_Master";
+        private const string PrefMusicVol = "Kervan_Audio_Music";
+        private const string PrefSfxVol = "Kervan_Audio_SFX";
+        private const string PrefMuted = "Kervan_Audio_Muted";
+
         private static AudioManager _instance;
 
         public static AudioManager Instance
@@ -39,6 +44,8 @@ namespace Kervan.Audio
         [Range(0f, 1f)] [SerializeField] private float _masterVolume = 1.0f;
         [Range(0f, 1f)] [SerializeField] private float _musicVolume = 0.75f;
         [Range(0f, 1f)] [SerializeField] private float _sfxVolume = 1.0f;
+        [Tooltip("Tüm seslerin geçici olarak susturulup susturulmadığı")]
+        [SerializeField] private bool _isMuted = false;
 
         private Coroutine _fadeCoroutine;
 
@@ -46,6 +53,7 @@ namespace Kervan.Audio
         public float MasterVolume => _masterVolume;
         public float MusicVolume => _musicVolume;
         public float SfxVolume => _sfxVolume;
+        public bool IsMuted => _isMuted;
 
         private void Awake()
         {
@@ -57,6 +65,7 @@ namespace Kervan.Audio
             _instance = this;
             DontDestroyOnLoad(gameObject);
 
+            LoadAudioSettings();
             InitializeAudioSources();
             RegisterEventBus();
         }
@@ -68,6 +77,14 @@ namespace Kervan.Audio
                 _instance = null;
             }
             UnregisterEventBus();
+        }
+
+        private void LoadAudioSettings()
+        {
+            _masterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PrefMasterVol, _masterVolume));
+            _musicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PrefMusicVol, _musicVolume));
+            _sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PrefSfxVol, _sfxVolume));
+            _isMuted = PlayerPrefs.GetInt(PrefMuted, 0) == 1;
         }
 
         private void InitializeAudioSources()
@@ -128,7 +145,7 @@ namespace Kervan.Audio
 
         private IEnumerator FadeMusicRoutine(AudioClip newClip, float duration)
         {
-            float targetVol = _masterVolume * _musicVolume;
+            float targetVol = _isMuted ? 0f : (_masterVolume * _musicVolume);
             float halfDuration = Mathf.Max(0.1f, duration * 0.5f);
 
             // Ses kısılma (Fade out)
@@ -143,16 +160,18 @@ namespace Kervan.Audio
             }
 
             _bgmSource.clip = newClip;
+            _bgmSource.mute = _isMuted;
             _bgmSource.Play();
 
             // Ses açılma (Fade in)
             for (float t = 0; t < halfDuration; t += Time.unscaledDeltaTime)
             {
-                _bgmSource.volume = Mathf.Lerp(0f, targetVol, t / halfDuration);
+                float currentTarget = _isMuted ? 0f : (_masterVolume * _musicVolume);
+                _bgmSource.volume = Mathf.Lerp(0f, currentTarget, t / halfDuration);
                 yield return null;
             }
 
-            _bgmSource.volume = targetVol;
+            _bgmSource.volume = _isMuted ? 0f : (_masterVolume * _musicVolume);
             _fadeCoroutine = null;
         }
 
@@ -162,7 +181,7 @@ namespace Kervan.Audio
 
         public void PlaySFX(AudioClip clip, float volumeScale = 1.0f, float pitchVariation = 0.05f)
         {
-            if (clip == null || _sfxSource == null) return;
+            if (_isMuted || clip == null || _sfxSource == null) return;
 
             float originalPitch = 1.0f;
             float randomPitch = originalPitch + Random.Range(-pitchVariation, pitchVariation);
@@ -179,10 +198,6 @@ namespace Kervan.Audio
         public void PlayPaperRustle()
         {
             AudioClip clip = _library != null ? _library.SfxPaperRustle : null;
-            if (clip == null)
-            {
-                clip = Resources.Load<AudioClip>("Audio/SFX/SFX_PaperRustle");
-            }
             PlaySFX(clip, 0.85f, 0.03f);
         }
 
@@ -190,10 +205,6 @@ namespace Kervan.Audio
         public void PlayButtonClick()
         {
             AudioClip clip = _library != null ? _library.SfxButtonClick : null;
-            if (clip == null)
-            {
-                clip = Resources.Load<AudioClip>("Audio/SFX/SFX_ButtonClick");
-            }
             PlaySFX(clip, 0.7f, 0.02f);
         }
         public void PlayVictory() => PlaySFX(_library != null ? _library.SfxVictory : null);
@@ -203,27 +214,71 @@ namespace Kervan.Audio
 
         #region Ses Ayarları
 
+        /// <summary>
+        /// Genel ses düzeyini (0-1) ayarlar ve kalıcı olarak kaydeder.
+        /// </summary>
         public void SetMasterVolume(float vol)
         {
             _masterVolume = Mathf.Clamp01(vol);
+            PlayerPrefs.SetFloat(PrefMasterVol, _masterVolume);
+            PlayerPrefs.Save();
             UpdateVolumes();
         }
 
+        /// <summary>
+        /// Müzik ses düzeyini (0-1) ayarlar ve kalıcı olarak kaydeder.
+        /// </summary>
         public void SetMusicVolume(float vol)
         {
             _musicVolume = Mathf.Clamp01(vol);
+            PlayerPrefs.SetFloat(PrefMusicVol, _musicVolume);
+            PlayerPrefs.Save();
             UpdateVolumes();
         }
 
+        /// <summary>
+        /// Ses efekti düzeyini (0-1) ayarlar ve kalıcı olarak kaydeder.
+        /// </summary>
         public void SetSFXVolume(float vol)
         {
             _sfxVolume = Mathf.Clamp01(vol);
+            PlayerPrefs.SetFloat(PrefSfxVol, _sfxVolume);
+            PlayerPrefs.Save();
             UpdateVolumes();
+        }
+
+        /// <summary>
+        /// Seslerin tamamını susturur veya açar; kullanıcı ses düzeyi ayarlarını bozmadan kalıcı kaydeder.
+        /// </summary>
+        public void SetMuted(bool muted)
+        {
+            _isMuted = muted;
+            PlayerPrefs.SetInt(PrefMuted, _isMuted ? 1 : 0);
+            PlayerPrefs.Save();
+            UpdateVolumes();
+        }
+
+        /// <summary>
+        /// Mevcut sessize alma (mute) durumunu tersine çevirir ve yeni durumu döndürür.
+        /// </summary>
+        public bool ToggleMute()
+        {
+            SetMuted(!_isMuted);
+            return _isMuted;
         }
 
         private void UpdateVolumes()
         {
-            if (_bgmSource != null) _bgmSource.volume = _masterVolume * _musicVolume;
+            if (_bgmSource != null)
+            {
+                _bgmSource.mute = _isMuted;
+                _bgmSource.volume = _isMuted ? 0f : (_masterVolume * _musicVolume);
+            }
+
+            if (_sfxSource != null)
+            {
+                _sfxSource.mute = _isMuted;
+            }
         }
 
         #endregion

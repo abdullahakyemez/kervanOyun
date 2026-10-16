@@ -124,30 +124,19 @@ namespace Kervan.UI
         /// <summary>
         /// Seçilen düğümün (Şehir veya Han) ticaret mallarını rozet kutusu için özetler.
         /// </summary>
-        private string GetMarketGoodsSummary(string nodeName, LocationNodeSO nodeData)
+        private string GetMarketGoodsSummary(LocationNodeSO nodeData)
         {
-            bool isHan = (nodeName ?? "").ToLowerInvariant().Contains("han") || 
-                         (nodeName ?? "").ToLowerInvariant().Contains("oba") || 
-                         (nodeData != null && nodeData.NodeType == NodeType.Caravanserai);
+            if (nodeData == null)
+            {
+                return "Pazar: Çeşitli Emtia";
+            }
 
-            if (isHan)
+            if (nodeData.NodeType == NodeType.Caravanserai)
             {
                 return "Han: Dinlenme & İkmal";
             }
 
-            // Şehir merkezlerinde bol bulunan ve kervanla alınıp satılabilecek başlıca ticaret malları
-            string n = (nodeName ?? "").ToLowerInvariant();
-            if (n.Contains("söğüt") || n.Contains("sogut")) return "Pazar: Buğday, İpek";
-            if (n.Contains("iznik") || n.Contains("iznık")) return "Pazar: Çini, Zeytin, İpek";
-            if (n.Contains("bursa")) return "Pazar: İpek, Çelik, Kürk";
-            if (n.Contains("bilecik")) return "Pazar: Dövme Demir, Kereste";
-            if (n.Contains("kütahya") || n.Contains("kutahya")) return "Pazar: Çini, Bakır, Yün";
-            if (n.Contains("domaniç") || n.Contains("domanic")) return "Pazar: Yün, Deri, At";
-            if (n.Contains("eskişehir") || n.Contains("eskisehir")) return "Pazar: Buğday, Lületaşı";
-            if (n.Contains("gemlik")) return "Pazar: Zeytinyağı, İncir";
-            if (n.Contains("yalova")) return "Pazar: Kereste, Meyve";
-
-            return "Pazar: Çeşitli Emtia";
+            return nodeData.MarketGoodsSummary;
         }
 
         private void Start()
@@ -174,25 +163,31 @@ namespace Kervan.UI
         }
 
         /// <summary>
-        /// Seçilen düğümün bilgilerini doldurur ve kartı yumuşakça yukarı kaydırarak açar.
+        /// Seçilen düğümün <see cref="LocationNodeSO"/> bilgilerini doldurur ve kartı yumuşakça yukarı kaydırarak açar.
         /// </summary>
         public void ShowNode(
-            string nodeName, 
-            LocationNodeSO nodeData, 
-            bool isCurrentLocation, 
-            int distanceDays, 
-            int foodRequired, 
+            LocationNodeSO nodeData,
+            bool isCurrentLocation,
+            int distanceDays,
+            int foodRequired,
             Action onActionCallback)
         {
+            if (nodeData == null)
+            {
+                Debug.LogError("[BottomNodeInfoCardUI] ShowNode çağrıldı ancak LocationNodeSO verisi boş!", this);
+                return;
+            }
+
             AutoBindReferences();
             _onActionConfirmed = onActionCallback;
-            bool isHan = nodeName.ToLower().Contains("han") || nodeName.ToLower().Contains("oba") || 
-                         (nodeData != null && nodeData.NodeType == NodeType.Caravanserai);
+
+            string displayName = nodeData.NodeName;
+            bool isHan = nodeData.NodeType == NodeType.Caravanserai;
 
             // 1. Başlık ve İkon
             if (_nodeTitleText != null)
             {
-                _nodeTitleText.text = nodeName;
+                _nodeTitleText.text = displayName;
                 _nodeTitleText.enableAutoSizing = true;
                 _nodeTitleText.fontSizeMin = 18f;
                 _nodeTitleText.fontSizeMax = 28f;
@@ -200,7 +195,7 @@ namespace Kervan.UI
 
             if (_nodeIconImage != null)
             {
-                if (nodeData != null && nodeData.NodeIcon != null)
+                if (nodeData.NodeIcon != null)
                 {
                     _nodeIconImage.sprite = nodeData.NodeIcon;
                 }
@@ -213,8 +208,8 @@ namespace Kervan.UI
             // 2. Düğüm Türü / Üst Rozet
             if (_nodeTypeText != null)
             {
-                string faction = nodeData != null ? nodeData.RulingFaction.ToString() : "Osmanlı";
-                _nodeTypeText.text = isHan ? "Kervansaray & Menzil" : $"{nodeName} — {faction} Mülkü";
+                string faction = nodeData.GetFactionDisplayName();
+                _nodeTypeText.text = isHan ? $"Kervansaray & Menzil ({faction})" : $"{displayName} — {faction} Mülkü";
                 ConfigureBadgeText(_nodeTypeText);
             }
 
@@ -250,7 +245,7 @@ namespace Kervan.UI
             // 6. Pazar & Tesis Rozeti (Facilities - Şehirde alınabilecek mallar)
             if (_nodeFacilitiesText != null)
             {
-                _nodeFacilitiesText.text = GetMarketGoodsSummary(nodeName, nodeData);
+                _nodeFacilitiesText.text = GetMarketGoodsSummary(nodeData);
                 ConfigureBadgeText(_nodeFacilitiesText);
             }
 
@@ -262,11 +257,11 @@ namespace Kervan.UI
                 _actionButtonText.fontSizeMax = 20f;
                 if (isCurrentLocation)
                 {
-                    _actionButtonText.text = isHan ? "Menzile Gir ➔" : "Şehre Gir ➔";
+                    _actionButtonText.text = isHan ? "Menzile Gir" : "Şehre Gir";
                 }
                 else
                 {
-                    _actionButtonText.text = "Yola Çık ➔";
+                    _actionButtonText.text = "Yola Çık";
                 }
             }
 
@@ -354,14 +349,6 @@ namespace Kervan.UI
             if (AudioManager.Instance != null)
             {
                 AudioManager.Instance.PlayPaperRustle();
-            }
-            else
-            {
-                AudioClip fallbackClip = Resources.Load<AudioClip>("Audio/SFX/SFX_PaperRustle");
-                if (fallbackClip != null)
-                {
-                    AudioSource.PlayClipAtPoint(fallbackClip, Camera.main != null ? Camera.main.transform.position : Vector3.zero, 0.85f);
-                }
             }
         }
 

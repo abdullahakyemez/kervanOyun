@@ -467,3 +467,47 @@ Assets/_Project/
 - Müzikler: `BGM_`
 - Ses Efektleri: `SFX_`
 
+
+---
+
+## 🧹 8. Varlık Hijyeni Kuralları (14.10.2026 analizi sonrası)
+
+1. **Tek kopya kuralı:** Aynı görsel projede yalnızca bir kez bulunur. Başka ekranda gerekiyorsa aynı dosya referans edilir; kopyalanmaz. (Mevcut mükerrerler: `06-Bilinen-Sorunlar.md` → AST-02.)
+2. **Kök klasör yasağı:** `Assets/_Project/Art/` altında yalnızca §7'deki klasörler bulunur. Ekran adına göre klasör (`altmenu/`, `Sidebar/`, `Toolbar/`, `Settings/`) açılmaz; parçalar türüne göre (`Backgrounds/`, `Buttons/`, `Icons/`…) yerleştirilir. Ekrana göre gruplamak gerekirse alt klasör kullanılır: `Sprites/UI/Backgrounds/WorldMap/`.
+3. **İsimlendirme:** İngilizce/ASCII, PascalCase, önekli, Türkçe karakter ve boşluk yok, yazım kontrolü yapılmış (`Item_Health`, `Muhafiz_ProfileCard`). Ek önekler:
+   - Portreler: `Portrait_<Ad>` (ör. `Portrait_Muhafiz`)
+   - Harita: `Icon_Map_<Ad>` (ör. `Icon_Map_City`, `Icon_Map_Han`)
+   - Dekorasyon: `UI_Deco_<Ad>` (ör. `UI_Deco_Separator`)
+   - Emtia: `Item_<Ad>` · Birim: `Unit_<Ad>` · Karo: `Tile_<Ad>`
+4. **Ham kaynak dosyalar:** `.ai`, `.psd` (import edilmeyecekse), mockup ve referans görselleri `Assets/` **dışında**, proje kökündeki `ArtSource/` klasöründe tutulur (KR-5 onayıyla). `Assets/` içindeki her dosya Unity tarafından import edilir ve yer kaplar.
+5. **Taşıma yöntemi:** Varlıklar her zaman **Unity Project penceresinden** taşınır/yeniden adlandırılır (`.meta` ve referanslar korunur). Dosya gezgininden taşımak referansları koparır.
+6. **Yeni varlık giriş kontrolü** (`varlik-entegrasyonu` skill'i uygular): isim ✔ · klasör ✔ · import ayarı ✔ · mükerrer yok ✔ · 9-slice gerekiyorsa border ✔.
+
+## ⚙️ 9. Import Ayarları Hızlı Tablosu
+
+| Varlık Türü | Texture Type | Max Size | Sıkıştırma (Android) | Mip Maps | Filter | Not |
+|---|---|---|---|---|---|---|
+| UI ikon / buton | Sprite (2D and UI) | 256–512 | ASTC 6×6 | Kapalı | Bilinear | Sprite Atlas'a alınır |
+| UI panel (9-slice) | Sprite (2D and UI) | 1024 | ASTC 6×6 | Kapalı | Bilinear | Sprite Editor'de Border |
+| Tam ekran arka plan | Sprite (2D and UI) | 2048 | ASTC 8×8 | Kapalı | Bilinear | Atlas'a alınmaz |
+| Dünya haritası | Sprite (2D and UI) | 2048 (gerekirse 4096) | ASTC 6×6 | Kapalı | Bilinear | Bellek ölçülmeli |
+| Karakter / Birim | Sprite, PPU 128 | 512 | ASTC 6×6 | Kapalı | Bilinear | Pivot (0.5, 0.12) |
+| Hex karo | Sprite, PPU 128 | 256 | ASTC 6×6 | Kapalı | Bilinear | |
+| Müzik (BGM) | — | — | Vorbis, Q 50–70 | — | — | Load Type: Streaming |
+| SFX | — | — | ADPCM veya Vorbis | — | — | Mono, Decompress On Load |
+
+## 🎨 10. UI Renk Token'ları (Kodda Kullanım)
+
+Kodda `new Color(0.96f, 0.90f, 0.83f)` gibi gömülü değerler yazılmaz. A7'de `UIThemeSO`'ya geçilene kadar tüm UI renkleri tek bir `UIColors` statik sınıfında tutulur:
+
+| Token | HEX | Kullanım |
+|---|---|---|
+| `ParchmentCream` | `#F5E6D3` | Koyu zemin üzerindeki metin (sidebar) |
+| `AntiqueGold` | `#D9B359` | Başlık ve vurgu metni |
+| `ParchmentBase` | `#F2E6CE` | Açık panel zemini |
+| `DarkInk` | `#1E1815` | Açık zemin üzerindeki gövde metni |
+| `Gold` | `#DAA520` | Akçe, kâr, onay |
+| `MoraleHigh` | `#2E7D32` | Pozitif durum |
+| `Danger` | `#B71C1C` | Tehlike, zarar, düşük moral |
+
+**Fontlar:** Başlık → `MedievalSharp` (TMP SDF hazır). `Metamorphous` ve `ModernAntiqua` için rol (gövde/sayı) henüz atanmadı; Türkçe karakterler (ğ ş ı İ ö ü ç) için SDF atlasında **Custom Character List** ile üretilmeli ve fallback zinciri tanımlanmalı.
