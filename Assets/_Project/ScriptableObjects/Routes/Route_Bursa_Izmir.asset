@@ -10,16 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be9bde164701ddf4788d081701765ab1, type: 3}
-  m_Name: Route_Sogut_Bilecik
+  m_Name: Route_Bursa_Izmir
   m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.TravelRouteSO
-  _routeId: route_sogut_bilecik
-  _fromNode: {fileID: 11400000, guid: f79f9a2cbd7d57f4fb13cc2987804849, type: 2}
-  _toNode: {fileID: 11400000, guid: 70b97a4444ff7964db07ee7852251c4b, type: 2}
-  _distanceDays: 2
+  _routeId: route_bursa_izmir
+  _fromNode: {fileID: 11400000, guid: 9a4224f1801b232469d7ac14fbde0aa2, type: 2}
+  _toNode: {fileID: 11400000, guid: e388c6b6edd6b1d469eb5432843e69ed, type: 2}
+  _distanceDays: 5
   _terrain: 0
   _roadQuality: 1
   _weather: 0
-  _dangerLevel: 0.2
-  _foodConsumptionMultiplier: 1
-  _potentialEnemies:
-  - {fileID: 11400000, guid: 1177e5342e70f254399c5b65f9dc62a5, type: 2}
+  _dangerLevel: 0.35
+  _foodConsumptionMultiplier: 1.1
+  _potentialEnemies: []

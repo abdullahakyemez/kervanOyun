@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dee342bf32596a44b6eda4623e64509, type: 3}
+  m_Name: RouteDatabase
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.RouteDatabaseSO
+  _routes:
+  - {fileID: 11400000, guid: 0ef838d129e865647a2c18931ab59e90, type: 2}
+  - {fileID: 11400000, guid: 5b04719d34ff7b543ad67f370e0f37dc, type: 2}
+  - {fileID: 11400000, guid: e2c6b9d3a2ff96c449970f50702fc731, type: 2}
+  - {fileID: 11400000, guid: 7647b02adc6684f4e837a8782389543a, type: 2}
+  - {fileID: 11400000, guid: 499b38c45083c04409345fc3327f35bb, type: 2}
+  - {fileID: 11400000, guid: 4852afd7614f50043be2bc3752e4ff77, type: 2}
+  - {fileID: 11400000, guid: fbfd4389ee505f74b860423b59da6178, type: 2}
+  - {fileID: 11400000, guid: c66bd5ea4dc80cd428d9dee57662e557, type: 2}
+  - {fileID: 11400000, guid: 1eeea2739ae94814c97498e786815fc5, type: 2}
+  - {fileID: 11400000, guid: 533124381110ad54aa865bc75de085f4, type: 2}
+  - {fileID: 11400000, guid: 60c9319cbe9489d45ada64191f9c7f3e, type: 2}
+  - {fileID: 11400000, guid: 840cc2e2069daa444a803237a28e2403, type: 2}
+  - {fileID: 11400000, guid: 104a15d1107f0524dbb01f9f02d6284f, type: 2}
+  - {fileID: 11400000, guid: 4b29270ced04efc40aeb8792b82134fd, type: 2}
+  - {fileID: 11400000, guid: 292c1cf2c9d266349a92c80ebb2460d4, type: 2}
+  - {fileID: 11400000, guid: 51e98b780328c834e80f38c53d29a49c, type: 2}
+  - {fileID: 11400000, guid: 4f1c3ea7c16bc394180a1c381f04ad10, type: 2}
+  - {fileID: 11400000, guid: db1773930cc467f4bb4f2f35c952daef, type: 2}
+  - {fileID: 11400000, guid: 756cbe5f6d3017d448c5d6c4888add92, type: 2}
+  - {fileID: 11400000, guid: 440da23b09d82814aa0cdc139b58f1d1, type: 2}

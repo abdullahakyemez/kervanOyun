@@ -145,8 +145,9 @@ namespace Kervan.UI
         }
 
         /// <summary>
-        /// Harita görselinin (MapBackground) MapContent sınırlarını %100 doldurmasını garantiler.
-        /// Böylece kenarlarda siyah boşluk kalması engellenir.
+        /// MapContent sınırlarını MapBackground görselinin Editör (Scene) görünümündeki gerçek boyutuna eşitler.
+        /// Böylece Play moduna geçildiğinde harita görseli esnemez, kenardaki düğümler (Node_*) kaymaz
+        /// ve kamera sınır kilitlemesi harita görselinin tam kenarlarına oturur.
         /// </summary>
         private void EnsureMapBackgroundFit()
         {
@@ -157,7 +158,15 @@ namespace Kervan.UI
             {
                 if (bgRt.anchorMin == Vector2.zero && bgRt.anchorMax == Vector2.one)
                 {
-                    bgRt.sizeDelta = Vector2.zero;
+                    if (bgRt.sizeDelta != Vector2.zero)
+                    {
+                        Vector2 targetContentSize = _contentRect.sizeDelta + bgRt.sizeDelta;
+                        if (targetContentSize.x > 100f && targetContentSize.y > 100f)
+                        {
+                            _contentRect.sizeDelta = targetContentSize;
+                        }
+                        bgRt.sizeDelta = Vector2.zero;
+                    }
                     bgRt.anchoredPosition = Vector2.zero;
                 }
             }

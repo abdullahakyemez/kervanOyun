@@ -10,16 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be9bde164701ddf4788d081701765ab1, type: 3}
-  m_Name: Route_Bilecik_Iznik
+  m_Name: Route_Eskisehir_Ankara
   m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.TravelRouteSO
-  _routeId: route_bilecik_iznik
-  _fromNode: {fileID: 11400000, guid: 70b97a4444ff7964db07ee7852251c4b, type: 2}
-  _toNode: {fileID: 11400000, guid: f04c7353c6d23c741afbce7848f340f9, type: 2}
+  _routeId: route_eskisehir_ankara
+  _fromNode: {fileID: 11400000, guid: 829224109666b8043889448a881007c3, type: 2}
+  _toNode: {fileID: 11400000, guid: 7dea4bf98c4f5384fb966c39ec2584c5, type: 2}
   _distanceDays: 3
-  _terrain: 1
-  _roadQuality: 2
+  _terrain: 0
+  _roadQuality: 1
   _weather: 0
-  _dangerLevel: 0.4
-  _foodConsumptionMultiplier: 1.2
-  _potentialEnemies:
-  - {fileID: 11400000, guid: 1177e5342e70f254399c5b65f9dc62a5, type: 2}
+  _dangerLevel: 0.2
+  _foodConsumptionMultiplier: 1
+  _potentialEnemies: []

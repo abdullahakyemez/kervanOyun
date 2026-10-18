@@ -15,11 +15,10 @@ MonoBehaviour:
   _routeId: route_iznik_bursa
   _fromNode: {fileID: 11400000, guid: f04c7353c6d23c741afbce7848f340f9, type: 2}
   _toNode: {fileID: 11400000, guid: 9a4224f1801b232469d7ac14fbde0aa2, type: 2}
-  _distanceDays: 4
+  _distanceDays: 2
   _terrain: 0
-  _roadQuality: 0
+  _roadQuality: 1
   _weather: 0
   _dangerLevel: 0.25
   _foodConsumptionMultiplier: 1
-  _potentialEnemies:
-  - {fileID: 11400000, guid: 1177e5342e70f254399c5b65f9dc62a5, type: 2}
+  _potentialEnemies: []

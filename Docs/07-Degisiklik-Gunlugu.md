@@ -6,6 +6,17 @@
 
 ---
 
+## [19.10.2026] A2.4 — Rota Grafiği + Gerçek Mesafe/Erzak
+- `RouteDatabaseSO.cs` (yeni): Haritadaki tüm `TravelRouteSO` varlıklarını tek bir listede toplayan ScriptableObject veri tabanı eklendi (`TD-04`).
+- `RouteGraph.cs` (yeni): `RouteDatabaseSO` üzerinden çift yönlü (undirected) komşuluk grafiği kuran, doğrudan komşuluk (`TryGetDirectRoute`) ve Dijkstra ile en kısa aktarmalı yol (`TryFindPath` / `RoutePathResult`) hesaplayan saf C# sınıfı eklendi (`TD-04`).
+- `GameSession.cs`: `StartTravel` içindeki geçici `SetCurrentNode(toNodeId)` çağrısı kaldırıldı; seyahat başlarken oyuncu konumu (`CurrentNodeId`) korunup yalnızca `ActiveTravel` kaydediliyor (`BUG-04`).
+- `WorldMapUI.cs`, `BottomNodeInfoCardUI.cs`: Sabit kodlu `CalculateEstimatedDays` ve `%15` tehlike metni kaldırıldı (`TD-02`); bilgi kartı doğrudan komşuda gerçek gün/erzak/tehlike değerlerini, komşu olmayan düğümlerde *"Doğrudan yol yok / X üzerinden Toplam N Gün"* bilgisini gösterecek ve eylem butonunu pasifleştirecek şekilde güncellendi.
+- `MapPanZoomController.cs`: `EnsureMapBackgroundFit` metodunun Play modunda `MapBackground` boyutunu genişletip kenardaki düğümleri kaydırması düzeltildi; `MapContent` çerçevesi `MapBackground`'un Editör boyutuna eşitlendi.
+- Unity'de elle yapılanlar: 13 düğümü birbirine bağlayan `TravelRouteSO` varlıkları ve `RouteDatabase.asset` oluşturularak `WorldMapUI` bileşenine bağlandı; harita düğüm konumları düzenlendi.
+- Commit: `feat(map): A2.4 rota grafiği, gerçek mesafe/erzak hesabı ve harita hizalaması (TD-04, TD-02, BUG-04)`
+
+---
+
 ## [18.10.2026] A2.3 — Kayıt / Yükleme (JSON)
 - `SaveData.cs` (yeni): `saveVersion = 1` alanlı, SO referanslarını yalnızca ASCII ID olarak tutan serileştirilebilir kayıt veri modelleri (`SaveData`, `CaravanSaveData`, `InventorySlotSaveData`, `GuardSaveData`, `ActiveTravelSaveData`) eklendi (`TD-01`).
 - `SaveService.cs` (yeni): `Application.persistentDataPath/save_0.json` yoluna atomik yazma (`save_0.tmp` → `.bak` → `save_0.json`), bozuk JSON/sürüm doğrulama (`TryLoad`) ve `GameSavedEvent` yayını yapan servis eklendi (`TD-01`).

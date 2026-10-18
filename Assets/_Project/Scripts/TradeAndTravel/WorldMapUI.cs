@@ -55,6 +55,10 @@ namespace Kervan.UI
         [Tooltip("Yeni modüler alttan açılan şehir/han bilgi kartı")]
         [SerializeField] private BottomNodeInfoCardUI _bottomNodeInfoCard;
 
+        [Header("Rota Veri Tabanı (Route Graph)")]
+        [Tooltip("Şehirler arası komşuluk ve mesafe verilerini içeren RouteDatabaseSO varlığı")]
+        [SerializeField] private RouteDatabaseSO _routeDatabase;
+
         [Header("Müzik & Ses Ayarları")]
         [Tooltip("Harita ve seyahat arka plan müziği (BGM_Travel)")]
         [SerializeField] private AudioClip _bgmMapMusic;
@@ -67,6 +71,7 @@ namespace Kervan.UI
         private const string DefaultStartNodeId = GameSession.DefaultStartNodeId;
 
         private GameSession _gameSession;
+        private RouteGraph _routeGraph;
         private string _currentNodeId = DefaultStartNodeId;
         private bool _isMuted = false;
         private AudioSource _localAudioSource;
@@ -78,6 +83,7 @@ namespace Kervan.UI
             FindMissingReferences();
             PlayMapMusic();
             LoadCurrentLocation();
+            SetupRouteGraph();
             SetupNodeViews();
             RegisterListeners();
             UpdateTopResourceHUD();
@@ -124,6 +130,22 @@ namespace Kervan.UI
                 : DefaultStartNodeId;
 
             Debug.Log($"[WorldMapUI] Oyuncunun mevcut düğüm kimliği GameSession üzerinden yüklendi: {_currentNodeId}");
+        }
+
+        private void SetupRouteGraph()
+        {
+            if (_routeDatabase == null)
+            {
+                Debug.LogWarning("[WorldMapUI] RouteDatabaseSO referansı (_routeDatabase) atanmamış! Lütfen Inspector üzerinden RouteDatabase varlığını bağlayın.", this);
+                _routeGraph = new RouteGraph((RouteDatabaseSO)null);
+            }
+            else
+            {
+                _routeGraph = new RouteGraph(_routeDatabase);
+                Debug.Log($"[WorldMapUI] RouteGraph kuruldu. Kayıtlı geçerli rota sayısı: {_routeGraph.RouteCount}");
+            }
+
+            Services.Register(_routeGraph);
         }
 
         private void RegisterListeners()
@@ -258,9 +280,12 @@ namespace Kervan.UI
             // 2. Mevcut konum kontrolü (yalnızca ASCII NodeId ile)
             bool isCurrentLocation = string.Equals(clickedNodeId, _currentNodeId, StringComparison.Ordinal);
 
-            // 3. Mesafe ve Erzak hesaplaması (A2.4'te RouteGraph'a geçilecek)
-            int distanceDays = isCurrentLocation ? 0 : CalculateEstimatedDays(_currentNodeId, clickedNodeId);
-            int foodRequired = distanceDays;
+            // 3. Rota grafiğinden doğrudan veya aktarmalı en kısa yolu sorgula
+            RoutePathResult pathResult = RoutePathResult.Unreachable;
+            if (!isCurrentLocation && _routeGraph != null)
+            {
+                _routeGraph.TryFindPath(_currentNodeId, clickedNodeId, out pathResult);
+            }
 
             // 4. Alttan açılan detay kartını göster
             if (_bottomNodeInfoCard != null)
@@ -268,30 +293,13 @@ namespace Kervan.UI
                 _bottomNodeInfoCard.ShowNode(
                     nodeSO,
                     isCurrentLocation,
-                    distanceDays,
-                    foodRequired,
-                    () => OnNodeActionConfirmed(nodeSO, isCurrentLocation)
+                    pathResult,
+                    () => OnNodeActionConfirmed(nodeSO, isCurrentLocation, pathResult)
                 );
             }
         }
 
-        private int CalculateEstimatedDays(string fromNodeId, string toNodeId)
-        {
-            // A2.4'te RouteGraph ile değiştirilecek geçici komşuluk tablosu (ASCII NodeId bazlı)
-            if (string.Equals(fromNodeId, "node_sogut", StringComparison.Ordinal))
-            {
-                if (string.Equals(toNodeId, "node_iznik", StringComparison.Ordinal)) return 2;
-                if (string.Equals(toNodeId, "node_bursa", StringComparison.Ordinal)) return 3;
-                if (string.Equals(toNodeId, "node_bilecik", StringComparison.Ordinal)) return 1;
-                if (string.Equals(toNodeId, "node_kutahya", StringComparison.Ordinal)) return 3;
-                if (string.Equals(toNodeId, "node_domanic", StringComparison.Ordinal)) return 1;
-                if (string.Equals(toNodeId, "node_eskisehir", StringComparison.Ordinal)) return 1;
-            }
-
-            return 3;
-        }
-
-        private void OnNodeActionConfirmed(LocationNodeSO targetNode, bool isCurrentLocation)
+        private void OnNodeActionConfirmed(LocationNodeSO targetNode, bool isCurrentLocation, RoutePathResult pathResult)
         {
             if (targetNode == null) return;
 
@@ -303,13 +311,19 @@ namespace Kervan.UI
             }
             else
             {
-                // Yeni merkeze seyahat başlat
-                int estimatedDays = CalculateEstimatedDays(_currentNodeId, targetNode.NodeId);
-                Debug.Log($"[WorldMapUI] {_currentNodeId} noktasından {targetNode.NodeName} ({targetNode.NodeId}) yönüne seyahat başlatılıyor.");
+                if (!pathResult.IsReachable || !pathResult.IsDirect)
+                {
+                    Debug.LogWarning($"[WorldMapUI] {_currentNodeId} noktasından {targetNode.NodeId} düğümüne doğrudan rota bulunmadığı için seyahat başlatılamaz.");
+                    return;
+                }
+
+                int estimatedDays = Mathf.Max(1, pathResult.TotalDays);
+                string routeId = pathResult.DirectRoute != null ? pathResult.DirectRoute.RouteId : string.Empty;
+                Debug.Log($"[WorldMapUI] {_currentNodeId} noktasından {targetNode.NodeName} ({targetNode.NodeId}) yönüne '{routeId}' rotasıyla ({estimatedDays} gün) seyahat başlatılıyor.");
 
                 if (_gameSession != null)
                 {
-                    _gameSession.StartTravel(targetNode.NodeId, estimatedDays);
+                    _gameSession.StartTravel(targetNode.NodeId, estimatedDays, routeId);
                     _currentNodeId = _gameSession.CurrentNodeId;
                 }
 

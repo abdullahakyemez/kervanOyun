@@ -16,8 +16,8 @@ A2 Dünya Haritası & Oyun Omurgası .................. ⏳  ← ŞU AN
    A2.0 Hijyen (Input, DevOverlay, Ses kalıcılığı)  ✅
    A2.1 Kimlik birliği (NodeId + MapNodeView)        ✅
    A2.2 Boot sahnesi + GameSession                   ✅
-   A2.3 Kayıt / Yükleme (JSON)
-   A2.4 Rota grafiği + gerçek mesafe/erzak
+   A2.3 Kayıt / Yükleme (JSON)                       ✅
+   A2.4 Rota grafiği + gerçek mesafe/erzak           ✅
    A2.5 TopBar HUD (Akçe/Erzak/Tarih)
    A2.6 Sahne geçiş servisi (SceneLoader + Fade)
    A2.7 Sidebar gerçek veri + boş durumlar
@@ -66,12 +66,12 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Unity'de elle:** Yeni Oyun onayı için `Popup_NewGameConfirm` kopyası oluşturuldu ve `MainMenuUI`'a bağlandı.
 - **Test:** Oyna (akçe/konum değişsin) → uygulamayı kapat → Devam Et → aynı akçe/konum. Kayıt varken Yeni Oyun → onay sorar. Bozuk kayıt dosyası → çökme yok, uyarı + yeni oyun.
 
-### A2.4 — Rota Grafiği + Gerçek Mesafe/Erzak ⬜
+### A2.4 — Rota Grafiği + Gerçek Mesafe/Erzak ✅
 - **Amaç:** Hangi şehirden hangisine gidilebileceği `TravelRouteSO`'lardan gelsin; mesafe/erzak/tehlike gerçek veri olsun.
 - **Çözer:** TD-04, TD-02 (mesafe), BUG-04 (konum, varışta güncellenir)
-- **Muhtemel dosyalar:** Yeni `TradeAndTravel/RouteGraph.cs` (saf C#, komşuluk + en kısa yol), `WorldMapUI.cs` (`CalculateEstimatedDays` kaldırılır), `BottomNodeInfoCardUI.cs` ("Yol yok" durumu), opsiyonel `UI/RouteLineView.cs` (rota çizgisi).
-- **Unity'de elle:** Eksik `TravelRouteSO`'ları oluşturmak; `RouteGraph` için tüm rotaları içeren bir `RouteDatabaseSO`.
-- **Test:** Komşu olmayan şehre tıklayınca "doğrudan yol yok / X üzerinden N gün". Seyahat başlatınca `CurrentCity` **değişmez**, sadece `ActiveTravel` kaydedilir.
+- **Muhtemel dosyalar:** Yeni `TradeAndTravel/RouteDatabaseSO.cs`, yeni `TradeAndTravel/RouteGraph.cs` (saf C#, komşuluk + Dijkstra en kısa yol), `Core/GameSession.cs` (`StartTravel`), `WorldMapUI.cs` (`CalculateEstimatedDays` kaldırıldı), `BottomNodeInfoCardUI.cs` ("Doğrudan yol yok" durumu ve buton pasifliği), `UI/MapPanZoomController.cs` (`EnsureMapBackgroundFit` boyut koruması).
+- **Unity'de elle:** 13 düğümü bağlayan `TravelRouteSO`'lar ve `RouteDatabase.asset` oluşturuldu; `WorldMapUI`'a bağlandı.
+- **Test:** Komşu olmayan şehre tıklayınca "doğrudan yol yok / X üzerinden N gün". Seyahat başlatınca `CurrentNodeId` **değişmez**, sadece `ActiveTravel` kaydedilir.
 
 ### A2.5 — TopBar HUD ⬜
 - **Amaç:** Akçe, Erzak, Tarih göstergeleri yeni görsellerle ve gerçek veriyle.

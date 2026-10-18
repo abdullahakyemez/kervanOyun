@@ -321,7 +321,8 @@ namespace Kervan.Core
         }
 
         /// <summary>
-        /// Hedef düğüme yeni bir seyahat başlatır.
+        /// Hedef düğüme yeni bir seyahat başlatır. Konum (<see cref="CurrentNodeId"/>) yola çıkarken değişmez;
+        /// yalnızca varışta (<see cref="CompleteTravel"/>) güncellenir.
         /// </summary>
         public void StartTravel(string toNodeId, int estimatedDays, string routeId = "")
         {
@@ -329,10 +330,6 @@ namespace Kervan.Core
 
             _isSessionActive = true;
             _activeTravel = new ActiveTravelState(_currentNodeId, toNodeId, estimatedDays, routeId);
-
-            // Not: A2.4'e kadar mevcut akışın kırılmaması için konum güncellenir;
-            // A2.4/A3.4'te konum yalnızca varışta (CompleteTravel) güncellenecektir.
-            SetCurrentNode(toNodeId);
 
             EventBus.Publish(new TravelStartedEvent(_activeTravel.FromNodeId, toNodeId, estimatedDays));
         }

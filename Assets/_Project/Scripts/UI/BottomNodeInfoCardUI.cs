@@ -47,6 +47,7 @@ namespace Kervan.UI
         [Header("Buton Renk Temaları")]
         [SerializeField] private Color _enterCityColor = new Color(0.20f, 0.55f, 0.30f); // Yeşil
         [SerializeField] private Color _travelColor = new Color(0.65f, 0.45f, 0.20f);    // Ahşap kahve / sarı
+        [SerializeField] private Color _disabledRouteColor = new Color(0.38f, 0.35f, 0.32f, 0.85f); // Pasif / yol yok gri-kahve
 
         [Header("Ses Efektleri (Opsiyonel)")]
         [Tooltip("Kart açılırken çalacak parşömen hışırtısı sesi (SFX_PaperRustle). Boş bırakılırsa AudioManager'daki PaperRustle sesi çalar.")]
@@ -163,13 +164,13 @@ namespace Kervan.UI
         }
 
         /// <summary>
-        /// Seçilen düğümün <see cref="LocationNodeSO"/> bilgilerini doldurur ve kartı yumuşakça yukarı kaydırarak açar.
+        /// Seçilen düğümün <see cref="LocationNodeSO"/> ve <see cref="RoutePathResult"/> rota bilgilerini doldurur
+        /// ve kartı yumuşakça yukarı kaydırarak açar.
         /// </summary>
         public void ShowNode(
             LocationNodeSO nodeData,
             bool isCurrentLocation,
-            int distanceDays,
-            int foodRequired,
+            RoutePathResult pathResult,
             Action onActionCallback)
         {
             if (nodeData == null)
@@ -183,6 +184,7 @@ namespace Kervan.UI
 
             string displayName = nodeData.NodeName;
             bool isHan = nodeData.NodeType == NodeType.Caravanserai;
+            bool canAct = isCurrentLocation || (pathResult.IsReachable && pathResult.IsDirect);
 
             // 1. Başlık ve İkon
             if (_nodeTitleText != null)
@@ -213,33 +215,100 @@ namespace Kervan.UI
                 ConfigureBadgeText(_nodeTypeText);
             }
 
-            // 3. Konum Rozeti (Location)
-            if (_nodeDistanceText != null)
+            // 3, 4, 5. Mesafe, Tehlike ve Lojistik Rozetleri
+            if (isCurrentLocation)
             {
-                _nodeDistanceText.text = isCurrentLocation ? "Mevcut Konum" : $"{distanceDays} Gün ({distanceDays * 40} km)";
-                ConfigureBadgeText(_nodeDistanceText);
-            }
+                if (_nodeDistanceText != null)
+                {
+                    _nodeDistanceText.text = "Mevcut Konum";
+                    ConfigureBadgeText(_nodeDistanceText);
+                }
 
-            // 4. Tehlike Rozeti (Danger)
-            if (_dangerText != null)
-            {
-                _dangerText.text = isCurrentLocation ? "%0 (Güvenli Alan)" : "%15 (Güvenli Yol)";
-                ConfigureBadgeText(_dangerText);
-            }
-
-            // 5. Erzak Rozeti (Logistics)
-            if (_nodeLogisticsText != null)
-            {
                 if (_dangerText != null)
                 {
-                    _nodeLogisticsText.text = isCurrentLocation ? "Garnizon İkmali" : $"{foodRequired} Günlük Erzak";
+                    _dangerText.text = "%0 (Güvenli Alan)";
+                    ConfigureBadgeText(_dangerText);
                 }
-                else
+
+                if (_nodeLogisticsText != null)
                 {
-                    // Eğer sahnede DangerInfo text'i bağlı değilse ikisini kısa formatta birleştir
-                    _nodeLogisticsText.text = isCurrentLocation ? "İkmal Tam | Güvenli" : $"{foodRequired}G Erzak | %15 Risk";
+                    _nodeLogisticsText.text = _dangerText != null ? "Garnizon İkmali" : "İkmal Tam | Güvenli";
+                    ConfigureBadgeText(_nodeLogisticsText);
                 }
-                ConfigureBadgeText(_nodeLogisticsText);
+            }
+            else if (pathResult.IsReachable && pathResult.IsDirect)
+            {
+                int distanceDays = Mathf.Max(1, pathResult.TotalDays);
+                int foodRequired = Mathf.Max(1, pathResult.TotalFoodRequired);
+                float dangerRatio = pathResult.DirectRoute != null ? Mathf.Clamp01(pathResult.DirectRoute.DangerLevel) : 0.2f;
+                int dangerPercent = Mathf.RoundToInt(dangerRatio * 100f);
+                string dangerLabel = GetDangerLabel(dangerRatio);
+
+                if (_nodeDistanceText != null)
+                {
+                    _nodeDistanceText.text = $"{distanceDays} Gün ({distanceDays * 40} km)";
+                    ConfigureBadgeText(_nodeDistanceText);
+                }
+
+                if (_dangerText != null)
+                {
+                    _dangerText.text = $"%{dangerPercent} ({dangerLabel})";
+                    ConfigureBadgeText(_dangerText);
+                }
+
+                if (_nodeLogisticsText != null)
+                {
+                    _nodeLogisticsText.text = _dangerText != null
+                        ? $"{foodRequired} Günlük Erzak"
+                        : $"{foodRequired}G Erzak | %{dangerPercent} Risk";
+                    ConfigureBadgeText(_nodeLogisticsText);
+                }
+            }
+            else if (pathResult.IsReachable && !pathResult.IsDirect)
+            {
+                string hopName = pathResult.FirstHopNode != null && !string.IsNullOrWhiteSpace(pathResult.FirstHopNode.NodeName)
+                    ? pathResult.FirstHopNode.NodeName
+                    : pathResult.FirstHopNodeId;
+
+                if (_nodeDistanceText != null)
+                {
+                    _nodeDistanceText.text = "Doğrudan yol yok";
+                    ConfigureBadgeText(_nodeDistanceText);
+                }
+
+                if (_dangerText != null)
+                {
+                    _dangerText.text = $"{hopName} üzerinden";
+                    ConfigureBadgeText(_dangerText);
+                }
+
+                if (_nodeLogisticsText != null)
+                {
+                    _nodeLogisticsText.text = _dangerText != null
+                        ? $"Toplam {pathResult.TotalDays} Gün ({pathResult.TotalFoodRequired}G Erzak)"
+                        : $"{hopName} üzerinden {pathResult.TotalDays} Gün";
+                    ConfigureBadgeText(_nodeLogisticsText);
+                }
+            }
+            else
+            {
+                if (_nodeDistanceText != null)
+                {
+                    _nodeDistanceText.text = "Bağlantı yolu yok";
+                    ConfigureBadgeText(_nodeDistanceText);
+                }
+
+                if (_dangerText != null)
+                {
+                    _dangerText.text = "Güzergâh kapalı";
+                    ConfigureBadgeText(_dangerText);
+                }
+
+                if (_nodeLogisticsText != null)
+                {
+                    _nodeLogisticsText.text = "Rota tanımlı değil";
+                    ConfigureBadgeText(_nodeLogisticsText);
+                }
             }
 
             // 6. Pazar & Tesis Rozeti (Facilities - Şehirde alınabilecek mallar)
@@ -250,30 +319,59 @@ namespace Kervan.UI
             }
 
             // 7. Eylem Butonu
+            if (_actionButton != null)
+            {
+                _actionButton.interactable = canAct;
+            }
+
             if (_actionButtonText != null)
             {
                 _actionButtonText.enableAutoSizing = true;
                 _actionButtonText.fontSizeMin = 13f;
                 _actionButtonText.fontSizeMax = 20f;
+
                 if (isCurrentLocation)
                 {
                     _actionButtonText.text = isHan ? "Menzile Gir" : "Şehre Gir";
                 }
-                else
+                else if (canAct)
                 {
                     _actionButtonText.text = "Yola Çık";
+                }
+                else
+                {
+                    _actionButtonText.text = "Doğrudan Yol Yok";
                 }
             }
 
             if (_actionButtonImage != null)
             {
-                _actionButtonImage.color = isCurrentLocation ? _enterCityColor : _travelColor;
+                if (isCurrentLocation)
+                {
+                    _actionButtonImage.color = _enterCityColor;
+                }
+                else if (canAct)
+                {
+                    _actionButtonImage.color = _travelColor;
+                }
+                else
+                {
+                    _actionButtonImage.color = _disabledRouteColor;
+                }
             }
 
             // Açılış Animasyonu
             SlideTo(_visiblePosY);
             _isOpen = true;
             PlayOpenSound();
+        }
+
+        private static string GetDangerLabel(float dangerRatio)
+        {
+            if (dangerRatio <= 0.15f) return "Güvenli Yol";
+            if (dangerRatio <= 0.35f) return "Orta Risk";
+            if (dangerRatio <= 0.60f) return "Tehlikeli Geçit";
+            return "Yüksek Pusu Riski";
         }
 
         /// <summary>
@@ -290,6 +388,7 @@ namespace Kervan.UI
 
         private void OnActionButtonClicked()
         {
+            if (_actionButton != null && !_actionButton.interactable) return;
             PlayButtonClickSound();
             _onActionConfirmed?.Invoke();
         }

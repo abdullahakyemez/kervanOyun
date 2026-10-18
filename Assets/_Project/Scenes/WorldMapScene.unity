@@ -3112,15 +3112,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 893147143328989123, guid: 5f9abde1cabd85344b72e7038beb0e9b, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4368451290543221690, guid: 5f9abde1cabd85344b72e7038beb0e9b, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4676555472331219996, guid: 5f9abde1cabd85344b72e7038beb0e9b, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6625092596717145107, guid: 5f9abde1cabd85344b72e7038beb0e9b, type: 3}
       propertyPath: m_Pivot.x
@@ -3204,11 +3204,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8199797898620175161, guid: 5f9abde1cabd85344b72e7038beb0e9b, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8645754308418539393, guid: 5f9abde1cabd85344b72e7038beb0e9b, type: 3}
       propertyPath: m_Name
       value: Popup_Settings
+      objectReference: {fileID: 0}
+    - target: {fileID: 8645754308418539393, guid: 5f9abde1cabd85344b72e7038beb0e9b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12415,6 +12419,7 @@ MonoBehaviour:
   _hanIconSprite: {fileID: 21300000, guid: 6e69a98659ea89a4b97e29abdcae9c4c, type: 3}
   _enterCityColor: {r: 0.2, g: 0.55, b: 0.3, a: 1}
   _travelColor: {r: 0.65, g: 0.45, b: 0.2, a: 1}
+  _disabledRouteColor: {r: 0.38, g: 0.35, b: 0.32, a: 0.85}
   _openSoundOverride: {fileID: 0}
   _closeSoundOverride: {fileID: 0}
 --- !u!114 &443141150
@@ -19672,6 +19677,7 @@ MonoBehaviour:
   _settingsPopup: {fileID: 1678251750}
   _currentNodeMarker: {fileID: 1591944438}
   _bottomNodeInfoCard: {fileID: 443141149}
+  _routeDatabase: {fileID: 11400000, guid: 63e2489cd17818243851caaff7e63963, type: 2}
   _bgmMapMusic: {fileID: 8300000, guid: 45432063e31d0334884f67dae6422853, type: 3}
   _mainMenuSceneName: MainMenuScene
   _travelSceneName: TravelScene
@@ -32416,7 +32422,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1355732126}
   m_HandleRect: {fileID: 1355732125}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -40672,7 +40678,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 307079717}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
