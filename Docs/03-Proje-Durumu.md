@@ -15,10 +15,10 @@
 | Görsel / UI | 🟢 | MainMenu ve WorldMap arayüzleri hazır ve cilalı. |
 | Veri tanımları (SO) | 🟢 | 13 harita düğümü `MapNodeView` + `LocationNodeSO` (ASCII `NodeId`) ile bağlı (A2.1). |
 | Oyun döngüsü | 🟡 | `00_Boot` + `GameSession` + `Services` kuruldu (A2.2); rota/seyahat bağlantısı sırada. |
-| Kalıcı durum / Kayıt | 🟡 | Çalışma anı durumu (`GameSession`) sahneler arası kalıcı; JSON disk kaydı sırada (`A2.3`). |
+| Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON kayıt/yükleme ve otomatik kayıt) tamamlandı (A2.3). |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), DevOverlay koruması ve ses kalıcılığı tamam (A2.0). |
 
-**Özet:** Görsel, düğüm kimlik yapısı ve çalışma anı oturumu (`00_Boot` + `GameSession` + `Services`) hazır; sırada JSON disk kayıt/yükleme (`A2.3`) ve rota omurgası (`A2.4`) var.
+**Özet:** Görsel, düğüm kimlik yapısı, çalışma anı oturumu (`00_Boot` + `GameSession` + `Services`) ve atomik JSON kayıt/yükleme (`SaveService`) hazır; sırada rota grafiği (`A2.4`) ve TopBar HUD (`A2.5`) var.
 
 **Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene`, `MarketScene`, `TownHubScene`, `CombatScene` ⚠️ eski prototip (yeniden ele alınacak).
 
@@ -43,8 +43,8 @@ A8 Android Sürüm & Test ................ ⬜
 - [x] A2.0 Hijyen — Input System fix, DevOverlay koruması, ses kalıcılığı
 - [x] A2.1 Kimlik birliği (NodeId + MapNodeView)
 - [x] A2.2 Boot sahnesi + GameSession
-- [ ] **A2.3 Kayıt / Yükleme (JSON)** ← **SIRADAKİ**
-- [ ] A2.4 Rota grafiği + gerçek mesafe/erzak
+- [x] A2.3 Kayıt / Yükleme (JSON)
+- [ ] **A2.4 Rota grafiği + gerçek mesafe/erzak** ← **SIRADAKİ**
 - [ ] A2.5 TopBar HUD
 - [ ] A2.6 Sahne geçiş servisi
 - [ ] A2.7 Sidebar gerçek veri + boş durumlar
@@ -52,10 +52,10 @@ A8 Android Sürüm & Test ................ ⬜
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A2.3 — Kayıt / Yükleme (JSON)
-- **Hedef:** `GameSession` verisini `persistentDataPath/save_0.json` dosyasına atomik olarak kaydetmek/yüklemek; "Devam Et" ve mevcut kayıt varken "Yeni Oyun" onay akışı.
-- **Çözer:** TD-01, TD-12
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.3`
+## 3. ▶️ Sıradaki Adım: A2.4 — Rota Grafiği + Gerçek Mesafe/Erzak
+- **Hedef:** Şehirler arası komşuluk ve mesafe/erzak/tehlike verilerinin `TravelRouteSO` + `RouteGraph` üzerinden gelmesi; seyahat başlarken konumun hemen değil varışta güncellenmesi.
+- **Çözer:** TD-04, TD-02 (mesafe), BUG-04
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.4`
 
 ---
 
@@ -67,4 +67,4 @@ A8 Android Sürüm & Test ................ ⬜
 ## 5. Kalıcı Notlar
 - **Esneklik ilkesi:** Tamamlanmış sahnelerde de her zaman revizyon yapılabilir; "bu aşama bitti, dönülmez" denmez. Revizyon yeni bir adım olarak eklenir (ör. `A1.R1`).
 - **Mobil test:** Her UI adımında Device Simulator ile 16:9, 19.5:9, 20:9 kontrolü.
-- **Açık kritik sorun sayısı:** 🔴 2 · 🟠 5 (bkz. `06`)
+- **Açık kritik sorun sayısı:** 🔴 2 · 🟠 4 (bkz. `06`)

@@ -1,22 +1,31 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Kervan.Audio;
 
 namespace Kervan.UI
 {
     /// <summary>
-    /// Oyundan çıkış butonuna basıldığında açılan parşömen onay penceresi.
-    /// Kazara tıklamaları önler, oyuncudan onay alır veya menüye geri döndürür.
+    /// Oyundan çıkış veya mevcut kaydın üzerine yeni oyun başlatma gibi kritik işlemlerde
+    /// açılan parşömen onay penceresi. Kazara tıklamaları önler ve oyuncudan onay alır.
     /// </summary>
     public class QuitConfirmPopupUI : MonoBehaviour
     {
         [Header("Onay ve İptal Butonları")]
-        [Tooltip("Çıkışı onaylayan buton (Evet)")]
+        [Tooltip("İşlemi onaylayan buton (Evet)")]
         [SerializeField] private Button _confirmQuitButton;
 
-        [Tooltip("Çıkışı iptal edip pencereyi kapatan buton (Hayır / Vazgeç)")]
+        [Tooltip("İşlemi iptal edip pencereyi kapatan buton (Hayır / Vazgeç)")]
         [SerializeField] private Button _cancelQuitButton;
+
+        [Header("Opsiyonel Metin Alanları (Özel Onay Mesajı İçin)")]
+        [Tooltip("Onay penceresi başlık metni (opsiyonel)")]
+        [SerializeField] private TMP_Text _titleText;
+
+        [Tooltip("Onay penceresi açıklama metni (opsiyonel)")]
+        [SerializeField] private TMP_Text _messageText;
 
         [Header("Ses Efektleri")]
         [SerializeField] private AudioClip _openSound;
@@ -27,6 +36,10 @@ namespace Kervan.UI
         [SerializeField] private float _fadeDuration = 0.2f;
 
         private Coroutine _fadeCoroutine;
+        private Action _customConfirmAction;
+        private string _defaultTitle;
+        private string _defaultMessage;
+        private bool _capturedDefaults;
 
         private void Awake()
         {
@@ -38,6 +51,8 @@ namespace Kervan.UI
                     _canvasGroup = gameObject.AddComponent<CanvasGroup>();
                 }
             }
+
+            CaptureDefaultTexts();
         }
 
         private void Start()
@@ -63,15 +78,35 @@ namespace Kervan.UI
         }
 
         /// <summary>
-        /// Onay penceresini parşömen sesiyle birlikte açar.
+        /// Varsayılan çıkış onay penceresini parşömen sesiyle birlikte açar.
         /// </summary>
         public void Show()
         {
-            gameObject.SetActive(true);
-            PlayOpenAudio();
+            CaptureDefaultTexts();
+            _customConfirmAction = null;
+            RestoreDefaultTexts();
+            OpenPopup();
+        }
 
-            if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
-            _fadeCoroutine = StartCoroutine(FadeRoutine(1f, true));
+        /// <summary>
+        /// Özel bir onay eylemi (ör. mevcut kaydı silip Yeni Oyun başlatma) için onay penceresini açar.
+        /// </summary>
+        public void ShowCustomConfirm(Action onConfirm, string customTitle = null, string customMessage = null)
+        {
+            CaptureDefaultTexts();
+            _customConfirmAction = onConfirm;
+
+            if (_titleText != null && !string.IsNullOrWhiteSpace(customTitle))
+            {
+                _titleText.text = customTitle;
+            }
+
+            if (_messageText != null && !string.IsNullOrWhiteSpace(customMessage))
+            {
+                _messageText.text = customMessage;
+            }
+
+            OpenPopup();
         }
 
         /// <summary>
@@ -85,8 +120,43 @@ namespace Kervan.UI
             _fadeCoroutine = StartCoroutine(FadeRoutine(0f, false));
         }
 
+        private void OpenPopup()
+        {
+            gameObject.SetActive(true);
+            PlayOpenAudio();
+
+            if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
+            _fadeCoroutine = StartCoroutine(FadeRoutine(1f, true));
+        }
+
+        private void CaptureDefaultTexts()
+        {
+            if (_capturedDefaults) return;
+            _capturedDefaults = true;
+
+            if (_titleText != null) _defaultTitle = _titleText.text;
+            if (_messageText != null) _defaultMessage = _messageText.text;
+        }
+
+        private void RestoreDefaultTexts()
+        {
+            if (!_capturedDefaults) return;
+
+            if (_titleText != null && _defaultTitle != null) _titleText.text = _defaultTitle;
+            if (_messageText != null && _defaultMessage != null) _messageText.text = _defaultMessage;
+        }
+
         private void OnConfirmQuitClicked()
         {
+            if (_customConfirmAction != null)
+            {
+                Action callback = _customConfirmAction;
+                _customConfirmAction = null;
+                Hide();
+                callback.Invoke();
+                return;
+            }
+
             PlayCloseAudio();
             Debug.Log("[QuitConfirmPopupUI] Çıkış onaylandı. Oyun kapatılıyor...");
 

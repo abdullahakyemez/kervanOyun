@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Kervan.Core;
+using Kervan.Core.Save;
 using Kervan.Audio;
 
 namespace Kervan.UI
@@ -37,6 +39,8 @@ namespace Kervan.UI
         [Header("Açılır Pencereler (Popups)")]
         [SerializeField] private SettingsPopupUI _settingsPopup;
         [SerializeField] private QuitConfirmPopupUI _quitConfirmPopup;
+        [Tooltip("Mevcut kayıt varken Yeni Oyun'a basıldığında açılacak onay penceresi (Popup_NewGameConfirm)")]
+        [SerializeField] private QuitConfirmPopupUI _newGameConfirmPopup;
 
         [Header("Ekran Geçişi & Kararma (Screen Fader)")]
         [Tooltip("Sahneler arası yumuşak kararma sağlayan fader referansı")]
@@ -141,12 +145,10 @@ namespace Kervan.UI
 
         private void CheckSaveFileStatus()
         {
-            if (_continueButton != null)
-            {
-                // Test amaçlı zorlama aktifse veya kayıt verisi mevcutsa tıklanabilir
-                bool hasSave = _forceEnableContinueForTesting || PlayerPrefs.GetInt("HasSavedGame", 0) == 1;
-                _continueButton.interactable = hasSave;
-            }
+            if (_continueButton == null) return;
+
+            bool hasSaveFile = Services.TryGet<SaveService>(out var saveService) && saveService.HasSaveFile();
+            _continueButton.interactable = _forceEnableContinueForTesting || hasSaveFile;
         }
 
         private void InitVersionText()
@@ -162,12 +164,41 @@ namespace Kervan.UI
         private void OnNewGameClicked()
         {
             PlayClickSound();
+
+            bool hasSaveFile = Services.TryGet<SaveService>(out var saveService) && saveService.HasSaveFile();
+            if (hasSaveFile)
+            {
+                if (_newGameConfirmPopup != null)
+                {
+                    _newGameConfirmPopup.ShowCustomConfirm(ExecuteStartNewGame);
+                    return;
+                }
+
+                if (_quitConfirmPopup != null)
+                {
+                    _quitConfirmPopup.ShowCustomConfirm(
+                        ExecuteStartNewGame,
+                        "YENİ OYUN",
+                        "Mevcut kaydınız silinecek ve yeni bir kervan seferi başlayacak. Onaylıyor musunuz?"
+                    );
+                    return;
+                }
+            }
+
+            ExecuteStartNewGame();
+        }
+
+        private void ExecuteStartNewGame()
+        {
             Debug.Log("[MainMenuUI] Yeni Oyun başlatılıyor. Hedef sahne: " + _gameSceneName);
 
-            // Yeni oyun için temel verileri ve başlangıç düğüm kimliğini Söğüt (node_sogut) olarak ayarla
-            PlayerPrefs.SetString("CurrentNodeId", "node_sogut");
-            PlayerPrefs.SetInt("HasSavedGame", 1);
-            PlayerPrefs.Save();
+            var session = GetOrCreateSession();
+            session.StartNewGame(GameSession.DefaultStartNodeId);
+
+            if (Services.TryGet<SaveService>(out var saveService))
+            {
+                saveService.SaveSession(session);
+            }
 
             TransitionToGameScene();
         }
@@ -177,7 +208,30 @@ namespace Kervan.UI
             PlayClickSound();
             Debug.Log("[MainMenuUI] Devam Et (Kayıt Yükle) tıklandı. Hedef sahne: " + _gameSceneName);
 
+            var session = GetOrCreateSession();
+
+            if (Services.TryGet<SaveService>(out var saveService))
+            {
+                if (!saveService.LoadIntoSession(session))
+                {
+                    Debug.LogWarning("[MainMenuUI] Kayıt dosyası okunamadı veya bozuk! Bozuk kayıt temizlenip yeni oyun başlatılıyor.");
+                    saveService.DeleteSaveFile();
+                    session.StartNewGame(GameSession.DefaultStartNodeId);
+                    saveService.SaveSession(session);
+                }
+            }
+
             TransitionToGameScene();
+        }
+
+        private static GameSession GetOrCreateSession()
+        {
+            if (!Services.TryGet<GameSession>(out var session))
+            {
+                session = new GameSession();
+                Services.Register(session);
+            }
+            return session;
         }
 
         private void TransitionToGameScene()

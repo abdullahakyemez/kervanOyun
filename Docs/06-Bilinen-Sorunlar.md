@@ -23,7 +23,7 @@
 
 | ID | Önem | Sorun | Dosya / Yer | Çözecek Adım | Durum |
 |---|---|---|---|---|---|
-| TD-01 | 🟠 | Kayıt sistemi yok; sadece `PlayerPrefs` bayrakları (`HasSavedGame`, `CurrentNodeId`, `HasSeenIntro_v1`). Kervan her açılışta 500 akçe/20 erzak ile sıfırlanır. | `MainMenuUI.cs`, `WorldMapUI.cs`, `CaravanData.cs` | A2.3 | Açık |
+| TD-01 | 🟠 | Kayıt sistemi yok; sadece `PlayerPrefs` bayrakları (`HasSavedGame`, `CurrentNodeId`, `HasSeenIntro_v1`). Kervan her açılışta 500 akçe/20 erzak ile sıfırlanır. | `MainMenuUI.cs`, `WorldMapUI.cs`, `CaravanData.cs` | A2.3 | Çözüldü (18.10.2026) |
 | TD-02 | 🟠 | Sabit kodlu oyun değerleri: tarih `"14 Mayıs 1326"`, mesafeler (`sogut→bilecik=1` ama `Route_Sogut_Bilecik=2`), varsayılan akçe/erzak UI fallback'leri (500/20/45 kg). | `WorldMapUI.cs` (`UpdateTopResourceHUD`, `CalculateEstimatedDays`), `InventorySidebarUI.cs` (`RefreshData`) | A2.4, A2.5 | Açık |
 | TD-03 | 🟠 | Sidebar kervan boşken sahte satırlar basıyor ("3 Muhafız, 10 İpek…"); görevler sabit metin. | `InventorySidebarUI.cs` (`RefreshData` ~L421-470) | A2.7 | Açık |
 | TD-04 | 🟠 | Rota grafiği yok: 13 düğüm, 4 rota (`Sogut_Bilecik`, `Sogut_Domanic`, `Bilecik_Iznik`, `Iznik_Bursa`). Her düğüme her yerden gidilebiliyor. | `ScriptableObjects/Routes` | A2.4 | Açık |
@@ -34,7 +34,7 @@
 | TD-09 | 🟡 | EventBus sadece 7 olay tipiyle az kullanılıyor; `TravelManager` C# `event` + EventBus karışık. `EventBus.ClearAll()` hiç çağrılmıyor (Domain Reload kapalıysa eski abonelik riski). | `Core/EventBus.cs`, `Core/Bootstrapper.cs`, `Core/GameSession.cs` | A2.2 | Çözüldü (18.10.2026) |
 | TD-10 | ⚪ | Eski dosyalarda yorumlar Türkçe karaktersiz (`Kervanin seyahatini...`). Dosyaya dokunuldukça düzeltilir. | A0 dönemi script'ler | Fırsatçı | Açık |
 | TD-11 | 🟡 | `FactionType` enum'u (Ottoman, Steppe, SeljukLegacy, Byzantine, Bandit) GDD'deki 4 fraksiyonla (Osmanlı, Bizans, Eşkıya, Vahşi Hayvan) uyuşmuyor (`LocationNodeSO.GetFactionDisplayName` eklendi; enum sadeleştirmesi `ReputationManager`/`TownHubUI` ile A6.1'de). | `Core/GameEnums.cs` | A6.1 (KR-2 onaylandı) | Açık |
-| TD-12 | 🟡 | "Yeni Oyun" mevcut kaydı onaysız eziyor; intro/kervan gibi durumları sıfırlamıyor. | `MainMenuUI.cs` (`OnNewGameClicked`) | A2.3 | Açık |
+| TD-12 | 🟡 | "Yeni Oyun" mevcut kaydı onaysız eziyor; intro/kervan gibi durumları sıfırlamıyor. | `MainMenuUI.cs` (`OnNewGameClicked`) | A2.3 | Çözüldü (18.10.2026) |
 | TD-13 | 🟡 | `InventorySidebarUI.cs` ~1084 satır "god class": sekme, layout, prosedürel `new GameObject` UI üretimi, safe-area, ses bir arada. | `UI/InventorySidebarUI.cs` | A2.7 (başlangıç), A7 | Açık |
 | TD-14 | ⚪ | Sahne adları string olarak 13 yerde dağınık. | Çoklu | A2.6 | Açık |
 | TD-15 | ⚪ | Çok sayıda `Debug.Log`; release'de kapatılmıyor. | Çoklu | A8 | Açık |
@@ -66,3 +66,5 @@
 - `BUG-03` — 16.10.2026 — A2.1 — Konum eşleştirmesi görünen isim yerine ASCII `NodeId` (`"node_sogut"`) ve `StringComparison.Ordinal` üzerine taşındı.
 - `TD-06` — 16.10.2026 — A2.1 — `WorldMapUI` içindeki `GameObject.Find` ve `name.StartsWith("Node_")` isim taramaları kaldırıldı.
 - `TD-09` — 18.10.2026 — A2.2 — `Bootstrapper` içinde `SubsystemRegistration` aşamasında `EventBus.ClearAll()` ve `Services.Clear()` çağrısı eklendi; `GameSession` durum değişim olayları (`LocationChangedEvent`, `DayPassedEvent`, `TravelStartedEvent`) EventBus'a bağlandı.
+- `TD-01` — 18.10.2026 — A2.3 — `SaveData` (`saveVersion = 1`) ve atomik yazma (`save_0.tmp` → `save_0.json`) yapan `SaveService` kuruldu; `PlayerPrefs` oyun durumu bayrakları kaldırıldı ve durum değişimlerinde / `OnApplicationPause` / `OnApplicationQuit` anlarında otomatik kayıt bağlandı.
+- `TD-12` — 18.10.2026 — A2.3 — `MainMenuUI` içinde mevcut kayıt varken "Yeni Oyun" tıklandığında onay penceresi (`ShowCustomConfirm`) açılması ve onaylandığında `GameSession.StartNewGame` ile tüm durumun sıfırlanması sağlandı.

@@ -6,6 +6,17 @@
 
 ---
 
+## [18.10.2026] A2.3 — Kayıt / Yükleme (JSON)
+- `SaveData.cs` (yeni): `saveVersion = 1` alanlı, SO referanslarını yalnızca ASCII ID olarak tutan serileştirilebilir kayıt veri modelleri (`SaveData`, `CaravanSaveData`, `InventorySlotSaveData`, `GuardSaveData`, `ActiveTravelSaveData`) eklendi (`TD-01`).
+- `SaveService.cs` (yeni): `Application.persistentDataPath/save_0.json` yoluna atomik yazma (`save_0.tmp` → `.bak` → `save_0.json`), bozuk JSON/sürüm doğrulama (`TryLoad`) ve `GameSavedEvent` yayını yapan servis eklendi (`TD-01`).
+- `GameSession.cs`, `CaravanData.cs`: `ToSaveData()`, `ApplySaveData()`, `IsSessionActive` ve `CaravanData.RestoreFromSave()` eklendi; eski `PlayerPrefs` konum/kayıt bayrakları temizlendi (`TD-01`, `TD-10`).
+- `Bootstrapper.cs`: `SaveService` kaydı, `DontDestroyOnLoad` kalıcılığı ve konum/gün/kaynak değişim olayları ile `OnApplicationPause(true)` / `OnApplicationQuit()` anlarında otomatik kayıt tetiklemesi eklendi.
+- `MainMenuUI.cs`, `QuitConfirmPopupUI.cs`: "Devam Et" butonu `SaveService.HasSaveFile()` ve `LoadIntoSession()` ile bağlandı (bozuk dosyada çökmeden uyarı + yeni oyun); mevcut kayıt varken "Yeni Oyun"a basıldığında onay penceresi (`ShowCustomConfirm`) açılması sağlandı (`TD-12`).
+- Unity'de elle yapılanlar: `MainMenuScene` içinde `Popup_NewGameConfirm` onay penceresi oluşturuldu ve `MainMenuUI` bileşenine bağlandı.
+- Commit: `feat(save): A2.3 atomik JSON kayıt/yükleme servisi ve yeni oyun onay akışı (TD-01, TD-12)`
+
+---
+
 ## [18.10.2026] A2.2 — Boot Sahnesi + GameSession
 - `Services.cs` (yeni): Yeni Singleton açmadan kalıcı servisleri (`GameSession`, `AudioManager` vb.) kaydetmek ve sorgulamak için hafif servis bulucu eklendi (`TD-08`).
 - `GameSession.cs` (yeni): Sahneler arası tek doğruluk kaynağı olan çalışma anı oyun durumu (`CurrentNodeId`, `DayCount`, `Caravan`, `ActiveTravel`, `VisitedNodeIds`) ve `EventBus` durum olayları (`LocationChangedEvent`, `DayPassedEvent`, `TravelStartedEvent`) eklendi (`BUG-05` temeli, `TD-09`, `TD-02` kısmen).

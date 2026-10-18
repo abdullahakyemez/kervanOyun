@@ -59,12 +59,12 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Unity'de elle:** `00_Boot` sahnesi oluşturup Build Settings'te en üste kondu; `AudioManager.prefab` Boot sahnesine eklendi.
 - **Test:** Herhangi bir sahneden Play'e basınca da servisler kuruluyor (editör kolaylığı). Menü → Harita → Menü → Harita: tek AudioManager, tek GameSession.
 
-### A2.3 — Kayıt / Yükleme (JSON) ⬜
+### A2.3 — Kayıt / Yükleme (JSON) ✅
 - **Amaç:** "Devam Et" gerçek kaydı yüklesin; uygulama arka plana atılınca otomatik kayıt.
 - **Çözer:** TD-01, TD-12
-- **Muhtemel dosyalar:** Yeni `Core/Save/SaveData.cs` (`saveVersion` alanlı), `Core/Save/SaveService.cs` (`persistentDataPath`, atomik yazma: `.tmp` → rename), `MainMenuUI.cs` (kayıt kartı + Yeni Oyun onayı), `GameSession.cs`.
-- **Unity'de elle:** Yeni Oyun onayı için `Popup_QuitConfirm` benzeri bir popup kopyası (veya mevcut popup'ın metin parametreli hali).
-- **Test:** Oyna (akçe değişsin) → uygulamayı kapat → Devam Et → aynı akçe/konum. Kayıt varken Yeni Oyun → onay sorar. Bozuk kayıt dosyası → çökme yok, uyarı + yeni oyun.
+- **Muhtemel dosyalar:** Yeni `Core/Save/SaveData.cs` (`saveVersion` alanlı), `Core/Save/SaveService.cs` (`persistentDataPath`, atomik yazma: `.tmp` → rename), `MainMenuUI.cs` (kayıt kontrolü + Yeni Oyun onayı), `QuitConfirmPopupUI.cs` (`ShowCustomConfirm`), `GameSession.cs`, `CaravanData.cs`, `Bootstrapper.cs`.
+- **Unity'de elle:** Yeni Oyun onayı için `Popup_NewGameConfirm` kopyası oluşturuldu ve `MainMenuUI`'a bağlandı.
+- **Test:** Oyna (akçe/konum değişsin) → uygulamayı kapat → Devam Et → aynı akçe/konum. Kayıt varken Yeni Oyun → onay sorar. Bozuk kayıt dosyası → çökme yok, uyarı + yeni oyun.
 
 ### A2.4 — Rota Grafiği + Gerçek Mesafe/Erzak ⬜
 - **Amaç:** Hangi şehirden hangisine gidilebileceği `TravelRouteSO`'lardan gelsin; mesafe/erzak/tehlike gerçek veri olsun.

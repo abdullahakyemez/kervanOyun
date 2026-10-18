@@ -42,16 +42,16 @@ namespace Kervan.TradeAndTravel
     }
 
     /// <summary>
-    /// Kervanin seyahat, ticaret ve savas boyunca sahip oldugu canli verileri
-    /// (Akce, Erzak, Envanter, Muhafizlar ve Yuk) yoneten cekirdek veri modeli.
+    /// Kervanın seyahat, ticaret ve savaş boyunca sahip olduğu canlı verileri
+    /// (Akçe, Erzak, Envanter, Muhafızlar ve Yük) yöneten çekirdek veri modeli.
     /// </summary>
     [Serializable]
     public class CaravanData
     {
         [Header("Temel Kaynaklar")]
         [SerializeField] private int _currentAkce = 500;
-        [SerializeField] private int _currentFood = 20; // 20 gunluk temel erzak
-        [SerializeField] private float _maxWeightCapacity = 300f; // 300 Kg temel yuk kapasitesi
+        [SerializeField] private int _currentFood = 20; // 20 günlük temel erzak
+        [SerializeField] private float _maxWeightCapacity = 300f; // 300 Kg temel yük kapasitesi
 
         [Header("Binek ve Yük Hayvanları")]
         [SerializeField] private int _horses = 2; // At
@@ -71,6 +71,20 @@ namespace Kervan.TradeAndTravel
         public int Camels => _camels;
         public IReadOnlyList<CaravanItemSlot> Inventory => _inventory;
         public IReadOnlyList<CaravanGuardRecord> Guards => _guards;
+
+        /// <summary>
+        /// Diskteki JSON kaydından okunan temel kervan değerlerini çalışma anı modeline uygular.
+        /// </summary>
+        public void RestoreFromSave(int akce, int food, float maxWeightCapacity, int horses, int mules, int camels)
+        {
+            _currentAkce = Mathf.Max(0, akce);
+            _currentFood = Mathf.Max(0, food);
+            _maxWeightCapacity = maxWeightCapacity > 0f ? maxWeightCapacity : 300f;
+            _horses = Mathf.Max(0, horses);
+            _mules = Mathf.Max(0, mules);
+            _camels = Mathf.Max(0, camels);
+            NotifyStatsChanged();
+        }
 
         public void SetAnimals(int horses, int mules, int camels)
         {

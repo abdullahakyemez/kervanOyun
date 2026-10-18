@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Kervan.Core.Save;
 using Kervan.TradeAndTravel;
 
 namespace Kervan.Core
@@ -85,8 +86,6 @@ namespace Kervan.Core
     public class GameSession
     {
         public const string DefaultStartNodeId = "node_sogut";
-        private const string LegacyPrefCurrentNodeId = "CurrentNodeId";
-        private const string LegacyPrefTravelDestNodeId = "TravelDestinationNodeId";
 
         private string _currentNodeId = DefaultStartNodeId;
         private int _dayCount = 1;
@@ -94,12 +93,20 @@ namespace Kervan.Core
         private ActiveTravelState _activeTravel;
         private readonly HashSet<string> _visitedNodeIds = new HashSet<string>(StringComparer.Ordinal);
         private bool _hasSeenIntro;
+        private bool _isSessionActive;
 
         public string CurrentNodeId => _currentNodeId;
         public int DayCount => _dayCount;
         public CaravanData Caravan => _caravan;
         public ActiveTravelState ActiveTravel => _activeTravel;
         public IReadOnlyCollection<string> VisitedNodeIds => _visitedNodeIds;
+
+        /// <summary>
+        /// Oyuncunun Yeni Oyun veya Devam Et ile aktif bir oturum başlatıp başlatmadığını belirtir.
+        /// Ana menüde henüz seçim yapılmamışken mevcut disk kaydının ezilmesini önler.
+        /// </summary>
+        public bool IsSessionActive => _isSessionActive;
+
         public bool HasSeenIntro
         {
             get => _hasSeenIntro;
@@ -108,14 +115,7 @@ namespace Kervan.Core
 
         public GameSession()
         {
-            // A2.3'te JSON SaveService gelene kadar mevcut PlayerPrefs bayrağıyla senkronize başla
-            string savedNodeId = PlayerPrefs.GetString(LegacyPrefCurrentNodeId, DefaultStartNodeId);
-            if (string.IsNullOrWhiteSpace(savedNodeId))
-            {
-                savedNodeId = DefaultStartNodeId;
-            }
-
-            _currentNodeId = savedNodeId;
+            _currentNodeId = DefaultStartNodeId;
             _visitedNodeIds.Add(_currentNodeId);
         }
 
@@ -131,24 +131,174 @@ namespace Kervan.Core
             _dayCount = 1;
             _caravan = new CaravanData();
             _activeTravel = null;
+            _hasSeenIntro = false;
+            _isSessionActive = true;
             _visitedNodeIds.Clear();
             _visitedNodeIds.Add(_currentNodeId);
 
-            SyncLegacyPlayerPrefs();
+            ClearLegacyPlayerPrefs();
 
             EventBus.Publish(new LocationChangedEvent(previousNodeId, _currentNodeId));
             Debug.Log($"[GameSession] Yeni oyun oturumu başlatıldı. Başlangıç düğümü: {_currentNodeId}, Gün: {_dayCount}");
         }
 
         /// <summary>
-        /// A2.3'e kadar MainMenuUI'ın PlayerPrefs üzerinden yaptığı sıfırlamaları yakalayıp senkronize eder.
+        /// Editörde doğrudan WorldMapScene'den Play'e basıldığında oturum henüz aktif değilse
+        /// varsa diskteki kaydı yükler ve oturumu aktif olarak işaretler.
         /// </summary>
         public void SyncFromLegacyPrefsIfChanged()
         {
-            string prefNodeId = PlayerPrefs.GetString(LegacyPrefCurrentNodeId, DefaultStartNodeId);
-            if (!string.IsNullOrWhiteSpace(prefNodeId) && !string.Equals(prefNodeId, _currentNodeId, StringComparison.Ordinal))
+            if (_isSessionActive) return;
+
+            if (Services.TryGet<SaveService>(out var saveService) && saveService.HasSaveFile())
             {
-                SetCurrentNode(prefNodeId);
+                if (saveService.LoadIntoSession(this))
+                {
+                    return;
+                }
+            }
+
+            _isSessionActive = true;
+        }
+
+        /// <summary>
+        /// Çalışma anı oyun durumunu JSON serileştirme için <see cref="SaveData"/> nesnesine dönüştürür.
+        /// </summary>
+        public SaveData ToSaveData()
+        {
+            var data = new SaveData
+            {
+                saveVersion = SaveData.CurrentVersion,
+                currentNodeId = string.IsNullOrWhiteSpace(_currentNodeId) ? DefaultStartNodeId : _currentNodeId,
+                dayCount = Mathf.Max(1, _dayCount),
+                hasSeenIntro = _hasSeenIntro,
+                visitedNodeIds = new List<string>(_visitedNodeIds)
+            };
+
+            if (_caravan != null)
+            {
+                data.caravan.currentAkce = _caravan.CurrentAkce;
+                data.caravan.currentFood = _caravan.CurrentFood;
+                data.caravan.maxWeightCapacity = _caravan.MaxWeightCapacity;
+                data.caravan.horses = _caravan.Horses;
+                data.caravan.mules = _caravan.Mules;
+                data.caravan.camels = _caravan.Camels;
+
+                if (_caravan.Inventory != null)
+                {
+                    for (int i = 0; i < _caravan.Inventory.Count; i++)
+                    {
+                        var slot = _caravan.Inventory[i];
+                        if (slot == null || slot.Item == null || string.IsNullOrWhiteSpace(slot.Item.ItemId)) continue;
+
+                        data.caravan.items.Add(new InventorySlotSaveData
+                        {
+                            itemId = slot.Item.ItemId,
+                            quantity = slot.Quantity,
+                            averagePurchasePrice = slot.AveragePurchasePrice
+                        });
+                    }
+                }
+
+                if (_caravan.Guards != null)
+                {
+                    for (int i = 0; i < _caravan.Guards.Count; i++)
+                    {
+                        var guard = _caravan.Guards[i];
+                        if (guard == null) continue;
+
+                        data.caravan.guards.Add(new GuardSaveData
+                        {
+                            guardId = guard.GuardId ?? string.Empty,
+                            unitDataId = guard.UnitData != null ? guard.UnitData.UnitId : string.Empty,
+                            currentHealth = guard.CurrentHealth,
+                            currentMorale = guard.CurrentMorale
+                        });
+                    }
+                }
+            }
+
+            if (_activeTravel != null)
+            {
+                data.activeTravel.isActive = true;
+                data.activeTravel.routeId = _activeTravel.RouteId ?? string.Empty;
+                data.activeTravel.fromNodeId = _activeTravel.FromNodeId ?? string.Empty;
+                data.activeTravel.toNodeId = _activeTravel.ToNodeId ?? string.Empty;
+                data.activeTravel.daysElapsed = _activeTravel.DaysElapsed;
+                data.activeTravel.totalDays = _activeTravel.TotalDays;
+            }
+            else
+            {
+                data.activeTravel.isActive = false;
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// Diskten okunan <see cref="SaveData"/> verisini çalışma anı oturumuna uygular.
+        /// </summary>
+        public void ApplySaveData(SaveData data)
+        {
+            if (data == null) return;
+
+            string previousNodeId = _currentNodeId;
+            _currentNodeId = string.IsNullOrWhiteSpace(data.currentNodeId) ? DefaultStartNodeId : data.currentNodeId;
+            _dayCount = Mathf.Max(1, data.dayCount);
+            _hasSeenIntro = data.hasSeenIntro;
+            _isSessionActive = true;
+
+            _visitedNodeIds.Clear();
+            if (data.visitedNodeIds != null)
+            {
+                for (int i = 0; i < data.visitedNodeIds.Count; i++)
+                {
+                    string nodeId = data.visitedNodeIds[i];
+                    if (!string.IsNullOrWhiteSpace(nodeId))
+                    {
+                        _visitedNodeIds.Add(nodeId);
+                    }
+                }
+            }
+            _visitedNodeIds.Add(_currentNodeId);
+
+            if (_caravan == null)
+            {
+                _caravan = new CaravanData();
+            }
+
+            if (data.caravan != null)
+            {
+                _caravan.RestoreFromSave(
+                    data.caravan.currentAkce,
+                    data.caravan.currentFood,
+                    data.caravan.maxWeightCapacity,
+                    data.caravan.horses,
+                    data.caravan.mules,
+                    data.caravan.camels
+                );
+            }
+
+            if (data.activeTravel != null && data.activeTravel.isActive && !string.IsNullOrWhiteSpace(data.activeTravel.toNodeId))
+            {
+                _activeTravel = new ActiveTravelState(
+                    data.activeTravel.fromNodeId,
+                    data.activeTravel.toNodeId,
+                    data.activeTravel.totalDays,
+                    data.activeTravel.routeId
+                )
+                {
+                    DaysElapsed = Mathf.Max(0, data.activeTravel.daysElapsed)
+                };
+            }
+            else
+            {
+                _activeTravel = null;
+            }
+
+            if (!string.Equals(previousNodeId, _currentNodeId, StringComparison.Ordinal))
+            {
+                EventBus.Publish(new LocationChangedEvent(previousNodeId, _currentNodeId));
             }
         }
 
@@ -161,9 +311,8 @@ namespace Kervan.Core
 
             string previousNodeId = _currentNodeId;
             _currentNodeId = nodeId;
+            _isSessionActive = true;
             _visitedNodeIds.Add(_currentNodeId);
-
-            SyncLegacyPlayerPrefs();
 
             if (!string.Equals(previousNodeId, _currentNodeId, StringComparison.Ordinal))
             {
@@ -178,8 +327,8 @@ namespace Kervan.Core
         {
             if (string.IsNullOrWhiteSpace(toNodeId)) return;
 
+            _isSessionActive = true;
             _activeTravel = new ActiveTravelState(_currentNodeId, toNodeId, estimatedDays, routeId);
-            PlayerPrefs.SetString(LegacyPrefTravelDestNodeId, toNodeId);
 
             // Not: A2.4'e kadar mevcut akışın kırılmaması için konum güncellenir;
             // A2.4/A3.4'te konum yalnızca varışta (CompleteTravel) güncellenecektir.
@@ -207,6 +356,7 @@ namespace Kervan.Core
         {
             if (days <= 0) return;
 
+            _isSessionActive = true;
             _dayCount += days;
             if (_activeTravel != null)
             {
@@ -216,9 +366,12 @@ namespace Kervan.Core
             EventBus.Publish(new DayPassedEvent(_dayCount, days));
         }
 
-        private void SyncLegacyPlayerPrefs()
+        private static void ClearLegacyPlayerPrefs()
         {
-            PlayerPrefs.SetString(LegacyPrefCurrentNodeId, _currentNodeId);
+            if (PlayerPrefs.HasKey("HasSavedGame")) PlayerPrefs.DeleteKey("HasSavedGame");
+            if (PlayerPrefs.HasKey("CurrentNodeId")) PlayerPrefs.DeleteKey("CurrentNodeId");
+            if (PlayerPrefs.HasKey("TravelDestinationNodeId")) PlayerPrefs.DeleteKey("TravelDestinationNodeId");
+            if (PlayerPrefs.HasKey("HasSeenIntro_v1")) PlayerPrefs.DeleteKey("HasSeenIntro_v1");
             PlayerPrefs.Save();
         }
     }
