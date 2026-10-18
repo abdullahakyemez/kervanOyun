@@ -15,7 +15,7 @@ A1 Ana Menü & UI Temelleri ......................... ✅
 A2 Dünya Haritası & Oyun Omurgası .................. ⏳  ← ŞU AN
    A2.0 Hijyen (Input, DevOverlay, Ses kalıcılığı)  ✅
    A2.1 Kimlik birliği (NodeId + MapNodeView)        ✅
-   A2.2 Boot sahnesi + GameSession
+   A2.2 Boot sahnesi + GameSession                   ✅
    A2.3 Kayıt / Yükleme (JSON)
    A2.4 Rota grafiği + gerçek mesafe/erzak
    A2.5 TopBar HUD (Akçe/Erzak/Tarih)
@@ -52,11 +52,11 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Unity'de elle:** Eksik `LocationNodeSO`'lar oluşturuldu; her harita düğümüne `MapNodeView` eklenip SO sürüklenerek bağlandı.
 - **Test:** Yeni oyun → Söğüt'e tıkla → "Şehre Gir" çıkar. Her şehrin kartında kendi açıklaması/fraksiyonu görünür. Console'da "bulunamadı" uyarısı yok.
 
-### A2.2 — Boot Sahnesi + GameSession ⬜
+### A2.2 — Boot Sahnesi + GameSession ✅
 - **Amaç:** Sahneler arası tek, kalıcı oyun durumu (kervan, konum, gün, aktif seyahat). Singleton dağınıklığını azaltmak.
-- **Çözer:** BUG-05 (temel), TD-08, TD-02 (kısmen)
-- **Muhtemel dosyalar:** Yeni `Core/Bootstrapper.cs` (servisleri kurar), `Core/Services.cs` (hafif servis bulucu), `Core/GameSession.cs` (saf C# durum), `TradeAndTravel/CaravanManager.cs` (GameSession'a devreder / kaldırılır), `WorldMapUI.cs`.
-- **Unity'de elle:** `00_Boot` sahnesi oluşturup Build Settings'te en üste koymak; AudioManager prefab'ını Boot'a taşımak (diğer sahnelerdeki kopyalar sonra temizlenir — onayla).
+- **Çözer:** BUG-05 (temel), TD-08 (kısmen), TD-09, TD-02 (kısmen)
+- **Muhtemel dosyalar:** Yeni `Core/Bootstrapper.cs` (servisleri kurar), `Core/Services.cs` (hafif servis bulucu), `Core/GameSession.cs` (saf C# durum), `TradeAndTravel/CaravanManager.cs` (`GameSession.Caravan`'a devreder), `WorldMapUI.cs`.
+- **Unity'de elle:** `00_Boot` sahnesi oluşturup Build Settings'te en üste kondu; `AudioManager.prefab` Boot sahnesine eklendi.
 - **Test:** Herhangi bir sahneden Play'e basınca da servisler kuruluyor (editör kolaylığı). Menü → Harita → Menü → Harita: tek AudioManager, tek GameSession.
 
 ### A2.3 — Kayıt / Yükleme (JSON) ⬜

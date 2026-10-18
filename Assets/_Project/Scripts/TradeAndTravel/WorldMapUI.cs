@@ -64,10 +64,9 @@ namespace Kervan.UI
         [SerializeField] private string _travelSceneName = "TravelScene";
         [SerializeField] private string _townHubSceneName = "TownHubScene";
 
-        private const string DefaultStartNodeId = "node_sogut";
-        private const string PrefCurrentNodeId = "CurrentNodeId";
-        private const string PrefTravelDestinationNodeId = "TravelDestinationNodeId";
+        private const string DefaultStartNodeId = GameSession.DefaultStartNodeId;
 
+        private GameSession _gameSession;
         private string _currentNodeId = DefaultStartNodeId;
         private bool _isMuted = false;
         private AudioSource _localAudioSource;
@@ -113,12 +112,18 @@ namespace Kervan.UI
 
         private void LoadCurrentLocation()
         {
-            _currentNodeId = PlayerPrefs.GetString(PrefCurrentNodeId, DefaultStartNodeId);
-            if (string.IsNullOrWhiteSpace(_currentNodeId))
+            if (!Services.TryGet(out _gameSession))
             {
-                _currentNodeId = DefaultStartNodeId;
+                _gameSession = new GameSession();
+                Services.Register(_gameSession);
             }
-            Debug.Log($"[WorldMapUI] Oyuncunun mevcut düğüm kimliği yüklendi: {_currentNodeId}");
+
+            _gameSession.SyncFromLegacyPrefsIfChanged();
+            _currentNodeId = !string.IsNullOrWhiteSpace(_gameSession.CurrentNodeId)
+                ? _gameSession.CurrentNodeId
+                : DefaultStartNodeId;
+
+            Debug.Log($"[WorldMapUI] Oyuncunun mevcut düğüm kimliği GameSession üzerinden yüklendi: {_currentNodeId}");
         }
 
         private void RegisterListeners()
@@ -218,7 +223,7 @@ namespace Kervan.UI
 
         public void UpdateTopResourceHUD()
         {
-            var caravan = CaravanManager.Instance != null ? CaravanManager.Instance.Caravan : null;
+            var caravan = _gameSession != null ? _gameSession.Caravan : null;
 
             int akce = caravan != null ? caravan.CurrentAkce : 500;
             int food = caravan != null ? caravan.CurrentFood : 20;
@@ -299,10 +304,14 @@ namespace Kervan.UI
             else
             {
                 // Yeni merkeze seyahat başlat
+                int estimatedDays = CalculateEstimatedDays(_currentNodeId, targetNode.NodeId);
                 Debug.Log($"[WorldMapUI] {_currentNodeId} noktasından {targetNode.NodeName} ({targetNode.NodeId}) yönüne seyahat başlatılıyor.");
-                PlayerPrefs.SetString(PrefTravelDestinationNodeId, targetNode.NodeId);
-                PlayerPrefs.SetString(PrefCurrentNodeId, targetNode.NodeId);
-                PlayerPrefs.Save();
+
+                if (_gameSession != null)
+                {
+                    _gameSession.StartTravel(targetNode.NodeId, estimatedDays);
+                    _currentNodeId = _gameSession.CurrentNodeId;
+                }
 
                 SceneManager.LoadScene(!string.IsNullOrEmpty(_travelSceneName) ? _travelSceneName : "TravelScene");
             }

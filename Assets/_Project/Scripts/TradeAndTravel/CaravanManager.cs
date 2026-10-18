@@ -1,9 +1,10 @@
 using UnityEngine;
+using Kervan.Core;
 
 namespace Kervan.TradeAndTravel
 {
     /// <summary>
-    /// Kervan verilerini sahneler arasında kalıcı (DontDestroyOnLoad) tutan tekil yönetici bileşen.
+    /// Geriye dönük uyumluluk için kervan verilerini doğrudan GameSession üzerinden sunan köprü bileşen.
     /// </summary>
     public class CaravanManager : MonoBehaviour
     {
@@ -11,7 +12,10 @@ namespace Kervan.TradeAndTravel
 
         [SerializeField] private CaravanData _caravanData = new CaravanData();
 
-        public CaravanData Caravan => _caravanData;
+        public CaravanData Caravan =>
+            Services.TryGet<GameSession>(out var session) && session.Caravan != null
+                ? session.Caravan
+                : _caravanData;
 
         private void Awake()
         {
@@ -22,6 +26,16 @@ namespace Kervan.TradeAndTravel
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            Services.Register(this);
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+                Services.Unregister(this);
+            }
         }
     }
 }

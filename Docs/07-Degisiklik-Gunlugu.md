@@ -6,6 +6,16 @@
 
 ---
 
+## [18.10.2026] A2.2 — Boot Sahnesi + GameSession
+- `Services.cs` (yeni): Yeni Singleton açmadan kalıcı servisleri (`GameSession`, `AudioManager` vb.) kaydetmek ve sorgulamak için hafif servis bulucu eklendi (`TD-08`).
+- `GameSession.cs` (yeni): Sahneler arası tek doğruluk kaynağı olan çalışma anı oyun durumu (`CurrentNodeId`, `DayCount`, `Caravan`, `ActiveTravel`, `VisitedNodeIds`) ve `EventBus` durum olayları (`LocationChangedEvent`, `DayPassedEvent`, `TravelStartedEvent`) eklendi (`BUG-05` temeli, `TD-09`, `TD-02` kısmen).
+- `Bootstrapper.cs` (yeni): `SubsystemRegistration` ve `BeforeSceneLoad` nitelikleriyle Editör'de herhangi bir sahneden Play'e basıldığında `EventBus.ClearAll()`, `Services.Clear()` ve `GameSession` kurulumunu garanti eden; `00_Boot` sahnesinden `MainMenuScene`'e geçiş yapan başlatıcı bileşen eklendi (`TD-09`).
+- `CaravanManager.cs`, `WorldMapUI.cs`: `CaravanManager.Caravan` doğrudan `GameSession.Caravan`'a yönlendirildi; `WorldMapUI` konum ve kaynak HUD işlemlerinde `GameSession` kullanacak şekilde güncellendi.
+- Unity'de elle yapılanlar: `Assets/_Project/Scenes/00_Boot.unity` sahnesi oluşturuldu, içine `Bootstrapper` ve `AudioManager.prefab` eklendi, Build Profiles listesinde en üste (`index 0`) alındı.
+- Commit: `feat(core): A2.2 boot sahnesi, Services ve GameSession altyapısı (TD-08, TD-09, BUG-05)`
+
+---
+
 ## [16.10.2026] A2.1 — Kimlik Birliği (NodeId + MapNodeView)
 - `MapNodeView.cs` (yeni): Harita düğümü butonlarını Inspector referansı ile `LocationNodeSO` varlığına bağlayan ve ASCII `NodeId` sunan görünüm bileşeni eklendi.
 - `LocationNodeSO.cs`: Pazar özeti için `_marketGoodsSummary` alanı ve Türkçe fraksiyon adı döndüren `GetFactionDisplayName()` metodu eklendi.

@@ -4,7 +4,7 @@
 
 **Proje:** Uç Beyliği Kervanı · 14. yy Anadolu · Taktiksel RPG & Ticaret
 **Motor:** Unity 6 (6000.6.3f1), URP 2D · **Platform:** Android, yatay (landscape)
-**Sürüm etiketi:** v0.1.0 Alpha · **Son güncelleme:** 16.10.2026
+**Sürüm etiketi:** v0.1.0 Alpha · **Son güncelleme:** 18.10.2026
 
 ---
 
@@ -14,13 +14,13 @@
 |---|---|---|
 | Görsel / UI | 🟢 | MainMenu ve WorldMap arayüzleri hazır ve cilalı. |
 | Veri tanımları (SO) | 🟢 | 13 harita düğümü `MapNodeView` + `LocationNodeSO` (ASCII `NodeId`) ile bağlı (A2.1). |
-| Oyun döngüsü | 🔴 | Harita → Seyahat → Varış → Şehir döngüsü gerçek veriyle çalışmıyor. |
-| Kalıcı durum / Kayıt | 🔴 | Yok (TD-01). Kervan her açılışta sıfırlanıyor. |
+| Oyun döngüsü | 🟡 | `00_Boot` + `GameSession` + `Services` kuruldu (A2.2); rota/seyahat bağlantısı sırada. |
+| Kalıcı durum / Kayıt | 🟡 | Çalışma anı durumu (`GameSession`) sahneler arası kalıcı; JSON disk kaydı sırada (`A2.3`). |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), DevOverlay koruması ve ses kalıcılığı tamam (A2.0). |
 
-**Özet:** Görsel ve düğüm kimlik yapısı hazır; sırada kalıcı oyun durumu (`GameSession`) ve kayıt/rota omurgası var (`A2.2–A2.4`).
+**Özet:** Görsel, düğüm kimlik yapısı ve çalışma anı oturumu (`00_Boot` + `GameSession` + `Services`) hazır; sırada JSON disk kayıt/yükleme (`A2.3`) ve rota omurgası (`A2.4`) var.
 
-**Sahneler:** `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene`, `MarketScene`, `TownHubScene`, `CombatScene` ⚠️ eski prototip (yeniden ele alınacak).
+**Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene`, `MarketScene`, `TownHubScene`, `CombatScene` ⚠️ eski prototip (yeniden ele alınacak).
 
 ---
 
@@ -42,8 +42,8 @@ A8 Android Sürüm & Test ................ ⬜
 - [x] A2-UI Harita arayüzü, sidebar, bilgi kartı, SFX (bkz. 07)
 - [x] A2.0 Hijyen — Input System fix, DevOverlay koruması, ses kalıcılığı
 - [x] A2.1 Kimlik birliği (NodeId + MapNodeView)
-- [ ] **A2.2 Boot sahnesi + GameSession** ← **SIRADAKİ**
-- [ ] A2.3 Kayıt / Yükleme (JSON)
+- [x] A2.2 Boot sahnesi + GameSession
+- [ ] **A2.3 Kayıt / Yükleme (JSON)** ← **SIRADAKİ**
 - [ ] A2.4 Rota grafiği + gerçek mesafe/erzak
 - [ ] A2.5 TopBar HUD
 - [ ] A2.6 Sahne geçiş servisi
@@ -52,10 +52,10 @@ A8 Android Sürüm & Test ................ ⬜
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A2.2 — Boot Sahnesi + GameSession
-- **Hedef:** Sahneler arası tek ve kalıcı oyun durumu (`GameSession`: kervan, konum, gün, aktif seyahat) ve hafif servis bulucu (`Services` + `Bootstrapper`).
-- **Çözer:** BUG-05 (temel), TD-08, TD-09, TD-02 (kısmen)
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.2`
+## 3. ▶️ Sıradaki Adım: A2.3 — Kayıt / Yükleme (JSON)
+- **Hedef:** `GameSession` verisini `persistentDataPath/save_0.json` dosyasına atomik olarak kaydetmek/yüklemek; "Devam Et" ve mevcut kayıt varken "Yeni Oyun" onay akışı.
+- **Çözer:** TD-01, TD-12
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.3`
 
 ---
 
