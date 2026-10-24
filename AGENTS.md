@@ -40,9 +40,10 @@ Bu projede kıdemli bir Unity/C# geliştiricisi ve oyun tasarımcısı olarak **
 - **Sabit değer yok:** Oyun dengesi değerleri (fiyat, mesafe, tarih, başlangıç akçesi) kodda gömülü olmaz; SO veya `GameSession`'dan gelir.
 - **Sahte veri yok:** UI boş durumda sahte satır basmaz; "Henüz yük yok" gibi boş durum (empty state) gösterir.
 
-## 5. Görsel Varlık ve UI İş Akışı
-1. **Tasarım Önerisi:** UI/görsel eklenecekse önce `arayuz-tasarimi` ile detaylı mizanpaj + gerekli varlık listesi (isim, boyut, AI prompt) sun.
-2. **Varlık Üretimi:** Kullanıcı varlıkları üretip projeye koyar.
+## 5. Görsel Varlık ve UI İş Akışı (Tasarım Kullanıcı Kontrolünde)
+- **Tasarım Kontrolü:** Tasarım konularında değişikliklere asla doğrudan gitme; tüm tasarım işlemleri proje sahibinin kontrolü altında ilerler. Önce olması gerekenleri ve profesyonellik için önerilerini (mizanpaj, UX/ergonomi, görsel hiyerarşi, tarihsel üslup) sun; ayrıca işi kolaylaştıracak **yapay zekâ araçlarını ve tasarım programlarını** (hangi aşamada hangi araç/prompt/program kullanılacağıyla birlikte) ilet.
+1. **Tasarım Önerisi:** UI/görsel eklenecekse veya revize edilecekse önce `arayuz-tasarimi` ile detaylı mizanpaj + profesyonellik önerileri + kolaylaştırıcı AI/program tavsiyeleri + gerekli varlık listesi (isim, boyut, AI prompt) sun.
+2. **Varlık Üretimi:** Kullanıcı tasarımı onaylar ve varlıkları üretip projeye koyar.
 3. **Klasör Disiplini:** `varlik-entegrasyonu` ile isimlendirme/klasör (`Assets/_Project/Art/...`) ve import ayarlarını standardize et. Dağınıklığa izin verme; taşıma/silme için önce onay al.
 4. **Unity Entegrasyonu:** Import, prefab, script bağlama adımlarını numaralı Unity Editör talimatı olarak ver.
 

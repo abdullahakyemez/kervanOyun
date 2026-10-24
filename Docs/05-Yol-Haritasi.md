@@ -73,13 +73,13 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Unity'de elle:** 13 düğümü bağlayan `TravelRouteSO`'lar ve `RouteDatabase.asset` oluşturuldu; `WorldMapUI`'a bağlandı.
 - **Test:** Komşu olmayan şehre tıklayınca "doğrudan yol yok / X üzerinden N gün". Seyahat başlatınca `CurrentNodeId` **değişmez**, sadece `ActiveTravel` kaydedilir.
 
-### A2.5 — TopBar HUD ⬜
-- **Amaç:** Akçe, Erzak, Tarih göstergeleri yeni görsellerle ve gerçek veriyle.
-- **Çözer:** TD-02 (tarih)
-- **Varlıklar:** `UI_ToolbarBG.png`, `toolbarAkceIcon.png`, `toolbarErzakIcon.png` (önce `varlik-entegrasyonu` ile isim standardı).
-- **Muhtemel dosyalar:** Yeni `UI/TopBarHUD.cs` (EventBus dinler), `Core/GameCalendar.cs` (gün sayısı → "14 Mayıs 1326" biçimi), `WorldMapUI.cs` (HUD kodu çıkarılır).
-- **Unity'de elle:** TopBar prefab'ı (`Prefabs/UI/TopBarHUD.prefab`).
-- **Test:** Akçe değişince sayı animasyonla güncellenir; tarih GameSession gününden hesaplanır.
+### A2.5 — TopBar HUD ✅
+- **Amaç:** Akçe, Erzak, Tarih ve Mevsim göstergeleri yeni görsellerle ve gerçek veriyle çalışır; HUD kodu `WorldMapUI`'dan ayrılır.
+- **Çözer:** TD-02 (tarih ve HUD varsayılanları)
+- **Varlıklar:** `Assets/_Project/Art/UI/Toolbar/` altına yeni yüksek çözünürlüklü ikonlar ve mevsim görselleri (`baharicon`, `yazicon`, `sonbaharicon`, `kısicon`) eklendi.
+- **Dosyalar:** Yeni `UI/TopBarHUD.cs`, yeni `Core/GameCalendar.cs`, güncellenen `TradeAndTravel/WorldMapUI.cs`.
+- **Unity'de elle:** `SeasonCapsule` oluşturuldu, `TopBarHUD` bileşeni eklendi ve referanslar bağlandı.
+- **Test:** Akçe değişince sayı sayaç efektiyle güncellenir; tarih ve mevsim `GameCalendar` üzerinden `GameSession.DayCount` ile hesaplanır; erzak 3 gün veya altına indiğinde uyarı rengi uygulanır.
 
 ### A2.6 — Sahne Geçiş Servisi ⬜
 - **Amaç:** Tüm sahne geçişleri tek noktadan, fade + async yükleme ile.

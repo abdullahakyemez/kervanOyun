@@ -27,9 +27,8 @@ namespace Kervan.UI
         [SerializeField] private RectTransform _initialFocusNode;
 
         [Header("Üst Kaynak / HUD Barı")]
-        [SerializeField] private TextMeshProUGUI _akceText;
-        [SerializeField] private TextMeshProUGUI _erzakText;
-        [SerializeField] private TextMeshProUGUI _dateText;
+        [Tooltip("Üst kaynak ve durum barı kontrolcüsü (Akçe, Erzak, Tarih, Mevsim)")]
+        [SerializeField] private TopBarHUD _topBarHud;
 
         [Header("Kervan & Yük Yan Çekmecesi")]
         [Tooltip("Sol altta yer alan Kervan ve envanter butonu")]
@@ -108,6 +107,7 @@ namespace Kervan.UI
 
         private void FindMissingReferences()
         {
+            if (_topBarHud == null) _topBarHud = FindAnyObjectByType<TopBarHUD>();
             if (_panZoomController == null) _panZoomController = FindAnyObjectByType<MapPanZoomController>();
             if (_inventorySidebar == null) _inventorySidebar = FindAnyObjectByType<InventorySidebarUI>();
             if (_bottomNodeInfoCard == null) _bottomNodeInfoCard = FindAnyObjectByType<BottomNodeInfoCardUI>();
@@ -154,8 +154,6 @@ namespace Kervan.UI
             if (_backToMenuButton != null) _backToMenuButton.onClick.AddListener(OnBackToMenuClicked);
             if (_settingsButton != null) _settingsButton.onClick.AddListener(OnSettingsClicked);
             if (_volumeToggleButton != null) _volumeToggleButton.onClick.AddListener(OnVolumeToggleClicked);
-
-            EventBus.Subscribe<CaravanStatsChangedEvent>(OnCaravanStatsChanged);
         }
 
         private void UnregisterListeners()
@@ -164,8 +162,6 @@ namespace Kervan.UI
             if (_backToMenuButton != null) _backToMenuButton.onClick.RemoveListener(OnBackToMenuClicked);
             if (_settingsButton != null) _settingsButton.onClick.RemoveListener(OnSettingsClicked);
             if (_volumeToggleButton != null) _volumeToggleButton.onClick.RemoveListener(OnVolumeToggleClicked);
-
-            EventBus.Unsubscribe<CaravanStatsChangedEvent>(OnCaravanStatsChanged);
         }
 
         private void SetupNodeViews()
@@ -245,20 +241,10 @@ namespace Kervan.UI
 
         public void UpdateTopResourceHUD()
         {
-            var caravan = _gameSession != null ? _gameSession.Caravan : null;
-
-            int akce = caravan != null ? caravan.CurrentAkce : 500;
-            int food = caravan != null ? caravan.CurrentFood : 20;
-
-            if (_akceText != null) _akceText.text = akce.ToString();
-            if (_erzakText != null) _erzakText.text = $"{food} Gün";
-            if (_dateText != null) _dateText.text = "14 Mayıs 1326";
-        }
-
-        private void OnCaravanStatsChanged(CaravanStatsChangedEvent evt)
-        {
-            if (_akceText != null) _akceText.text = evt.CurrentAkce.ToString();
-            if (_erzakText != null) _erzakText.text = $"{evt.CurrentFood} Gün";
+            if (_topBarHud != null)
+            {
+                _topBarHud.RefreshAll();
+            }
         }
 
         #region Düğüm Seçimi & Bilgi Kartı (Node Interaction)

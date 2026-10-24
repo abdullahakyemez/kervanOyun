@@ -4,7 +4,7 @@ description: Yeni bir ekran, panel, popup veya görsel sahne (ör. TopBar, Seyah
 ---
 # Arayüz / Görsel Tasarım Önerisi Prosedürü
 
-AGENTS.md §5 gereği: **önce tasarım önerisi, sonra varlık üretimi (kullanıcı), sonra entegrasyon.**
+AGENTS.md §5 gereği: **Tasarım konularında değişikliklere doğrudan gidilmez; tasarım işlemleri tamamen kullanıcının kontrolü altında ilerler.** Önce olması gerekenler, profesyonellik için öneriler ve işi kolaylaştıracak **yapay zekâ / tasarım programları** sunulur; kullanıcı onayladıktan sonra varlık üretimi ve entegrasyona geçilir.
 
 ## Hazırlık (minimum okuma)
 - `Docs/01-Oyun-Tasarimi.md`: ilgili ekranın tarifi (ör. "Diğer Ekran Yerleşimleri", Combat HUD bölümleri).
@@ -31,7 +31,11 @@ Açılış/kapanış animasyonu, SFX (`SFX_...`), boş durum metni, hata/uyarı 
 |---|---|---|---|---|
 + eksik her varlık için AI üretim prompt'u (sonuna "Temel Stil Formülü" eklenir).
 
-### 5. Teknik notlar
+### 5. Profesyonellik Önerileri & Kolaylaştırıcı Araçlar (AI / Programlar)
+- Görsel kalite, okunabilirlik, mobil ergonomi ve tarihsel atmosfer için profesyonel tavsiyeler.
+- Bu ekranın/varlıkların üretimini, vektör/katman ayrımını, arka plan temizliğini veya 9-slice dilimlemesini kolaylaştıracak yapay zekâ araçları ve program önerileri.
+
+### 6. Teknik notlar
 Canvas ayrımı (statik/dinamik), prefab adı (`Prefabs/UI/...`), veri kaynağı (GameSession/SO/EventBus olayı).
 ```
 

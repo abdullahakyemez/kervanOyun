@@ -24,7 +24,7 @@
 | ID | Önem | Sorun | Dosya / Yer | Çözecek Adım | Durum |
 |---|---|---|---|---|---|
 | TD-01 | 🟠 | Kayıt sistemi yok; sadece `PlayerPrefs` bayrakları (`HasSavedGame`, `CurrentNodeId`, `HasSeenIntro_v1`). Kervan her açılışta 500 akçe/20 erzak ile sıfırlanır. | `MainMenuUI.cs`, `WorldMapUI.cs`, `CaravanData.cs` | A2.3 | Çözüldü (18.10.2026) |
-| TD-02 | 🟠 | Sabit kodlu oyun değerleri: tarih `"14 Mayıs 1326"` ve varsayılan akçe/erzak UI fallback'leri (500/20/45 kg). (`CalculateEstimatedDays` sabit mesafeleri A2.4'te kaldırıldı.) | `WorldMapUI.cs` (`UpdateTopResourceHUD`), `InventorySidebarUI.cs` (`RefreshData`) | A2.5, A2.7 | Açık |
+| TD-02 | 🟠 | Sabit kodlu oyun değerleri: tarih `"14 Mayıs 1326"` ve varsayılan akçe/erzak UI fallback'leri (TopBar HUD A2.5'te GameCalendar ve TopBarHUD'a taşınarak çözüldü; kalan: `InventorySidebarUI` `RefreshData`). | `InventorySidebarUI.cs` (`RefreshData`) | A2.7 | Açık (TopBar çözüldü) |
 | TD-03 | 🟠 | Sidebar kervan boşken sahte satırlar basıyor ("3 Muhafız, 10 İpek…"); görevler sabit metin. | `InventorySidebarUI.cs` (`RefreshData` ~L421-470) | A2.7 | Açık |
 | TD-04 | 🟠 | Rota grafiği yok: 13 düğüm, 4 rota (`Sogut_Bilecik`, `Sogut_Domanic`, `Bilecik_Iznik`, `Iznik_Bursa`). Her düğüme her yerden gidilebiliyor. | `ScriptableObjects/Routes`, `RouteDatabaseSO`, `RouteGraph` | A2.4 | Çözüldü (19.10.2026) |
 | TD-05 | 🟠 | `Resources.Load` 7 yerde çağrılıyor ama `_Project` altında `Resources` klasörü yok → fallback'ler ölü kod (`AudioManager`, `WorldMapUI`, `BottomNodeInfoCardUI` A2.0–A2.1'de temizlendi; kalanlar `UIButtonSound`, `InventorySidebarUI`). | `UIButtonSound`, `InventorySidebarUI` | A2.7 | Açık |
@@ -70,3 +70,4 @@
 - `TD-12` — 18.10.2026 — A2.3 — `MainMenuUI` içinde mevcut kayıt varken "Yeni Oyun" tıklandığında onay penceresi (`ShowCustomConfirm`) açılması ve onaylandığında `GameSession.StartNewGame` ile tüm durumun sıfırlanması sağlandı.
 - `BUG-04` — 19.10.2026 — A2.4 — `GameSession.StartTravel` içindeki erken `SetCurrentNode(toNodeId)` çağrısı kaldırıldı; seyahat başlarken `CurrentNodeId` korunup yalnızca `ActiveTravel` kaydediliyor, konum varışta (`CompleteTravel`) güncelleniyor.
 - `TD-04` — 19.10.2026 — A2.4 — `RouteDatabaseSO` ve saf C# `RouteGraph` (çift yönlü komşuluk + Dijkstra en kısa yol) eklendi; `WorldMapUI` ve `BottomNodeInfoCardUI` gerçek `TravelRouteSO` verilerine bağlandı, komşu olmayan düğümlere doğrudan seyahat kapatıldı.
+- `TD-02` (kısmen) — 25.10.2026 — A2.5 — `WorldMapUI` içindeki sabit kodlu tarih ve HUD varsayılanları kaldırıldı; `GameCalendar` ve `TopBarHUD` ile dinamik `GameSession` verisine bağlandı (sayaç animasyonu ve mevsim desteği eklendi).

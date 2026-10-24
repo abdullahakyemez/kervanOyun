@@ -6,6 +6,15 @@
 
 ---
 
+## [25.10.2026] A2.5 — TopBar HUD (Akçe, Erzak, Tarih, Mevsim)
+- `GameCalendar.cs` (yeni): 14 Mayıs 1326 başlangıç tarihinden gün hesaplayan, `SeasonType` ve Türkçe mevsim adları ("Bahar", "Yaz", "Güz", "Kış") üreten saf C# takvim sınıfı eklendi (`TD-02`).
+- `TopBarHUD.cs` (yeni): Akçe (sayaç akışı ve kapsül nabız animasyonu), Erzak (<= 3 gün için kırmızı uyarı rengi), Tarih ve Mevsim göstergelerini `GameSession` ve `EventBus` (`CaravanStatsChangedEvent`, `DayPassedEvent`) ile senkronize eden bağımsız HUD kontrolcüsü eklendi (`TD-02`).
+- `WorldMapUI.cs`: HUD metin alanları (`_akceText`, `_erzakText`, `_dateText`) ve sabit kodlu `"14 Mayıs 1326"` tarihi kaldırıldı; `TopBarHUD` referansına devredildi (`TD-02`).
+- Unity'de elle yapılanlar: `TopBar_HUD` içine `SeasonCapsule` (`SeasonBG`, `SeasonImg`, `SeasonText`) eklendi, yeni yüksek çözünürlüklü ikonlar (`Assets/_Project/Art/UI/Toolbar/`) projeye alındı, `TopBarHUD` bileşeni sahneye bağlanıp referansları tamamlandı.
+- Commit: `feat(ui): A2.5 TopBar HUD - GameCalendar takvim/mevsim motoru, sayaç animasyonu ve WorldMapUI ayrımı (TD-02)`
+
+---
+
 ## [19.10.2026] A2.4 — Rota Grafiği + Gerçek Mesafe/Erzak
 - `RouteDatabaseSO.cs` (yeni): Haritadaki tüm `TravelRouteSO` varlıklarını tek bir listede toplayan ScriptableObject veri tabanı eklendi (`TD-04`).
 - `RouteGraph.cs` (yeni): `RouteDatabaseSO` üzerinden çift yönlü (undirected) komşuluk grafiği kuran, doğrudan komşuluk (`TryGetDirectRoute`) ve Dijkstra ile en kısa aktarmalı yol (`TryFindPath` / `RoutePathResult`) hesaplayan saf C# sınıfı eklendi (`TD-04`).
