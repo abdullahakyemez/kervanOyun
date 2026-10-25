@@ -6,6 +6,16 @@
 
 ---
 
+## [25.10.2026] A2.7 — Sidebar Gerçek Veri + Boş Durumlar
+- `InventorySidebarUI.cs`: Çekmece verileri `Services.TryGet<GameSession>` üzerinden gerçek `Caravan` oturumuna bağlandı; `EventBus.Subscribe<CaravanStatsChangedEvent>` canlı aboneliği eklendi (`TD-03`).
+- Sahte satır temizliği: Kervan sekmesinde sahte muhafızlar kaldırılıp lider (Gazi Alp) ve gerçek hayvanlar listelendi; Yük sekmesinde sahte emtialar kaldırılıp "Kervan ambarında henüz ticaret emtiası bulunmuyor..." boş durum metni eklendi (`TD-03`).
+- Görevler (Quests) sekmesi: Aktif vazife yokken parşömen temalı boş durum metni eklendi; `CreateQuestRow` sabit 86 px yükseklikten esnek yüksekliğe (`minHeight = 96f`), negatif satır aralığı kaldırılıp `textWrappingMode = Normal` ve `lineSpacing = 1.5f` rahat tipografiye kavuşturuldu; `UI_BG_Itemicon` rozeti bağlandı; `AddQuest` API'si eklendi.
+- Kapatma ve temizlik: `exitIcon` ve `close` isimli kapatma butonlarının otomatik bağlanması sağlandı; `PlayOpenSound` içindeki ölü `Resources.Load` temizlendi (`TD-05`); Inspector için `[ContextMenu]` eklendi.
+- Unity'de elle yapılanlar: `InventorySidebar` içine `exitIcon.png` görseliyle `Btn_Exit` butonu eklendi, referanslar bağlandı.
+- Commit: `feat(ui): A2.7 sidebar gerçek GameSession verisine bağlandı ve boş durumlar eklendi (TD-03, TD-05)`
+
+---
+
 ## [25.10.2026] A2.6 — Sahne Geçiş Servisi (SceneLoader + ScreenFader)
 - `SceneIds.cs` (yeni): Projedeki tüm Unity sahne adlarını tek merkezde toplayan sabit sınıfı eklendi (`TD-14`).
 - `SceneLoader.cs` (yeni): `Services` üzerinden erişilen, çift dokunma ve eşzamanlı geçiş isteklerini engelleyen (`IsLoading`), `ScreenFader` ile kararma/açılma entegreli asenkron sahne yükleyici servisi eklendi (`TD-07`).
@@ -104,6 +114,8 @@
 - **SFX:** `SFX_Parchment.wav` kaldırıldı; bilgi kartı ve çekmeceye `SFX_PaperRustle.wav`; `UIButtonSound.cs` özel klip/ses/perde varyasyonu; `AudioManager` kendini onaran yapı.
 - Commit: `6105b35 feat(ui, audio): dunya haritasi arayuzu, sidebar, sfx ve ses sistemi gelistirmeleri`
 
+---
+
 ## [~13.10.2026] A1 — Ana Menü & UI temelleri (tamamlandı + cilalandı)
 - `UI_BG_MainMenu` + `UI_Logo_GameTitle`, Yeni Oyun / Devam Et butonları.
 - Alt orta login seçenekleri (Google, Apple, Mail) — henüz işlevsiz (log basıyor).
@@ -113,6 +125,8 @@
 - Cilalar: `ScreenFader.cs` (fade), `QuitConfirmPopupUI.cs` (çıkış onayı), `SafeAreaFitter.cs`, sürüm etiketi `v0.1.0 Alpha`, `PlayerPrefs` tabanlı "Devam Et" kontrolü, `UI_Btn_Standard.png`.
 - Görsel Varlık Standardı `02-Teknik-ve-Gorsel.md` §7'ye eklendi.
 - Commit: `6a5270d feat(ui): Asama 1 tamamlandi - Ana Menu, Cekmece, Ayarlar Popupu ve Varlik Organizasyonu`
+
+---
 
 ## [≤07.10.2026] A0 — Hazırlık, mimari ve prototip sahneler
 - ScriptableObject veri yapıları (Item, Unit, Node, Route, Market, Intel, Audio).

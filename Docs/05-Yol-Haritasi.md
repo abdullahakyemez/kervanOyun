@@ -20,7 +20,7 @@ A2 Dünya Haritası & Oyun Omurgası .................. ⏳  ← ŞU AN
    A2.4 Rota grafiği + gerçek mesafe/erzak           ✅
    A2.5 TopBar HUD (Akçe/Erzak/Tarih)               ✅
    A2.6 Sahne geçiş servisi (SceneLoader + Fade)    ✅
-   A2.7 Sidebar gerçek veri + boş durumlar
+   A2.7 Sidebar gerçek veri + boş durumlar          ✅
    A2.8 Cihaz testi (Device Simulator) & Aşama kapanışı
 A3 Seyahat (TravelScene yeniden) ................... ⬜
 A4 Şehir: Pazar + Kervansaray + Divan .............. ⬜
@@ -87,11 +87,12 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Dosyalar:** Yeni `Core/SceneIds.cs`, yeni `Core/SceneLoader.cs`, güncellenen `UI/ScreenFader.cs`, `Core/Bootstrapper.cs`, `UI/MainMenuUI.cs`, `TradeAndTravel/WorldMapUI.cs`, `Core/KervanSceneNavOverlay.cs`.
 - **Test:** Menü ↔ Harita ↔ (eski) sahneler arası her geçişte fade-out/fade-in; çift tıklamada iki kez yükleme yok; kalıcı fader en üst katmanda çalışır.
 
-### A2.7 — Sidebar Gerçek Veri + Boş Durumlar ⬜
+### A2.7 — Sidebar Gerçek Veri + Boş Durumlar ✅
 - **Amaç:** Kervan/Yük/Görevler sekmeleri GameSession'dan beslensin, sahte satırlar kalksın.
-- **Çözer:** TD-03, TD-13 (başlangıç)
-- **Muhtemel dosyalar:** `UI/InventorySidebarUI.cs` (sadece `RefreshData` ve satır üretimi — dosyanın tamamı okunmaz), opsiyonel yeni `UI/Sidebar/SidebarRowView.cs`.
-- **Test:** Yeni oyunda yük sekmesi "Henüz yük yok" der. Başlangıç kadrosu `GameSession`'daki gerçek kadrodur.
+- **Çözer:** TD-03, TD-13 (başlangıç), TD-05 (InventorySidebarUI kısmı)
+- **Dosyalar:** `UI/InventorySidebarUI.cs`.
+- **Test:** Yeni oyunda yük sekmesi "Kervan ambarında henüz ticaret emtiası bulunmuyor..." der. Başlangıç kadrosu `GameSession`'daki gerçek kadro ve hayvanlardır. Görevler sekmesi boş durum gösterir. Exit butonu ile çekmece kapanır.
+- **Uygulama notu:** Görev kartları esnek yüksekliğe ve `textWrappingMode = Normal` ile ferah satır aralığına kavuşturuldu; `UI_BG_Itemicon` rozeti bağlandı; `CaravanStatsChangedEvent` canlı aboneliği eklendi.
 
 ### A2.8 — Cihaz Testi & Aşama Kapanışı ⬜
 - **Amaç:** 16:9, 19.5:9, 20:9 ve çentikli cihazlarda MainMenu + WorldMap kontrolü; A2 kapanış raporu.

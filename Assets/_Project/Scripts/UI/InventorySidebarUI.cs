@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using Kervan.TradeAndTravel;
 using Kervan.Audio;
+using Kervan.Core;
 using System.Collections.Generic;
 
 namespace Kervan.UI
@@ -86,6 +87,24 @@ namespace Kervan.UI
             AutoBindReferences();
             SetupButtonListeners();
             CleanScrollViewBackgrounds();
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<CaravanStatsChangedEvent>(OnCaravanStatsChanged);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<CaravanStatsChangedEvent>(OnCaravanStatsChanged);
+        }
+
+        private void OnCaravanStatsChanged(CaravanStatsChangedEvent evt)
+        {
+            if (sidebarPanel != null && sidebarPanel.activeSelf)
+            {
+                RefreshData();
+            }
         }
 
         private void Start()
@@ -238,6 +257,7 @@ namespace Kervan.UI
         public void OpenSidebar()
         {
             AutoBindReferences();
+            SetupButtonListeners();
             ApplySafeArea();
             CleanScrollViewBackgrounds();
 
@@ -265,14 +285,6 @@ namespace Kervan.UI
             if (AudioManager.Instance != null)
             {
                 AudioManager.Instance.PlayPaperRustle();
-            }
-            else
-            {
-                AudioClip clip = Resources.Load<AudioClip>("Audio/SFX/SFX_PaperRustle");
-                if (clip != null)
-                {
-                    AudioSource.PlayClipAtPoint(clip, Camera.main != null ? Camera.main.transform.position : Vector3.zero, 0.85f);
-                }
             }
         }
 
@@ -370,10 +382,12 @@ namespace Kervan.UI
             EnsureLayout(yukContainer);
             EnsureLayout(questContainer);
 
-            var caravan = CaravanManager.Instance != null ? CaravanManager.Instance.Caravan : null;
+            var caravan = Services.TryGet<GameSession>(out var session) && session.Caravan != null
+                ? session.Caravan
+                : (CaravanManager.Instance != null ? CaravanManager.Instance.Caravan : null);
 
             int akce = caravan != null ? caravan.CurrentAkce : 500;
-            float currentWeight = caravan != null ? caravan.CalculateCurrentWeight() : 45f;
+            float currentWeight = caravan != null ? caravan.CalculateCurrentWeight() : 0f;
             float maxWeight = caravan != null ? caravan.MaxWeightCapacity : 300f;
 
             // 1. Üst Başlık Bilgileri
@@ -397,6 +411,9 @@ namespace Kervan.UI
             {
                 ClearContainer(kervanUnitsContainer);
 
+                // Lider her zaman başta yer alır
+                CreateRow(kervanUnitsContainer, unitRowPrefab, "Gazi Alp (Lider)", "1 Kişi", GetPortraitForUnit("Alp"));
+
                 if (caravan != null && caravan.Guards != null && caravan.Guards.Count > 0)
                 {
                     Dictionary<string, (int count, Sprite portrait)> guardData = new Dictionary<string, (int, Sprite)>();
@@ -418,15 +435,8 @@ namespace Kervan.UI
                         CreateRow(kervanUnitsContainer, unitRowPrefab, kvp.Key, kvp.Value.count + " Kişi", kvp.Value.portrait);
                     }
                 }
-                else
-                {
-                    // Varsayılan / Test kervan kadrosu
-                    CreateRow(kervanUnitsContainer, unitRowPrefab, "Alp (Lider)", "1 Kişi", GetPortraitForUnit("Alp"));
-                    CreateRow(kervanUnitsContainer, unitRowPrefab, "Kervan Muhafızı", "3 Kişi", GetPortraitForUnit("Muhafız"));
-                    CreateRow(kervanUnitsContainer, unitRowPrefab, "Gazi Okçu", "2 Kişi", GetPortraitForUnit("Okçu"));
-                }
 
-                // Binek ve Yük Hayvanları
+                // Binek ve Yük Hayvanları (GameSession / CaravanData gerçek sayıları)
                 int horses = caravan != null ? caravan.Horses : 2;
                 int mules = caravan != null ? caravan.Mules : 2;
                 int camels = caravan != null ? caravan.Camels : 1;
@@ -436,38 +446,37 @@ namespace Kervan.UI
                 if (camels > 0) CreateRow(kervanUnitsContainer, unitRowPrefab, "Kervan Devesi", camels + " Baş", GetPortraitForUnit("Deve"));
             }
 
-            // 4. Yük Sekmesi (Ticaret Emtiaları - Ağırlık parantezi kaldırıldı, sadece net adet)
+            // 4. Yük Sekmesi (Ticaret Emtiaları - Gerçek veriler veya boş durum)
             if (yukContainer != null)
             {
                 ClearContainer(yukContainer);
 
-                if (caravan != null && caravan.Inventory != null && caravan.Inventory.Count > 0)
+                int itemCount = 0;
+                if (caravan != null && caravan.Inventory != null)
                 {
                     foreach (var slot in caravan.Inventory)
                     {
                         if (slot.Item != null && slot.Quantity > 0)
                         {
+                            itemCount++;
                             string detail = $"{slot.Quantity} Adet";
                             Sprite itemIcon = GetIconForItem(slot.Item.ItemName, slot.Item.Icon);
                             CreateRow(yukContainer, itemRowPrefab, slot.Item.ItemName, detail, itemIcon);
                         }
                     }
                 }
-                else
+
+                if (itemCount == 0)
                 {
-                    // Varsayılan / Test ticaret yükleri (Net adetler)
-                    CreateRow(yukContainer, itemRowPrefab, "Bursa İpeği", "10 Adet", GetIconForItem("Bursa İpeği"));
-                    CreateRow(yukContainer, itemRowPrefab, "Dövme Demir", "15 Külçe", GetIconForItem("Dövme Demir"));
-                    CreateRow(yukContainer, itemRowPrefab, "Anadolu Buğdayı", "20 Çuval", GetIconForItem("Anadolu Buğdayı"));
+                    CreateEmptyStateRow(yukContainer, "Kervan ambarında henüz ticaret emtiası bulunmuyor.\nŞehir pazarından mal satın alabilirsiniz.");
                 }
             }
 
-            // 5. Görevler Sekmesi (UI_BG_Itemicon rozeti ile geniş, iki satırlı profesyonel kartlar)
+            // 5. Görevler Sekmesi (Vazife yoksa bilgilendirici boş durum)
             if (questContainer != null)
             {
                 ClearContainer(questContainer);
-                CreateQuestRow(questContainer, "İlk Sefer: İznik Hanı", "Söğüt pazarından yüklenen ipek balyalarını İznik Hanı'na güvenle ulaştır.");
-                CreateQuestRow(questContainer, "Kervan Güvenliği", "Yol boyunca pusulardan sakınmak için muhafızları teyakkuzda tut.");
+                CreateEmptyStateRow(questContainer, "Deruhte edilen aktif bir sefer vazifesi bulunmuyor.\nŞehir divanlarından ve kervansaraylardan vazife edinebilirsiniz.");
             }
 
             Canvas.ForceUpdateCanvases();
@@ -731,9 +740,51 @@ namespace Kervan.UI
         }
 
         /// <summary>
+        /// Liste boş olduğunda parşömen tonlarında şık ve bilgilendirici bir açıklama üretir.
+        /// </summary>
+        private void CreateEmptyStateRow(Transform container, string message)
+        {
+            if (container == null) return;
+
+            GameObject emptyObj = new GameObject("EmptyState", typeof(RectTransform), typeof(LayoutElement));
+            emptyObj.transform.SetParent(container, false);
+
+            RectTransform rt = emptyObj.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(1f, 1f);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.sizeDelta = new Vector2(0f, 110f);
+
+            LayoutElement le = emptyObj.GetComponent<LayoutElement>();
+            le.minHeight = 90f;
+            le.preferredHeight = 110f;
+            le.flexibleHeight = 0f;
+            le.flexibleWidth = 1f;
+
+            GameObject textObj = new GameObject("EmptyText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            textObj.transform.SetParent(emptyObj.transform, false);
+
+            RectTransform tRt = textObj.GetComponent<RectTransform>();
+            tRt.anchorMin = Vector2.zero;
+            tRt.anchorMax = Vector2.one;
+            tRt.offsetMin = new Vector2(24f, 16f);
+            tRt.offsetMax = new Vector2(-24f, -16f);
+
+            TextMeshProUGUI tmp = textObj.GetComponent<TextMeshProUGUI>();
+            if (_fontAsset != null) tmp.font = _fontAsset;
+            tmp.text = message;
+            tmp.fontSize = 15f;
+            tmp.fontStyle = FontStyles.Italic;
+            tmp.color = new Color(0.80f, 0.72f, 0.60f, 0.85f); // Solgun sıcak parşömen
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.textWrappingMode = TextWrappingModes.Normal;
+            tmp.lineSpacing = 3f;
+        }
+
+        /// <summary>
         /// Görevler sekmesi için geniş, iki satırlı ve UI_BG_Itemicon rozetli profesyonel görev kartı üretir.
         /// </summary>
-        private GameObject CreateQuestRow(Transform container, string questTitle, string questObjective)
+        public GameObject CreateQuestRow(Transform container, string questTitle, string questObjective, string questReward = null)
         {
             GameObject rowObj = new GameObject("QuestRow_" + questTitle, typeof(RectTransform), typeof(LayoutElement));
             rowObj.transform.SetParent(container, false);
@@ -742,11 +793,13 @@ namespace Kervan.UI
             rowRt.anchorMin = new Vector2(0f, 1f);
             rowRt.anchorMax = new Vector2(1f, 1f);
             rowRt.pivot = new Vector2(0.5f, 1f);
-            rowRt.sizeDelta = new Vector2(0f, 86f);
+
+            float rowHeight = string.IsNullOrEmpty(questReward) ? 96f : 116f;
+            rowRt.sizeDelta = new Vector2(0f, rowHeight);
 
             LayoutElement le = rowObj.GetComponent<LayoutElement>();
-            le.minHeight = 86f;
-            le.preferredHeight = 86f;
+            le.minHeight = rowHeight;
+            le.preferredHeight = rowHeight;
             le.flexibleHeight = 0f;
             le.flexibleWidth = 1f;
 
@@ -757,13 +810,13 @@ namespace Kervan.UI
             RectTransform cRt = contentObj.GetComponent<RectTransform>();
             cRt.anchorMin = Vector2.zero;
             cRt.anchorMax = Vector2.one;
-            cRt.offsetMin = new Vector2(8f, 4f);
+            cRt.offsetMin = new Vector2(8f, 10f); // Alt ayraç motifi için pay
             cRt.offsetMax = new Vector2(-8f, -4f);
 
             HorizontalLayoutGroup hlg = contentObj.GetComponent<HorizontalLayoutGroup>();
             hlg.padding = new RectOffset(4, 4, 2, 2);
-            hlg.spacing = 14f;
-            hlg.childAlignment = TextAnchor.MiddleLeft;
+            hlg.spacing = 12f;
+            hlg.childAlignment = TextAnchor.UpperLeft;
             hlg.childControlWidth = true;
             hlg.childControlHeight = true;
             hlg.childForceExpandWidth = false;
@@ -780,25 +833,25 @@ namespace Kervan.UI
                 img.preserveAspect = true;
 
                 LayoutElement badgeLe = badgeObj.GetComponent<LayoutElement>();
-                badgeLe.minWidth = 52f;
-                badgeLe.preferredWidth = 52f;
+                badgeLe.minWidth = 54f;
+                badgeLe.preferredWidth = 54f;
                 badgeLe.flexibleWidth = 0f;
-                badgeLe.minHeight = 52f;
-                badgeLe.preferredHeight = 52f;
+                badgeLe.minHeight = 54f;
+                badgeLe.preferredHeight = 54f;
                 badgeLe.flexibleHeight = 0f;
             }
 
-            // 2. Sağ: Metin Bloğu (Başlık + Açıklama)
+            // 2. Sağ: Metin Bloğu (Başlık + Açıklama + Ödül)
             GameObject textBlockObj = new GameObject("TextBlock", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(LayoutElement));
             textBlockObj.transform.SetParent(contentObj.transform, false);
 
             LayoutElement blockLe = textBlockObj.GetComponent<LayoutElement>();
-            blockLe.minWidth = 150f;
+            blockLe.minWidth = 160f;
             blockLe.preferredWidth = 350f;
             blockLe.flexibleWidth = 1f;
 
             VerticalLayoutGroup vlg = textBlockObj.GetComponent<VerticalLayoutGroup>();
-            vlg.padding = new RectOffset(0, 0, 2, 2);
+            vlg.padding = new RectOffset(0, 0, 0, 0);
             vlg.spacing = 3f;
             vlg.childAlignment = TextAnchor.UpperLeft;
             vlg.childControlWidth = true;
@@ -813,7 +866,7 @@ namespace Kervan.UI
             TextMeshProUGUI titleTmp = titleObj.GetComponent<TextMeshProUGUI>();
             if (_fontAsset != null) titleTmp.font = _fontAsset;
             titleTmp.text = questTitle;
-            titleTmp.fontSize = 19f;
+            titleTmp.fontSize = 16f;
             titleTmp.fontStyle = FontStyles.Bold;
             titleTmp.color = new Color(0.96f, 0.90f, 0.83f, 1f); // #F5E6D3 Parşömen kremi
             titleTmp.alignment = TextAlignmentOptions.TopLeft;
@@ -825,17 +878,53 @@ namespace Kervan.UI
             TextMeshProUGUI descTmp = descObj.GetComponent<TextMeshProUGUI>();
             if (_fontAsset != null) descTmp.font = _fontAsset;
             descTmp.text = questObjective;
-            descTmp.fontSize = 14f;
+            descTmp.fontSize = 13.5f;
             descTmp.fontStyle = FontStyles.Normal;
             descTmp.color = new Color(0.84f, 0.77f, 0.63f, 1f); // #D6C4A1 Sıcak açık parşömen
             descTmp.alignment = TextAlignmentOptions.TopLeft;
             descTmp.textWrappingMode = TextWrappingModes.Normal;
-            descTmp.lineSpacing = -8f;
+            descTmp.lineSpacing = 1.5f;
+
+            // 2.c Ödül / Durum Etiketi
+            if (!string.IsNullOrEmpty(questReward))
+            {
+                GameObject rewardObj = new GameObject("QuestReward", typeof(RectTransform), typeof(TextMeshProUGUI));
+                rewardObj.transform.SetParent(textBlockObj.transform, false);
+
+                TextMeshProUGUI rewTmp = rewardObj.GetComponent<TextMeshProUGUI>();
+                if (_fontAsset != null) rewTmp.font = _fontAsset;
+                rewTmp.text = questReward;
+                rewTmp.fontSize = 12.5f;
+                rewTmp.fontStyle = FontStyles.Italic;
+                rewTmp.color = new Color(0.85f, 0.70f, 0.35f, 1f); // #D9B359 Altın kum
+                rewTmp.alignment = TextAlignmentOptions.TopLeft;
+            }
 
             // 3. Alt Zarif Ayraç Motifi (UI_BG_ayirac_2)
             CreateOrnamentSeparator(rowObj);
 
             return rowObj;
+        }
+
+        /// <summary>
+        /// Görevler sekmesine çalışma anında yeni bir vazife kartı ekler (varsa boş durum metnini kaldırır).
+        /// </summary>
+        public void AddQuest(string questTitle, string questObjective, string questReward = null)
+        {
+            if (questContainer == null) return;
+
+            Transform emptyState = questContainer.Find("EmptyState");
+            if (emptyState != null)
+            {
+                Destroy(emptyState.gameObject);
+            }
+
+            CreateQuestRow(questContainer, questTitle, questObjective, questReward);
+
+            if (questContainer is RectTransform rtQ)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rtQ);
+            }
         }
 
         /// <summary>
@@ -929,6 +1018,8 @@ namespace Kervan.UI
             return defaultIcon;
         }
 
+        [ContextMenu("Referanslari ve Varliklari Otomatik Bagla")]
+        [ContextMenu("Auto Bind References")]
         public void AutoBindReferences()
         {
             if (sidebarPanel == null)
@@ -937,7 +1028,7 @@ namespace Kervan.UI
                 sidebarPanel = p != null ? p.gameObject : gameObject;
             }
 
-            // Tab butonlarını bul
+            // Tab butonlarını ve Kapatma butonunu bul
             Button[] allButtons = GetComponentsInChildren<Button>(true);
             foreach (var btn in allButtons)
             {
@@ -948,8 +1039,19 @@ namespace Kervan.UI
                     tabYuk = btn;
                 else if (tabGorevler == null && (n.Contains("gorev") || n == "btngorev"))
                     tabGorevler = btn;
-                else if (closeButton == null && (n.Contains("close") || n.Contains("kapat") || n == "btnclose"))
+                else if (closeButton == null && (n.Contains("close") || n.Contains("kapat") || n.Contains("exit") || n == "btnclose"))
                     closeButton = btn;
+            }
+
+            // Kapatma butonu ebeveynde veya komşu hiyerarşide olabilir
+            if (closeButton == null && transform.parent != null)
+            {
+                var btnClose = transform.parent.Find("Btn_Close") ??
+                               transform.parent.Find("BtnClose") ??
+                               transform.parent.Find("Btn_Exit") ??
+                               transform.parent.Find("ExitButton") ??
+                               transform.parent.Find("BtnExit");
+                if (btnClose != null) closeButton = btnClose.GetComponent<Button>();
             }
 
             // Sekme içerik konteynerlerini bul
@@ -982,7 +1084,7 @@ namespace Kervan.UI
                     characterNameText = txt;
                 else if (akceText == null && (n.Contains("akce") || n.Contains("gold") || txt.transform.parent?.name.ToLowerInvariant().Contains("akce") == true))
                     akceText = txt;
-                else if (_capacityText == null && (n.Contains("capacity") || n.Contains("kapasite") || n.Contains("yuk")))
+                else if (_capacityText == null && (n.Contains("capacity") || n.Contains("kapasite") || n.Contains("yukkapasite")))
                     _capacityText = txt;
             }
 
@@ -1030,6 +1132,7 @@ namespace Kervan.UI
 
 #if UNITY_EDITOR
             AutoAssignAssetsEditor();
+            UnityEditor.EditorUtility.SetDirty(this);
 #endif
         }
 

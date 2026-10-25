@@ -25,9 +25,9 @@
 |---|---|---|---|---|---|
 | TD-01 | 🟠 | Kayıt sistemi yok; sadece `PlayerPrefs` bayrakları (`HasSavedGame`, `CurrentNodeId`, `HasSeenIntro_v1`). Kervan her açılışta 500 akçe/20 erzak ile sıfırlanır. | `MainMenuUI.cs`, `WorldMapUI.cs`, `CaravanData.cs` | A2.3 | Çözüldü (18.10.2026) |
 | TD-02 | 🟠 | Sabit kodlu oyun değerleri: tarih `"14 Mayıs 1326"` ve varsayılan akçe/erzak UI fallback'leri (TopBar HUD A2.5'te GameCalendar ve TopBarHUD'a taşınarak çözüldü; kalan: `InventorySidebarUI` `RefreshData`). | `InventorySidebarUI.cs` (`RefreshData`) | A2.7 | Açık (TopBar çözüldü) |
-| TD-03 | 🟠 | Sidebar kervan boşken sahte satırlar basıyor ("3 Muhafız, 10 İpek…"); görevler sabit metin. | `InventorySidebarUI.cs` (`RefreshData` ~L421-470) | A2.7 | Açık |
+| TD-03 | 🟠 | Sidebar kervan boşken sahte satırlar basıyor ("3 Muhafız, 10 İpek…"); görevler sabit metin. | `InventorySidebarUI.cs` (`RefreshData`) | A2.7 | Çözüldü (25.10.2026) |
 | TD-04 | 🟠 | Rota grafiği yok: 13 düğüm, 4 rota (`Sogut_Bilecik`, `Sogut_Domanic`, `Bilecik_Iznik`, `Iznik_Bursa`). Her düğüme her yerden gidilebiliyor. | `ScriptableObjects/Routes`, `RouteDatabaseSO`, `RouteGraph` | A2.4 | Çözüldü (19.10.2026) |
-| TD-05 | 🟠 | `Resources.Load` 7 yerde çağrılıyor ama `_Project` altında `Resources` klasörü yok → fallback'ler ölü kod (`AudioManager`, `WorldMapUI`, `BottomNodeInfoCardUI` A2.0–A2.1'de temizlendi; kalanlar `UIButtonSound`, `InventorySidebarUI`). | `UIButtonSound`, `InventorySidebarUI` | A2.7 | Açık |
+| TD-05 | 🟠 | `Resources.Load` 7 yerde çağrılıyor ama `_Project` altında `Resources` klasörü yok → fallback'ler ölü kod (`AudioManager`, `WorldMapUI`, `BottomNodeInfoCardUI`, `InventorySidebarUI` A2.0–A2.7'de temizlendi; kalan: `UIButtonSound`). | `UIButtonSound` | A7 | Açık (çoğu temizlendi) |
 | TD-06 | 🟡 | İsim tabanlı bağlama: `GameObject.Find("Btn_Inventory") ?? ...`, `name.StartsWith("Node_")`. Obje adı değişince sessizce bozulur. | `WorldMapUI.cs` (`FindMissingReferences`, `SetupNodeViews`) | A2.1 | Çözüldü (16.10.2026) |
 | TD-07 | 🟡 | Sahne geçişleri tutarsız: sadece MainMenu'de `ScreenFader` var; diğer geçişler sert `LoadScene`, async/yükleme ekranı yok. | `ScreenFader.cs`, tüm `SceneManager.LoadScene` çağrıları | A2.6 | Çözüldü (25.10.2026) |
 | TD-08 | 🟡 | Singleton yoğunluğu: `AudioManager`, `CaravanManager`, `QuestManager`, `ReputationManager`, `ShopManager`, `ScreenFader`. (`00_Boot` + `Services` + `GameSession` A2.2'de kuruldu; kalan yöneticiler A6.1'de servise taşınacak.) | Çoklu | A6.1 | Açık |
@@ -73,3 +73,4 @@
 - `TD-02` (kısmen) — 25.10.2026 — A2.5 — `WorldMapUI` içindeki sabit kodlu tarih ve HUD varsayılanları kaldırıldı; `GameCalendar` ve `TopBarHUD` ile dinamik `GameSession` verisine bağlandı (sayaç animasyonu ve mevsim desteği eklendi).
 - `TD-07` — 25.10.2026 — A2.6 — Kalıcı `ScreenFader` (`DontDestroyOnLoad`, `sortingOrder = 32767`) ve `SceneLoader` asenkron sahne yükleyicisi kuruldu; tüm sahne geçişleri tek merkezden fade ve çift dokunma korumasıyla bağlandı.
 - `TD-14` — 25.10.2026 — A2.6 — `SceneIds` sabit sınıfı oluşturuldu; `Bootstrapper`, `MainMenuUI`, `WorldMapUI` ve `KervanSceneNavOverlay` içindeki dağınık string sahne adları sabitlere taşındı.
+- `TD-03` — 25.10.2026 — A2.7 — Sidebar kervan ve yük sekmeleri GameSession verisine bağlandı; sahte muhafız/emtia satırları kaldırıldı, boş durumlar ve esnek görev kartı eklendi.

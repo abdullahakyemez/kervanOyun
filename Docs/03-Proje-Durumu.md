@@ -18,7 +18,7 @@
 | Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON kayıt/yükleme ve otomatik kayıt) tamamlandı (A2.3). |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), DevOverlay koruması ve ses kalıcılığı tamam (A2.0). |
 
-**Özet:** Görsel, düğüm kimlik yapısı, çalışma anı oturumu (`00_Boot` + `GameSession` + `Services`), atomik JSON kayıt/yükleme (`SaveService`), rota grafiği (`RouteGraph` + `RouteDatabaseSO`), TopBar HUD (`TopBarHUD` + `GameCalendar`) ve merkezi sahne yükleyici (`SceneLoader` + `ScreenFader`) hazır; sırada kenar çubuğu gerçek veri entegrasyonu (`A2.7`) var.
+**Özet:** Görsel, düğüm kimlik yapısı, çalışma anı oturumu (`00_Boot` + `GameSession` + `Services`), atomik JSON kayıt/yükleme (`SaveService`), rota grafiği (`RouteGraph` + `RouteDatabaseSO`), TopBar HUD (`TopBarHUD` + `GameCalendar`), merkezi sahne yükleyici (`SceneLoader` + `ScreenFader`) ve kenar çubuğu gerçek veri entegrasyonu (`A2.7`) hazır; sırada cihaz testi ve aşama kapanışı (`A2.8`) var.
 
 **Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene`, `MarketScene`, `TownHubScene`, `CombatScene` ⚠️ eski prototip (yeniden ele alınacak).
 
@@ -47,15 +47,14 @@ A8 Android Sürüm & Test ................ ⬜
 - [x] A2.4 Rota grafiği + gerçek mesafe/erzak
 - [x] A2.5 TopBar HUD (Akçe, Erzak, Tarih, Mevsim)
 - [x] A2.6 Sahne geçiş servisi (SceneLoader + ScreenFader)
-- [ ] **A2.7 Sidebar gerçek veri + boş durumlar** ← **SIRADAKİ**
-- [ ] A2.8 Cihaz testi & aşama kapanışı
+- [x] A2.7 Sidebar gerçek veri + boş durumlar
+- [ ] **A2.8 Cihaz testi & aşama kapanışı** ← **SIRADAKİ**
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A2.7 — Sidebar Gerçek Veri + Boş Durumlar
-- **Hedef:** Harita kenar çubuğunun (Kervan/Yük/Görevler) GameSession'dan beslenmesi, sahte satırların kaldırılması ve "Henüz yük yok" gibi boş durumların eklenmesi.
-- **Çözer:** TD-03 (sahte sidebar verisi), TD-13 (başlangıç kadrosu)
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.7`
+## 3. ▶️ Sıradaki Adım: A2.8 — Cihaz Testi (Device Simulator) & Aşama Kapanışı
+- **Hedef:** 16:9, 19.5:9, 20:9 ve çentikli cihazlarda MainMenu + WorldMap kontrolleri (Safe Area, dokunma hedefleri, Android Back, FPS); A2 kapanış raporu ve Git tag `v0.2.0-alpha`.
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.8`
 
 ---
 
@@ -69,4 +68,4 @@ A8 Android Sürüm & Test ................ ⬜
 - **Hatırlatma (Arayüz Temizliği):** İlerleyen süreçte son aşamalara doğru ufak tefek arayüz temizlikleri (`kısicon.png` ASCII adı, mükerrer `Toolbar` klasörü, ham `Toolbar.ai` dosyası) yapılacaktır.
 - **Esneklik ilkesi:** Tamamlanmış sahnelerde de her zaman revizyon yapılabilir; "bu aşama bitti, dönülmez" denmez. Revizyon yeni bir adım olarak eklenir (ör. `A1.R1`).
 - **Mobil test:** Her UI adımında Device Simulator ile 16:9, 19.5:9, 20:9 kontrolü.
-- **Açık kritik sorun sayısı:** 🔴 1 · 🟠 3 (bkz. `06`)
+- **Açık kritik sorun sayısı:** 🔴 1 · 🟠 2 (bkz. `06`)
