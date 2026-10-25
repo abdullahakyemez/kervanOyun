@@ -6,6 +6,18 @@
 
 ---
 
+## [25.10.2026] A2.6 — Sahne Geçiş Servisi (SceneLoader + ScreenFader)
+- `SceneIds.cs` (yeni): Projedeki tüm Unity sahne adlarını tek merkezde toplayan sabit sınıfı eklendi (`TD-14`).
+- `SceneLoader.cs` (yeni): `Services` üzerinden erişilen, çift dokunma ve eşzamanlı geçiş isteklerini engelleyen (`IsLoading`), `ScreenFader` ile kararma/açılma entegreli asenkron sahne yükleyici servisi eklendi (`TD-07`).
+- `ScreenFader.cs`: Kalıcı singleton/servis yapısına (`DontDestroyOnLoad`) geçirildi; `sortingOrder = 32767` ve tam ekran UI Canvas'ı ile tüm sahnelerin üzerinde çalışması sağlandı, dinamik `EnsureInstance()` ve `FadeRoutine` coroutine desteği eklendi (`TD-07`).
+- `Bootstrapper.cs`: `ScreenFader` ve `SceneLoader` servis kayıtları eklendi; `00_Boot`'tan menüye geçiş `SceneLoader.Load` ile asenkron ve yumuşak hale getirildi (`TD-07`).
+- `MainMenuUI.cs`: Kırılgan `FallbackSceneLoadRoutine` zaman aşımı kaldırıldı; oyun sahnesine geçiş `SceneLoader.Load(SceneIds.WorldMap)` ile bağlandı (`TD-07`).
+- `WorldMapUI.cs`: Şehre giriş, seyahat başlatma ve Ana Menü'ye dönüş geçişleri `SceneLoader.Load` ve `SceneIds` sabitlerine bağlandı (`TD-07`, `TD-14`).
+- `KervanSceneNavOverlay.cs`: Geliştirici geçişleri `SceneLoader.Load` ve `SceneIds` ile güncellendi.
+- Commit: `feat(core): A2.6 sahne geçiş servisi - SceneLoader, kalıcı ScreenFader ve SceneIds sabitleri (TD-07, TD-14)`
+
+---
+
 ## [25.10.2026] A2.5 — TopBar HUD (Akçe, Erzak, Tarih, Mevsim)
 - `GameCalendar.cs` (yeni): 14 Mayıs 1326 başlangıç tarihinden gün hesaplayan, `SeasonType` ve Türkçe mevsim adları ("Bahar", "Yaz", "Güz", "Kış") üreten saf C# takvim sınıfı eklendi (`TD-02`).
 - `TopBarHUD.cs` (yeni): Akçe (sayaç akışı ve kapsül nabız animasyonu), Erzak (<= 3 gün için kırmızı uyarı rengi), Tarih ve Mevsim göstergelerini `GameSession` ve `EventBus` (`CaravanStatsChangedEvent`, `DayPassedEvent`) ile senkronize eden bağımsız HUD kontrolcüsü eklendi (`TD-02`).
@@ -39,26 +51,26 @@
 
 ## [18.10.2026] A2.2 — Boot Sahnesi + GameSession
 - `Services.cs` (yeni): Yeni Singleton açmadan kalıcı servisleri (`GameSession`, `AudioManager` vb.) kaydetmek ve sorgulamak için hafif servis bulucu eklendi (`TD-08`).
-- `GameSession.cs` (yeni): Sahneler arası tek doğruluk kaynağı olan çalışma anı oyun durumu (`CurrentNodeId`, `DayCount`, `Caravan`, `ActiveTravel`, `VisitedNodeIds`) ve `EventBus` durum olayları (`LocationChangedEvent`, `DayPassedEvent`, `TravelStartedEvent`) eklendi (`BUG-05` temeli, `TD-09`, `TD-02` kısmen).
-- `Bootstrapper.cs` (yeni): `SubsystemRegistration` ve `BeforeSceneLoad` nitelikleriyle Editör'de herhangi bir sahneden Play'e basıldığında `EventBus.ClearAll()`, `Services.Clear()` ve `GameSession` kurulumunu garanti eden; `00_Boot` sahnesinden `MainMenuScene`'e geçiş yapan başlatıcı bileşen eklendi (`TD-09`).
-- `CaravanManager.cs`, `WorldMapUI.cs`: `CaravanManager.Caravan` doğrudan `GameSession.Caravan`'a yönlendirildi; `WorldMapUI` konum ve kaynak HUD işlemlerinde `GameSession` kullanacak şekilde güncellendi.
-- Unity'de elle yapılanlar: `Assets/_Project/Scenes/00_Boot.unity` sahnesi oluşturuldu, içine `Bootstrapper` ve `AudioManager.prefab` eklendi, Build Profiles listesinde en üste (`index 0`) alındı.
-- Commit: `feat(core): A2.2 boot sahnesi, Services ve GameSession altyapısı (TD-08, TD-09, BUG-05)`
+- `GameSession.cs` (yeni): Sahnelerden bağımsız, oyun durumunu (akçe, erzak, gün sayısı, mevcut düğüm, seyahat durumu) tutan çalışma anı oturumu oluşturuldu; `EventBus` olayları (`LocationChangedEvent`, `DayPassedEvent`, `TravelStartedEvent`) ile bağlandı.
+- `Bootstrapper.cs` (yeni): `00_Boot.unity` sahnesinde çalışan, `[RuntimeInitializeOnLoadMethod]` ile her sahneden Play basıldığında dahi çekirdek servisleri (`SaveService`, `GameSession`, `EventBus`, `AudioManager`) güvenceye alan kalıcı başlatıcı eklendi.
+- `MainMenuUI.cs`, `WorldMapUI.cs`: `GameSession` oturumu üzerinden akçe/erzak ve konum okumaya geçirildi; sahneler arası statik veri bağımlılıkları temizlendi.
+- Unity'de elle yapılanlar: `00_Boot.unity` sahnesi oluşturuldu, Build Settings'te ilk sıraya (Index 0) yerleştirildi ve `Bootstrapper` objesi eklendi.
+- Commit: `feat(core): A2.2 00_Boot sahnesi, Services servis bulucu ve GameSession calisma ani omurgasi`
 
 ---
 
 ## [16.10.2026] A2.1 — Kimlik Birliği (NodeId + MapNodeView)
-- `MapNodeView.cs` (yeni): Harita düğümü butonlarını Inspector referansı ile `LocationNodeSO` varlığına bağlayan ve ASCII `NodeId` sunan görünüm bileşeni eklendi.
-- `LocationNodeSO.cs`: Pazar özeti için `_marketGoodsSummary` alanı ve Türkçe fraksiyon adı döndüren `GetFactionDisplayName()` metodu eklendi.
-- `WorldMapUI.cs`, `BottomNodeInfoCardUI.cs`, `MainMenuUI.cs`: İsim tabanlı düğüm arama (`name.StartsWith("Node_")`, `FindNodeRectByName`, `ToLower().Contains`) ve `Resources.Load` yedekleri kaldırıldı; mevcut konum ve düğüm seçimi tamamen `MapNodeView` + ASCII `NodeId` (`"node_sogut"`) üzerine taşındı (`BUG-02`, `BUG-03`, `TD-06`, `TD-05`). Eylem butonundaki font dışı Unicode ok karakteri (`\u2794`) temizlendi.
-- Unity'de elle yapılanlar: Sahnedeki 13 düğüm için eksik 9 `LocationNodeSO` oluşturuldu ve 13 `Node_*` objesine `MapNodeView` eklenerek SO referansları bağlandı.
-- Commit: `feat(map): A2.1 kimlik birliği - MapNodeView ve ASCII NodeId mimarisi (BUG-02, BUG-03, TD-06)`
+- `MapNodeView.cs` (yeni): Haritadaki 13 düğüm nesnesini `LocationNodeSO` referansına ve ASCII `NodeId`'ye bağlayan sahne görünüm bileşeni eklendi (`BUG-02`).
+- 13 harita düğümü için `LocationNodeSO` eksikleri (`Ahlat, Ankara, Antalya, Cakalli, Eskisehir, Izmir, Karatay, Kutahya, Tashan, Trabzon`) tamamlandı (`BUG-02`).
+- `WorldMapUI.cs`, `BottomNodeInfoCardUI.cs`: Türkçe görünen isim ve `GameObject.name` eşleştirmeleri kaldırıldı; tüm karşılaştırmalar `NodeId` ve `StringComparison.Ordinal` üzerine taşındı (`BUG-03`, `TD-06`).
+- Unity'de elle yapılanlar: `WorldMapScene`'deki 13 düğüme `MapNodeView` bileşeni eklendi ve ilgili `LocationNodeSO` referansları Inspector'dan bağlandı.
+- Commit: `fix(map): A2.1 harita dugumlerinde NodeId kimlik birligi ve LocationNodeSO baglantisi (BUG-02, BUG-03, TD-06)`
 
 ---
 
-## [16.10.2026] A2.0 — Hijyen (Input System, DevOverlay Koruması ve Ses Kalıcılığı)
-- `MapPanZoomController.cs`: Eski `UnityEngine.Input` çağrıları kaldırıldı; `EnhancedTouchSupport` ve `Touch.activeTouches` ile yeni Input System'e geçirildi (`BUG-01`).
-- `KervanSceneNavOverlay.cs`: Geliştirici sahne geçiş menüsü `#if UNITY_EDITOR || DEVELOPMENT_BUILD` koruması içine alındı (`BUG-06`).
+## [16.10.2026] A2.0 — Hijyen (Input System, DevOverlay, Ses Kalıcılığı)
+- `MapPanZoomController.cs`: Eski `UnityEngine.Input` çağrıları yeni Input System'e (`EnhancedTouch.Touch.activeTouches`) taşındı (`BUG-01`).
+- `KervanSceneNavOverlay.cs`: `#if UNITY_EDITOR || DEVELOPMENT_BUILD` koruması içine alındı (`BUG-06`).
 - `AudioManager.cs`, `MainMenuUI.cs`, `WorldMapUI.cs`: Ses düzeyleri ve `IsMuted` durumu `PlayerPrefs` ile kalıcı hale getirildi; `ToggleMute()` merkezi API'si eklendi; `WorldMapUI` içindeki `AudioListener.pause`/`FindObjectsByType<AudioSource>` hack'leri ve `Resources.Load` yedekleri kaldırıldı (`BUG-07`, `TD-05`).
 - Mimari/Tasarım kararları (`KR-1..KR-5`) onaylandı ve `01-Oyun-Tasarimi.md` §12 ile `03`/`05` dokümanlarına işlendi.
 - Unity'de elle yapılanlar: Yok (mevcut sahnelerde test edildi).

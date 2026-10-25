@@ -18,7 +18,7 @@
 | Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON kayıt/yükleme ve otomatik kayıt) tamamlandı (A2.3). |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), DevOverlay koruması ve ses kalıcılığı tamam (A2.0). |
 
-**Özet:** Görsel, düğüm kimlik yapısı, çalışma anı oturumu (`00_Boot` + `GameSession` + `Services`), atomik JSON kayıt/yükleme (`SaveService`), rota grafiği (`RouteGraph` + `RouteDatabaseSO`) ve TopBar HUD (`TopBarHUD` + `GameCalendar` + `SeasonCapsule`) hazır; sırada sahne geçiş servisi (`A2.6`) var.
+**Özet:** Görsel, düğüm kimlik yapısı, çalışma anı oturumu (`00_Boot` + `GameSession` + `Services`), atomik JSON kayıt/yükleme (`SaveService`), rota grafiği (`RouteGraph` + `RouteDatabaseSO`), TopBar HUD (`TopBarHUD` + `GameCalendar`) ve merkezi sahne yükleyici (`SceneLoader` + `ScreenFader`) hazır; sırada kenar çubuğu gerçek veri entegrasyonu (`A2.7`) var.
 
 **Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene`, `MarketScene`, `TownHubScene`, `CombatScene` ⚠️ eski prototip (yeniden ele alınacak).
 
@@ -46,16 +46,16 @@ A8 Android Sürüm & Test ................ ⬜
 - [x] A2.3 Kayıt / Yükleme (JSON)
 - [x] A2.4 Rota grafiği + gerçek mesafe/erzak
 - [x] A2.5 TopBar HUD (Akçe, Erzak, Tarih, Mevsim)
-- [ ] **A2.6 Sahne geçiş servisi** ← **SIRADAKİ**
-- [ ] A2.7 Sidebar gerçek veri + boş durumlar
+- [x] A2.6 Sahne geçiş servisi (SceneLoader + ScreenFader)
+- [ ] **A2.7 Sidebar gerçek veri + boş durumlar** ← **SIRADAKİ**
 - [ ] A2.8 Cihaz testi & aşama kapanışı
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A2.6 — Sahne Geçiş Servisi (SceneLoader + ScreenFader)
-- **Hedef:** Tüm sahne geçişlerinin tek merkezden (`SceneLoader`), ekran kararma/açılma (`ScreenFader`), çift tıklama koruması ve asenkron yükleme ile yapılması.
-- **Çözer:** TD-07 (tutarsız sahne geçişleri), TD-14 (string sahne adları dağınıklığı)
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.6`
+## 3. ▶️ Sıradaki Adım: A2.7 — Sidebar Gerçek Veri + Boş Durumlar
+- **Hedef:** Harita kenar çubuğunun (Kervan/Yük/Görevler) GameSession'dan beslenmesi, sahte satırların kaldırılması ve "Henüz yük yok" gibi boş durumların eklenmesi.
+- **Çözer:** TD-03 (sahte sidebar verisi), TD-13 (başlangıç kadrosu)
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.7`
 
 ---
 

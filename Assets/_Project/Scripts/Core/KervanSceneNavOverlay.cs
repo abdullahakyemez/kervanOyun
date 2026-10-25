@@ -1,6 +1,7 @@
 using UnityEngine;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using UnityEngine.SceneManagement;
+using Kervan.Core;
 #endif
 
 namespace Kervan.DevTools
@@ -50,25 +51,25 @@ namespace Kervan.DevTools
                 GUI.backgroundColor = new Color(0.85f, 0.45f, 0.20f);
                 if (GUILayout.Button("⚔️ Savaş", GUILayout.Height(38)))
                 {
-                    SceneManager.LoadScene("CombatScene");
+                    SceneLoader.Load(SceneIds.Combat);
                 }
 
                 GUI.backgroundColor = new Color(0.25f, 0.55f, 0.35f);
                 if (GUILayout.Button("🐪 Seyahat", GUILayout.Height(38)))
                 {
-                    SceneManager.LoadScene("TravelScene");
+                    SceneLoader.Load(SceneIds.Travel);
                 }
 
                 GUI.backgroundColor = new Color(0.85f, 0.70f, 0.20f);
                 if (GUILayout.Button("⚖️ Pazar", GUILayout.Height(38)))
                 {
-                    SceneManager.LoadScene("MarketScene");
+                    SceneLoader.Load(SceneIds.Market);
                 }
 
                 GUI.backgroundColor = new Color(0.35f, 0.45f, 0.75f);
                 if (GUILayout.Button("🏛️ Divan", GUILayout.Height(38)))
                 {
-                    SceneManager.LoadScene("TownHubScene");
+                    SceneLoader.Load(SceneIds.TownHub);
                 }
 
                 GUI.backgroundColor = Color.gray;

@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using Kervan.Audio;
 using Kervan.Core.Save;
 using Kervan.TradeAndTravel;
+using Kervan.UI;
 
 namespace Kervan.Core
 {
@@ -14,11 +15,11 @@ namespace Kervan.Core
     /// </summary>
     public class Bootstrapper : MonoBehaviour
     {
-        private const string BootSceneName = "00_Boot";
+        private const string BootSceneName = SceneIds.Boot;
 
         [Header("Başlangıç Sahnesi Yönlendirmesi")]
         [Tooltip("00_Boot sahnesi tamamlandığında yüklenecek ilk sahne adı")]
-        [SerializeField] private string _initialSceneName = "MainMenuScene";
+        [SerializeField] private string _initialSceneName = SceneIds.MainMenu;
 
         private static bool _isInitialized;
         private static Bootstrapper _instance;
@@ -56,7 +57,11 @@ namespace Kervan.Core
                 Services.Register(session);
             }
 
-            Debug.Log("[Bootstrapper] Çekirdek servisler (SaveService, GameSession) hazır.");
+            // Kalıcı ScreenFader ve SceneLoader servislerini güvenceye al
+            ScreenFader.EnsureInstance();
+            SceneLoader.EnsureInstance();
+
+            Debug.Log("[Bootstrapper] Çekirdek servisler (SaveService, GameSession, ScreenFader, SceneLoader) hazır.");
         }
 
         /// <summary>
@@ -129,7 +134,7 @@ namespace Kervan.Core
                 !string.IsNullOrWhiteSpace(_initialSceneName))
             {
                 Debug.Log($"[Bootstrapper] {activeSceneName} tamamlandı → {_initialSceneName} yükleniyor.");
-                SceneManager.LoadScene(_initialSceneName);
+                SceneLoader.Load(_initialSceneName, 0.35f);
             }
         }
 

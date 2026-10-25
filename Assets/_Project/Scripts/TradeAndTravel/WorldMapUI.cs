@@ -63,9 +63,9 @@ namespace Kervan.UI
         [SerializeField] private AudioClip _bgmMapMusic;
 
         [Header("Sahne İsimleri")]
-        [SerializeField] private string _mainMenuSceneName = "MainMenuScene";
-        [SerializeField] private string _travelSceneName = "TravelScene";
-        [SerializeField] private string _townHubSceneName = "TownHubScene";
+        [SerializeField] private string _mainMenuSceneName = SceneIds.MainMenu;
+        [SerializeField] private string _travelSceneName = SceneIds.Travel;
+        [SerializeField] private string _townHubSceneName = SceneIds.TownHub;
 
         private const string DefaultStartNodeId = GameSession.DefaultStartNodeId;
 
@@ -293,7 +293,8 @@ namespace Kervan.UI
             {
                 // Bulunulan merkeze giriş yap (Pazar / Divan / Han)
                 Debug.Log($"[WorldMapUI] {targetNode.NodeName} ({targetNode.NodeId}) merkezine giriş yapılıyor.");
-                SceneManager.LoadScene(!string.IsNullOrEmpty(_townHubSceneName) ? _townHubSceneName : "MarketScene");
+                string townScene = !string.IsNullOrEmpty(_townHubSceneName) ? _townHubSceneName : SceneIds.TownHub;
+                SceneLoader.Load(townScene);
             }
             else
             {
@@ -313,7 +314,8 @@ namespace Kervan.UI
                     _currentNodeId = _gameSession.CurrentNodeId;
                 }
 
-                SceneManager.LoadScene(!string.IsNullOrEmpty(_travelSceneName) ? _travelSceneName : "TravelScene");
+                string travelScene = !string.IsNullOrEmpty(_travelSceneName) ? _travelSceneName : SceneIds.Travel;
+                SceneLoader.Load(travelScene);
             }
         }
 
@@ -390,7 +392,8 @@ namespace Kervan.UI
         private void OnBackToMenuClicked()
         {
             Debug.Log("[WorldMapUI] Ana Menüye dönülüyor: " + _mainMenuSceneName);
-            SceneManager.LoadScene(_mainMenuSceneName);
+            string menuScene = !string.IsNullOrEmpty(_mainMenuSceneName) ? _mainMenuSceneName : SceneIds.MainMenu;
+            SceneLoader.Load(menuScene);
         }
 
         private void PlayMapMusic()

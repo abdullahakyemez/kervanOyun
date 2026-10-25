@@ -18,8 +18,8 @@ A2 Dünya Haritası & Oyun Omurgası .................. ⏳  ← ŞU AN
    A2.2 Boot sahnesi + GameSession                   ✅
    A2.3 Kayıt / Yükleme (JSON)                       ✅
    A2.4 Rota grafiği + gerçek mesafe/erzak           ✅
-   A2.5 TopBar HUD (Akçe/Erzak/Tarih)
-   A2.6 Sahne geçiş servisi (SceneLoader + Fade)
+   A2.5 TopBar HUD (Akçe/Erzak/Tarih)               ✅
+   A2.6 Sahne geçiş servisi (SceneLoader + Fade)    ✅
    A2.7 Sidebar gerçek veri + boş durumlar
    A2.8 Cihaz testi (Device Simulator) & Aşama kapanışı
 A3 Seyahat (TravelScene yeniden) ................... ⬜
@@ -81,11 +81,11 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Unity'de elle:** `SeasonCapsule` oluşturuldu, `TopBarHUD` bileşeni eklendi ve referanslar bağlandı.
 - **Test:** Akçe değişince sayı sayaç efektiyle güncellenir; tarih ve mevsim `GameCalendar` üzerinden `GameSession.DayCount` ile hesaplanır; erzak 3 gün veya altına indiğinde uyarı rengi uygulanır.
 
-### A2.6 — Sahne Geçiş Servisi ⬜
+### A2.6 — Sahne Geçiş Servisi ✅
 - **Amaç:** Tüm sahne geçişleri tek noktadan, fade + async yükleme ile.
 - **Çözer:** TD-07, TD-14
-- **Muhtemel dosyalar:** Yeni `Core/SceneLoader.cs`, `Core/SceneIds.cs` (sahne adı sabitleri), `UI/ScreenFader.cs` (Boot'ta kalıcı), `MainMenuUI.cs` (fallback timeout kaldırılır), `WorldMapUI.cs`.
-- **Test:** Menü ↔ Harita ↔ (eski) sahneler arası her geçişte fade-out/fade-in; çift tıklamada iki kez yükleme yok.
+- **Dosyalar:** Yeni `Core/SceneIds.cs`, yeni `Core/SceneLoader.cs`, güncellenen `UI/ScreenFader.cs`, `Core/Bootstrapper.cs`, `UI/MainMenuUI.cs`, `TradeAndTravel/WorldMapUI.cs`, `Core/KervanSceneNavOverlay.cs`.
+- **Test:** Menü ↔ Harita ↔ (eski) sahneler arası her geçişte fade-out/fade-in; çift tıklamada iki kez yükleme yok; kalıcı fader en üst katmanda çalışır.
 
 ### A2.7 — Sidebar Gerçek Veri + Boş Durumlar ⬜
 - **Amaç:** Kervan/Yük/Görevler sekmeleri GameSession'dan beslensin, sahte satırlar kalksın.

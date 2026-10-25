@@ -60,7 +60,7 @@ namespace Kervan.UI
         [SerializeField] private AudioClip _bgmMainMenu;
         [Tooltip("Tıklama sesi yedeği (SFX_ButtonClick)")]
         [SerializeField] private AudioClip _sfxClickFallback;
-        [SerializeField] private string _gameSceneName = "WorldMapScene";
+        [SerializeField] private string _gameSceneName = SceneIds.WorldMap;
 
         private bool _isMuted = false;
         private AudioSource _localAudioSource;
@@ -236,26 +236,8 @@ namespace Kervan.UI
 
         private void TransitionToGameScene()
         {
-            if (_screenFader != null && _screenFader.gameObject.activeInHierarchy)
-            {
-                _screenFader.FadeToScene(_gameSceneName, _fadeDuration);
-                // Emniyet zaman aşımı: Eğer fader herhangi bir sebeple sahneyi yükleyemezse doğrudan yükle
-                StartCoroutine(FallbackSceneLoadRoutine(_gameSceneName, _fadeDuration + 0.35f));
-            }
-            else
-            {
-                SceneManager.LoadScene(_gameSceneName);
-            }
-        }
-
-        private System.Collections.IEnumerator FallbackSceneLoadRoutine(string sceneName, float delay)
-        {
-            yield return new WaitForSecondsRealtime(delay);
-            if (SceneManager.GetActiveScene().name != sceneName)
-            {
-                Debug.LogWarning($"[MainMenuUI] ScreenFader zaman aşımına uğradı, sahne doğrudan yükleniyor: {sceneName}");
-                SceneManager.LoadScene(sceneName);
-            }
+            string targetScene = !string.IsNullOrEmpty(_gameSceneName) ? _gameSceneName : SceneIds.WorldMap;
+            SceneLoader.Load(targetScene, _fadeDuration);
         }
 
         private void OnGoogleLoginClicked()

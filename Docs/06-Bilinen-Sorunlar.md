@@ -29,14 +29,14 @@
 | TD-04 | 🟠 | Rota grafiği yok: 13 düğüm, 4 rota (`Sogut_Bilecik`, `Sogut_Domanic`, `Bilecik_Iznik`, `Iznik_Bursa`). Her düğüme her yerden gidilebiliyor. | `ScriptableObjects/Routes`, `RouteDatabaseSO`, `RouteGraph` | A2.4 | Çözüldü (19.10.2026) |
 | TD-05 | 🟠 | `Resources.Load` 7 yerde çağrılıyor ama `_Project` altında `Resources` klasörü yok → fallback'ler ölü kod (`AudioManager`, `WorldMapUI`, `BottomNodeInfoCardUI` A2.0–A2.1'de temizlendi; kalanlar `UIButtonSound`, `InventorySidebarUI`). | `UIButtonSound`, `InventorySidebarUI` | A2.7 | Açık |
 | TD-06 | 🟡 | İsim tabanlı bağlama: `GameObject.Find("Btn_Inventory") ?? ...`, `name.StartsWith("Node_")`. Obje adı değişince sessizce bozulur. | `WorldMapUI.cs` (`FindMissingReferences`, `SetupNodeViews`) | A2.1 | Çözüldü (16.10.2026) |
-| TD-07 | 🟡 | Sahne geçişleri tutarsız: sadece MainMenu'de `ScreenFader` var; diğer geçişler sert `LoadScene`, async/yükleme ekranı yok. | `ScreenFader.cs`, tüm `SceneManager.LoadScene` çağrıları | A2.6 | Açık |
+| TD-07 | 🟡 | Sahne geçişleri tutarsız: sadece MainMenu'de `ScreenFader` var; diğer geçişler sert `LoadScene`, async/yükleme ekranı yok. | `ScreenFader.cs`, tüm `SceneManager.LoadScene` çağrıları | A2.6 | Çözüldü (25.10.2026) |
 | TD-08 | 🟡 | Singleton yoğunluğu: `AudioManager`, `CaravanManager`, `QuestManager`, `ReputationManager`, `ShopManager`, `ScreenFader`. (`00_Boot` + `Services` + `GameSession` A2.2'de kuruldu; kalan yöneticiler A6.1'de servise taşınacak.) | Çoklu | A6.1 | Açık |
 | TD-09 | 🟡 | EventBus sadece 7 olay tipiyle az kullanılıyor; `TravelManager` C# `event` + EventBus karışık. `EventBus.ClearAll()` hiç çağrılmıyor (Domain Reload kapalıysa eski abonelik riski). | `Core/EventBus.cs`, `Core/Bootstrapper.cs`, `Core/GameSession.cs` | A2.2 | Çözüldü (18.10.2026) |
 | TD-10 | ⚪ | Eski dosyalarda yorumlar Türkçe karaktersiz (`Kervanin seyahatini...`). Dosyaya dokunuldukça düzeltilir. | A0 dönemi script'ler | Fırsatçı | Açık |
 | TD-11 | 🟡 | `FactionType` enum'u (Ottoman, Steppe, SeljukLegacy, Byzantine, Bandit) GDD'deki 4 fraksiyonla (Osmanlı, Bizans, Eşkıya, Vahşi Hayvan) uyuşmuyor (`LocationNodeSO.GetFactionDisplayName` eklendi; enum sadeleştirmesi `ReputationManager`/`TownHubUI` ile A6.1'de). | `Core/GameEnums.cs` | A6.1 (KR-2 onaylandı) | Açık |
 | TD-12 | 🟡 | "Yeni Oyun" mevcut kaydı onaysız eziyor; intro/kervan gibi durumları sıfırlamıyor. | `MainMenuUI.cs` (`OnNewGameClicked`) | A2.3 | Çözüldü (18.10.2026) |
 | TD-13 | 🟡 | `InventorySidebarUI.cs` ~1084 satır "god class": sekme, layout, prosedürel `new GameObject` UI üretimi, safe-area, ses bir arada. | `UI/InventorySidebarUI.cs` | A2.7 (başlangıç), A7 | Açık |
-| TD-14 | ⚪ | Sahne adları string olarak 13 yerde dağınık. | Çoklu | A2.6 | Açık |
+| TD-14 | ⚪ | Sahne adları string olarak 13 yerde dağınık. | Çoklu | A2.6 | Çözüldü (25.10.2026) |
 | TD-15 | ⚪ | Çok sayıda `Debug.Log`; release'de kapatılmıyor. | Çoklu | A8 | Açık |
 | TD-16 | ⚪ | Sürüm iki kaynakta: `PlayerSettings.bundleVersion=1.0`, UI'da sabit `v0.1.0 Alpha`. | `MainMenuUI.cs` (`_versionString`) | A8 | Açık |
 | TD-17 | ⚪ | `QuestManager`, `ReputationManager`, `ShopManager` hiçbir sahnede yok → TownHub özellikleri çalışmaz. | `IntelSystem/*` | A6.1 | Açık |
@@ -71,3 +71,5 @@
 - `BUG-04` — 19.10.2026 — A2.4 — `GameSession.StartTravel` içindeki erken `SetCurrentNode(toNodeId)` çağrısı kaldırıldı; seyahat başlarken `CurrentNodeId` korunup yalnızca `ActiveTravel` kaydediliyor, konum varışta (`CompleteTravel`) güncelleniyor.
 - `TD-04` — 19.10.2026 — A2.4 — `RouteDatabaseSO` ve saf C# `RouteGraph` (çift yönlü komşuluk + Dijkstra en kısa yol) eklendi; `WorldMapUI` ve `BottomNodeInfoCardUI` gerçek `TravelRouteSO` verilerine bağlandı, komşu olmayan düğümlere doğrudan seyahat kapatıldı.
 - `TD-02` (kısmen) — 25.10.2026 — A2.5 — `WorldMapUI` içindeki sabit kodlu tarih ve HUD varsayılanları kaldırıldı; `GameCalendar` ve `TopBarHUD` ile dinamik `GameSession` verisine bağlandı (sayaç animasyonu ve mevsim desteği eklendi).
+- `TD-07` — 25.10.2026 — A2.6 — Kalıcı `ScreenFader` (`DontDestroyOnLoad`, `sortingOrder = 32767`) ve `SceneLoader` asenkron sahne yükleyicisi kuruldu; tüm sahne geçişleri tek merkezden fade ve çift dokunma korumasıyla bağlandı.
+- `TD-14` — 25.10.2026 — A2.6 — `SceneIds` sabit sınıfı oluşturuldu; `Bootstrapper`, `MainMenuUI`, `WorldMapUI` ve `KervanSceneNavOverlay` içindeki dağınık string sahne adları sabitlere taşındı.
