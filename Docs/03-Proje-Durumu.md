@@ -4,7 +4,7 @@
 
 **Proje:** Uç Beyliği Kervanı · 14. yy Anadolu · Taktiksel RPG & Ticaret
 **Motor:** Unity 6 (6000.6.3f1), URP 2D · **Platform:** Android, yatay (landscape)
-**Sürüm etiketi:** v0.1.0 Alpha · **Son güncelleme:** 25.10.2026
+**Sürüm etiketi:** v0.2.0 Alpha · **Son güncelleme:** 25.10.2026
 
 ---
 
@@ -12,13 +12,13 @@
 
 | Alan | Durum | Not |
 |---|---|---|
-| Görsel / UI | 🟢 | MainMenu, WorldMap ve TopBar HUD (Akçe, Erzak, Tarih, Mevsim) hazır. |
+| Görsel / UI | 🟢 | MainMenu, WorldMap, TopBar HUD ve Kenar Çubuğu gerçek verilerle hazır. |
 | Veri tanımları (SO) | 🟢 | 13 harita düğümü `MapNodeView` + `LocationNodeSO` (ASCII `NodeId`) ve `RouteDatabaseSO` ile bağlı (A2.1, A2.4). |
 | Oyun döngüsü | 🟢 | `00_Boot` + `GameSession` + `Services` + `RouteGraph` + `GameCalendar` takvim/mevsim omurgası kuruldu (A2.2, A2.4, A2.5). |
 | Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON kayıt/yükleme ve otomatik kayıt) tamamlandı (A2.3). |
-| Mobil teknik | 🟢 | Input System (`EnhancedTouch`), DevOverlay koruması ve ses kalıcılığı tamam (A2.0). |
+| Mobil teknik | 🟢 | Input System (`EnhancedTouch`), Android Geri tuşu, SafeArea ve ses kalıcılığı tamam (A2.0, A2.8). |
 
-**Özet:** Görsel, düğüm kimlik yapısı, çalışma anı oturumu (`00_Boot` + `GameSession` + `Services`), atomik JSON kayıt/yükleme (`SaveService`), rota grafiği (`RouteGraph` + `RouteDatabaseSO`), TopBar HUD (`TopBarHUD` + `GameCalendar`), merkezi sahne yükleyici (`SceneLoader` + `ScreenFader`) ve kenar çubuğu gerçek veri entegrasyonu (`A2.7`) hazır; sırada cihaz testi ve aşama kapanışı (`A2.8`) var.
+**Özet:** A2 (Dünya Haritası & Oyun Omurgası) aşaması başarıyla tamamlandı (`v0.2.0-alpha`). Oturum, kayıt, harita, rota grafiği, HUD, sahne geçişleri ve mobil uyumluluk mühürlendi; sırada A3 (Seyahat - TravelScene yeniden) aşaması var.
 
 **Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene`, `MarketScene`, `TownHubScene`, `CombatScene` ⚠️ eski prototip (yeniden ele alınacak).
 
@@ -29,8 +29,8 @@
 ```text
 A0 Hazırlık & Veri Omurgası ............ ✅
 A1 Ana Menü & UI Temelleri ............. ✅
-A2 Dünya Haritası & Oyun Omurgası ...... ⏳  ← ŞU AN
-A3 Seyahat (TravelScene) ............... ⬜
+A2 Dünya Haritası & Oyun Omurgası ...... ✅
+A3 Seyahat (TravelScene) ............... ⏳  ← ŞU AN
 A4 Şehir: Pazar/Kervansaray/Divan ...... ⬜
 A5 Olay & Pusu → Savaş ................. ⬜
 A6 Meta: İstihbarat/İtibar/Dükkân ...... ⬜
@@ -48,13 +48,13 @@ A8 Android Sürüm & Test ................ ⬜
 - [x] A2.5 TopBar HUD (Akçe, Erzak, Tarih, Mevsim)
 - [x] A2.6 Sahne geçiş servisi (SceneLoader + ScreenFader)
 - [x] A2.7 Sidebar gerçek veri + boş durumlar
-- [ ] **A2.8 Cihaz testi & aşama kapanışı** ← **SIRADAKİ**
+- [x] A2.8 Cihaz testi & aşama kapanışı
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A2.8 — Cihaz Testi (Device Simulator) & Aşama Kapanışı
-- **Hedef:** 16:9, 19.5:9, 20:9 ve çentikli cihazlarda MainMenu + WorldMap kontrolleri (Safe Area, dokunma hedefleri, Android Back, FPS); A2 kapanış raporu ve Git tag `v0.2.0-alpha`.
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A2.8`
+## 3. ▶️ Sıradaki Adım: A3.1 — Seyahat Arayüz Tasarımı & Mizanpaj Önerisi
+- **Hedef:** GDD §6 doğrultusunda mobil yatay seyahat ekranı (üstte kaynak barı, ortada parallax kervan yürüyüşü, altta ilerleme ve "Mola Ver" butonu) için profesyonel mizanpaj, renk/üslup ve varlık listesi oluşturulması (`arayuz-tasarimi`).
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A3` ve `A3.1`
 
 ---
 

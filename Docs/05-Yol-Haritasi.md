@@ -21,8 +21,8 @@ A2 Dünya Haritası & Oyun Omurgası .................. ⏳  ← ŞU AN
    A2.5 TopBar HUD (Akçe/Erzak/Tarih)               ✅
    A2.6 Sahne geçiş servisi (SceneLoader + Fade)    ✅
    A2.7 Sidebar gerçek veri + boş durumlar          ✅
-   A2.8 Cihaz testi (Device Simulator) & Aşama kapanışı
-A3 Seyahat (TravelScene yeniden) ................... ⬜
+   A2.8 Cihaz testi (Device Simulator) & Aşama kapanışı ✅
+A3 Seyahat (TravelScene yeniden) ................... ⏳
 A4 Şehir: Pazar + Kervansaray + Divan .............. ⬜
 A5 Olay & Pusu → Savaş (Combat) .................... ⬜
 A6 Meta: İstihbarat, İtibar, Dükkân ................ ⬜
@@ -35,7 +35,7 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 
 ---
 
-## A2 — Dünya Haritası & Oyun Omurgası
+## A2 — Dünya Haritası & Oyun Omurgası ✅
 
 ### A2.0 — Hijyen ✅
 - **Amaç:** Telefonda zoom'un çalışması, release'te test menüsü çıkmaması, ses ayarının kalıcı olması.
@@ -94,14 +94,15 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Test:** Yeni oyunda yük sekmesi "Kervan ambarında henüz ticaret emtiası bulunmuyor..." der. Başlangıç kadrosu `GameSession`'daki gerçek kadro ve hayvanlardır. Görevler sekmesi boş durum gösterir. Exit butonu ile çekmece kapanır.
 - **Uygulama notu:** Görev kartları esnek yüksekliğe ve `textWrappingMode = Normal` ile ferah satır aralığına kavuşturuldu; `UI_BG_Itemicon` rozeti bağlandı; `CaravanStatsChangedEvent` canlı aboneliği eklendi.
 
-### A2.8 — Cihaz Testi & Aşama Kapanışı ⬜
+### A2.8 — Cihaz Testi & Aşama Kapanışı ✅
 - **Amaç:** 16:9, 19.5:9, 20:9 ve çentikli cihazlarda MainMenu + WorldMap kontrolü; A2 kapanış raporu.
 - **Kontrol listesi:** Safe area, min 48dp dokunma hedefi, Android Back (en azından popup kapatma), FPS (Profiler), Console temiz.
+- **Uygulama notu:** Input System `Keyboard.current.escapeKey` ile Android Geri tuşuna popup/sidebar/drawer/kart kapatma desteği bağlandı; MainMenu tam ekran arka plan görseli çentik kenarlarında kararma olmaması için Safe Area dışına taşındı.
 - **Çıktı:** `03`'te A2 ✅, `07`'de aşama özeti, Git tag `v0.2.0-alpha`.
 
 ---
 
-## A3 — Seyahat (TravelScene yeniden) ⬜
+## A3 — Seyahat (TravelScene yeniden) ⏳
 > **Karar (KR-3):** Plan mantığına uygun temiz kodlar korunacak, diğerleri baştan yazılacak; tüm arayüz/tasarım sıfırdan yapılacak. Başlarken `asama-planla` ile adımlara bölünür. Taslak:
 - A3.1 Seyahat tasarım önerisi (`arayuz-tasarimi`): GDD §6 yerleşimi — üstte kaynaklar, ortada parallax kervan, altta ilerleme + "Mola Ver".
 - A3.2 `TravelSystem` (saf C#): gün gün ilerleme, erzak tüketimi, `ActiveTravel` GameSession'da. `TravelManager`'ın ayrı `CaravanData`'sı kaldırılır (BUG-05).

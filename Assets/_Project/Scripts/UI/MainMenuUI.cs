@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 using TMPro;
 using Kervan.Core;
 using Kervan.Core.Save;
@@ -77,6 +78,41 @@ namespace Kervan.UI
         private void OnDestroy()
         {
             UnregisterButtons();
+        }
+
+        private void Update()
+        {
+            HandleBackButton();
+        }
+
+        /// <summary>
+        /// Android Geri tuşu (veya klavye Escape) basıldığında açık popupları veya çekmeceyi kapatır.
+        /// Hiçbir pencere açık değilse çıkış onayını tetikler.
+        /// </summary>
+        private void HandleBackButton()
+        {
+            if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
+
+            if (_settingsPopup != null && _settingsPopup.gameObject.activeSelf)
+            {
+                _settingsPopup.Hide();
+            }
+            else if (_newGameConfirmPopup != null && _newGameConfirmPopup.gameObject.activeSelf)
+            {
+                _newGameConfirmPopup.Hide();
+            }
+            else if (_quitConfirmPopup != null && _quitConfirmPopup.gameObject.activeSelf)
+            {
+                _quitConfirmPopup.Hide();
+            }
+            else if (_menuDrawer != null && _menuDrawer.IsOpen)
+            {
+                _menuDrawer.CloseDrawer();
+            }
+            else
+            {
+                OnExitClicked();
+            }
         }
 
         private void RegisterButtons()

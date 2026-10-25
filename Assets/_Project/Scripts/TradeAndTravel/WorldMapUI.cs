@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 using TMPro;
 using Kervan.Core;
 using Kervan.Audio;
@@ -103,6 +104,40 @@ namespace Kervan.UI
         {
             UnregisterNodeViews();
             UnregisterListeners();
+        }
+
+        private void Update()
+        {
+            HandleBackButton();
+        }
+
+        /// <summary>
+        /// Android Geri tuşu (veya klavye Escape) basıldığında açık popupları, çekmeceleri veya bilgi kartını kapatır.
+        /// </summary>
+        private void HandleBackButton()
+        {
+            if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
+
+            // 1. Ayarlar penceresi açıksa kapat
+            if (_settingsPopup != null && _settingsPopup.gameObject.activeSelf)
+            {
+                _settingsPopup.Hide();
+            }
+            // 2. Kervan / Yük kenar çubuğu açıksa kapat
+            else if (_inventorySidebar != null && _inventorySidebar.IsOpen)
+            {
+                _inventorySidebar.CloseSidebar();
+            }
+            // 3. Şehir/Han bilgi kartı açıksa kapat
+            else if (_bottomNodeInfoCard != null && _bottomNodeInfoCard.IsOpen)
+            {
+                _bottomNodeInfoCard.HideCard();
+            }
+            // 4. Sağ üst yardımcı araçlar çekmecesi açıksa kapat
+            else if (_utilityDrawer != null && _utilityDrawer.IsOpen)
+            {
+                _utilityDrawer.CloseDrawer();
+            }
         }
 
         private void FindMissingReferences()

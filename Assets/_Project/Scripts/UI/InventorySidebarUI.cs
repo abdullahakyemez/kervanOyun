@@ -254,6 +254,11 @@ namespace Kervan.UI
             }
         }
 
+        /// <summary>
+        /// Kenar çubuğunun (Sidebar) şu anda ekranda açık olup olmadığını bildirir.
+        /// </summary>
+        public bool IsOpen => sidebarPanel != null && sidebarPanel.activeSelf;
+
         public void OpenSidebar()
         {
             AutoBindReferences();

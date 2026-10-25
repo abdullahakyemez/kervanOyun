@@ -6,6 +6,30 @@
 
 ---
 
+## [25.10.2026] A2.8 — Cihaz Testi & Aşama Kapanışı
+- `MainMenuUI.cs`: Yeni Input System (`Keyboard.current.escapeKey`) ile Android Geri tuşu dinlemesi eklendi; açık olan Ayarlar, Yeni Oyun onayı veya Çıkış onay popup'ları ve sağ alt çekmece sırayla kapatılıyor, pencereler kapalıyken çıkış onayı tetikleniyor.
+- `WorldMapUI.cs`: Yeni Input System (`Keyboard.current.escapeKey`) ile Android Geri tuşu dinlemesi eklendi; açık olan Ayarlar penceresi, Kervan kenar çubuğu (Sidebar), Şehir/Han bilgi kartı veya sağ üst çekmece sırayla kapatılıyor.
+- `InventorySidebarUI.cs`: Çekmecenin açık/kapalı durumunu bildiren `IsOpen` özelliği eklendi.
+- Unity'de elle yapılanlar: Device Simulator'da 16:9, 19.5:9 (çentikli) ve 20:9 ekran oranlarında test edildi. Giriş ekranındaki tam ekran arka plan görseli, çentik ve kenar boşluklarında kararma olmaması için `SafeAreaContainer` dışına taşındı.
+- Commit: `feat(input): A2.8 Android Geri tusu destegi ve cihaz testi ile A2 asama kapanisi`
+
+---
+
+## 🏆 [25.10.2026] A2 — Dünya Haritası & Oyun Omurgası (Aşama Özeti)
+- **Kapsam:** A2.0–A2.8 arasındaki 9 adım başarıyla tamamlandı.
+- **Kazanımlar:**
+  1. **Oyun Döngüsü & Oturum:** `00_Boot` sahnesi, `Bootstrapper`, `Services` servis bulucu ve oturum durumunu yöneten saf C# `GameSession` kuruldu.
+  2. **Kayıt Sistemi:** JSON tabanlı atomik kayıt/yükleme (`SaveService`, `SaveData`, `save_0.json`) ve otomatik kayıt döngüsü tamamlandı.
+  3. **Harita & Kimlik Birliği:** 13 şehir düğümü `MapNodeView` ve `LocationNodeSO` ile ASCII kimlikler (`NodeId`) üzerinden bağlandı; isim tabanlı aramalar kaldırıldı.
+  4. **Rota Motoru:** `RouteDatabaseSO` ve saf C# `RouteGraph` (Dijkstra) ile gerçek mesafe, komşuluk ve aktarmalı seyahat altyapısı inşa edildi.
+  5. **TopBar HUD:** `GameCalendar` (14 Mayıs 1326, mevsim döngüsü) ve bağımsız `TopBarHUD` (akçe animasyonu, erzak uyarısı) kuruldu.
+  6. **Sahne Geçişleri:** Kalıcı `ScreenFader` ve asenkron `SceneLoader` mimarisi kuruldu, string sahne adları `SceneIds` sabitlerine taşındı.
+  7. **Kenar Çubuğu (Sidebar):** Sahte veriler kaldırıldı; Kervan/Yük/Görevler sekmeleri canlı `GameSession` verisine ve boş durumlara bağlandı.
+  8. **Mobil Uyumluluk:** Yeni Input System (`EnhancedTouch`, `Keyboard.current.escapeKey`), `SafeAreaFitter` ve Device Simulator testleri tamamlandı.
+- **Git Etiketi:** `v0.2.0-alpha`
+
+---
+
 ## [25.10.2026] A2.7 — Sidebar Gerçek Veri + Boş Durumlar
 - `InventorySidebarUI.cs`: Çekmece verileri `Services.TryGet<GameSession>` üzerinden gerçek `Caravan` oturumuna bağlandı; `EventBus.Subscribe<CaravanStatsChangedEvent>` canlı aboneliği eklendi (`TD-03`).
 - Sahte satır temizliği: Kervan sekmesinde sahte muhafızlar kaldırılıp lider (Gazi Alp) ve gerçek hayvanlar listelendi; Yük sekmesinde sahte emtialar kaldırılıp "Kervan ambarında henüz ticaret emtiası bulunmuyor..." boş durum metni eklendi (`TD-03`).
