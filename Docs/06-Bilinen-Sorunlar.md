@@ -47,12 +47,13 @@
 |---|---|---|---|---|
 | AST-01 | ⚪ | Standart dışı klasörler: `Art/altmenu`, `Art/Icon`, `Art/Sidebar`, `Art/Toolbar`, `Art/Settings`; boş `Art/Tiles`, boş `Scripts/Core/Editor`. | A7 (veya ilgili ekranın adımında) | Açık |
 | AST-02 | ⚪ | Mükerrer dosyalar: `exitIcon.png` ×3; `Item_Akce`/`Item_Erzak` hem `Items/` hem `UI/Icons/`; `UI_BG_Button` ≈ `UI_Btn_Standard`; `Icon_MusicOn` / `Icon_Util_VolumeOn` / `Icon/MusicOn`. | A7 | Açık |
-| AST-03 | ⚪ | Yazım hataları: `Item_Healt`, `Mauhafiz_ProfileCard`, `UI_TollbarItemBG`, (kod) `SeperatorContainer`. | A7 | Açık |
+| AST-03 | ⚪ | Yazım hataları: `Item_Healt`, `Mauhafiz_ProfileCard`, `UI_TollbarItemBG`, `BG_Travel_03_MidHiils`, (kod) `SeperatorContainer`. | A7 | Açık |
 | AST-04 | ⚪ | Önek kuralına uymayanlar: `BottomMenuBtn`, `Btn_Exit`, `sidebarBtnOnClick`, `SidebarBtnOffClick`, `toolbarAkceIcon`, `toolbarErzakIcon`, `BottomMenuIconBG`. | İlgili ekranın adımı (ör. A2.5 toolbar) | Açık |
 | AST-05 | 🟡 | Ham dosyalar `Assets/` içinde: `Art/SourceFiles/*.ai` (~14 MB), `Art/UI/Mockups` (~10 MB). Git LFS yok (repo pack ~70 MB). | A7 (KR-5 onaylandı) | Açık |
 | AST-06 | 🟡 | Büyük dokular: `UI_WorldMapBackground` (5 MB), `UI_BG_MainMenu` (3.8 MB), `UI_BG_Paper` (2.6 MB) — Max Size/ASTC ayarları kontrol edilmeli. | A2.8 / A7 | Açık |
 | AST-07 | ⚪ | Şablon kalıntıları: `Assets/Scenes/SampleScene.unity`, `Assets/Welcome/`, `TextMesh Pro/Examples & Extras` (~30 örnek sahne). | A7 | Açık |
 | AST-08 | ⚪ | `WorldMapScene.unity` 1.6 MB (diğer sahnelerin ~12 katı); prefab'lanmamış çok sayıda UI objesi olabilir — merge çakışması riski. | A2.5–A2.7 (parçaları prefab'a alarak) | Açık |
+| AST-09 | ⚪ | `BG_Travel_03_MidHiils.png` parallax katmanında yatay döngü (seamless loop) birleşim izi belli oluyor; son aşamada (A7) kenar geçişi (offset/inpaint) düzeltilecek veya görsel yenilenecek. | A7 | Açık |
 
 ---
 

@@ -103,12 +103,23 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 ---
 
 ## A3 — Seyahat (TravelScene yeniden) ⏳
-> **Karar (KR-3):** Plan mantığına uygun temiz kodlar korunacak, diğerleri baştan yazılacak; tüm arayüz/tasarım sıfırdan yapılacak. Başlarken `asama-planla` ile adımlara bölünür. Taslak:
-- A3.1 Seyahat tasarım önerisi (`arayuz-tasarimi`): GDD §6 yerleşimi — üstte kaynaklar, ortada parallax kervan, altta ilerleme + "Mola Ver".
-- A3.2 `TravelSystem` (saf C#): gün gün ilerleme, erzak tüketimi, `ActiveTravel` GameSession'da. `TravelManager`'ın ayrı `CaravanData`'sı kaldırılır (BUG-05).
-- A3.3 Kervan yürüyüş görseli (2D Animation / PSD Importer) + parallax arka plan.
-- A3.4 Varış: konum güncelleme, otomatik kayıt, haritaya dönüş.
-- A3.5 Yol olayları için `RoadEventSO` altyapısı (A5'e zemin).
+> **Karar (KR-3):** Plan mantığına uygun temiz kodlar korunacak, diğerleri baştan yazılacak; tüm arayüz/tasarım sıfırdan yapılacak.
+
+### A3.1 Seyahat Tasarım Önerisi & Parallax Arka Plan Kurulumu ✅
+- **Hedef:** GDD §6 yerleşimi (`arayuz-tasarimi`), 4 katmanlı minyatür arka plan varlıklarının (`BG_Travel_01..04`) üretimi, eski prototip `TravelScene` objelerinin temizlenmesi ve `TravelParallaxUI` ile UV-scroll parallax akışının devreye alınması.
+- **Uygulama notu:** 4 katman (Gökyüzü, Dağlar, Orta Bozkır, Yol) `Wrap Mode: Repeat` ve `RawImage` UV kaydırma ile `TravelParallaxUI.cs` üzerinden bağlandı. `BG_Travel_03_MidHiils` katmanındaki yatay birleşim izi Cila aşaması (A7) için `AST-09` olarak not edildi.
+
+### A3.2 Kervan Yürüyüş Konvoyu & Seyahat HUD Yerleşimi ⬜
+- **Hedef:** Orta bölgede yol üzerinde yürüyen kervan konvoyu (Alp, yük hayvanları, muhafızlar + yürüyüş salınımı/bobbing), üstte `TopBar_HUD` + rota/hava rozeti, altta ilerleme çubuğu (`ProgressBar`), `1x/2x Tempo` ve `Mola Ver` (Kamp) kontrollerinin sahneye yerleştirilmesi.
+
+### A3.3 `TravelSystem` & `GameSession` Bağlantısı (`BUG-05`) ⬜
+- **Hedef:** Saf C# `TravelSystem` ile gün gün ilerleme, erzak tüketimi ve `GameSession.ActiveTravel` senkronizasyonu; `TravelManager`'ın ayrı `CaravanData` kopyasının kaldırılması (`BUG-05`).
+
+### A3.4 Varış, Kamp/Mola Mekaniği & Haritaya Dönüş ⬜
+- **Hedef:** Mola/Kamp paneli işlevleri (dinlenme, yola devam), hedefe varışta `GameSession.CompleteTravel` ile konum güncelleme, otomatik kayıt ve `SceneLoader` ile `WorldMapScene` dönüşü.
+
+### A3.5 Yol Olayları Altyapısı (`RoadEventSO`) ⬜
+- **Hedef:** Sefer sırasında gün geçişlerinde olay/pusu zar kontrolü ve A5'e zemin hazırlayan `RoadEventSO` veri yapısı.
 
 ## A4 — Şehir: Pazar + Kervansaray + Divan ⬜
 - A4.1 Şehir hub tasarımı (sekme: Pazar / Kervansaray / Divan).

@@ -4,7 +4,7 @@
 
 **Proje:** Uç Beyliği Kervanı · 14. yy Anadolu · Taktiksel RPG & Ticaret
 **Motor:** Unity 6 (6000.6.3f1), URP 2D · **Platform:** Android, yatay (landscape)
-**Sürüm etiketi:** v0.2.0 Alpha · **Son güncelleme:** 25.10.2026
+**Sürüm etiketi:** v0.2.0 Alpha · **Son güncelleme:** 27.10.2026
 
 ---
 
@@ -38,23 +38,18 @@ A7 Cila (Dil, Performans, Temizlik) .... ⬜
 A8 Android Sürüm & Test ................ ⬜
 ```
 
-### A2 Adımları
-- [x] A2-UI Harita arayüzü, sidebar, bilgi kartı, SFX (bkz. 07)
-- [x] A2.0 Hijyen — Input System fix, DevOverlay koruması, ses kalıcılığı
-- [x] A2.1 Kimlik birliği (NodeId + MapNodeView)
-- [x] A2.2 Boot sahnesi + GameSession
-- [x] A2.3 Kayıt / Yükleme (JSON)
-- [x] A2.4 Rota grafiği + gerçek mesafe/erzak
-- [x] A2.5 TopBar HUD (Akçe, Erzak, Tarih, Mevsim)
-- [x] A2.6 Sahne geçiş servisi (SceneLoader + ScreenFader)
-- [x] A2.7 Sidebar gerçek veri + boş durumlar
-- [x] A2.8 Cihaz testi & aşama kapanışı
+### A3 Adımları
+- [x] A3.1 Seyahat tasarım önerisi & 4 katmanlı Parallax arka plan kurulumu (`TravelParallaxUI`)
+- [ ] A3.2 Kervan yürüyüş konvoyu & Seyahat HUD yerleşimi (TopBar, İlerleme, Mola/Tempo)
+- [ ] A3.3 `TravelSystem` (saf C#) & `GameSession` bağlantısı (`BUG-05` çözümü)
+- [ ] A3.4 Varış, Kamp/Mola mekaniği, otomatik kayıt ve haritaya dönüş
+- [ ] A3.5 Yol olayları altyapısı (`RoadEventSO`)
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A3.1 — Seyahat Arayüz Tasarımı & Mizanpaj Önerisi
-- **Hedef:** GDD §6 doğrultusunda mobil yatay seyahat ekranı (üstte kaynak barı, ortada parallax kervan yürüyüşü, altta ilerleme ve "Mola Ver" butonu) için profesyonel mizanpaj, renk/üslup ve varlık listesi oluşturulması (`arayuz-tasarimi`).
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A3` ve `A3.1`
+## 3. ▶️ Sıradaki Adım: A3.2 — Kervan Yürüyüş Konvoyu & Seyahat HUD Yerleşimi
+- **Hedef:** Yol üzerinde yürüyen kervan konvoyu (Alp, develer/katırlar, muhafızlar + yürüyüş salınımı), üstte `TopBar_HUD` + rota/hava rozeti ve altta ilerleme çubuğu + `Mola Ver` / `1x-2x Tempo` butonlarının sahneye kurulması.
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A3.2`
 
 ---
 
@@ -65,7 +60,7 @@ A8 Android Sürüm & Test ................ ⬜
 
 ## 5. Kalıcı Notlar
 - **Tasarım yönetimi ilkesi:** Tasarım konularında değişikliklere doğrudan gidilmez; tasarım işlemleri tamamen proje sahibinin kontrolünde ilerler. Danışman olarak olması gerekenler ve profesyonellik önerileri sunulur; ayrıca hangi yapay zekâ araçlarının veya programların (ve iş akışlarının) kolaylık sağlayacağı belirtilir.
-- **Hatırlatma (Arayüz Temizliği):** İlerleyen süreçte son aşamalara doğru ufak tefek arayüz temizlikleri (`kısicon.png` ASCII adı, mükerrer `Toolbar` klasörü, ham `Toolbar.ai` dosyası) yapılacaktır.
+- **Hatırlatma (Arayüz & Görsel Temizliği):** Son aşamalara doğru (A7) ufak arayüz temizlikleri (`kısicon.png` ASCII adı, mükerrer `Toolbar` klasörü, ham `Toolbar.ai` dosyası) ve `BG_Travel_03_MidHiils.png` parallax katmanındaki yatay döngü (seamless loop) birleşim izi (`AST-09`) ele alınacaktır.
 - **Esneklik ilkesi:** Tamamlanmış sahnelerde de her zaman revizyon yapılabilir; "bu aşama bitti, dönülmez" denmez. Revizyon yeni bir adım olarak eklenir (ör. `A1.R1`).
 - **Mobil test:** Her UI adımında Device Simulator ile 16:9, 19.5:9, 20:9 kontrolü.
 - **Açık kritik sorun sayısı:** 🔴 1 · 🟠 2 (bkz. `06`)

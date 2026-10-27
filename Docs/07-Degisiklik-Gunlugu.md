@@ -6,6 +6,14 @@
 
 ---
 
+## [27.10.2026] A3.1 — Seyahat Tasarım Önerisi & Parallax Arka Plan Kurulumu
+- `TravelParallaxUI.cs`: 4 katmanlı minyatür seyahat arka planını `RawImage.uvRect` üzerinden sıfır GC ile kaydıran, mola (`SetPaused`) ve hız çarpanı (`SetSpeedMultiplier`) destekli UI bileşeni oluşturuldu.
+- Varlıklar: `BG_Travel_01_Sky.png`, `BG_Travel_02_Mountains.png`, `BG_Travel_03_MidHiils.png`, `BG_Travel_04_Roads.png` eklendi (`Sprite Mode: Single`, `Wrap Mode: Repeat`). `MidHiils` katmanındaki yatay döngü birleşim izi Cila aşaması (A7) için `AST-09` olarak kayıt altına alındı.
+- Unity'de elle yapılanlar: `TravelScene` içindeki eski prototip objeler temizlendi; `TravelCanvas` ve `ParallaxBackground` altında 4 `RawImage` katmanı oluşturulup `TravelParallaxUI` bileşenine bağlandı.
+- Commit: `feat(travel): A3.1 seyahat 4 katmanli parallax arka plan kurulumu ve TravelParallaxUI`
+
+---
+
 ## [25.10.2026] A2.8 — Cihaz Testi & Aşama Kapanışı
 - `MainMenuUI.cs`: Yeni Input System (`Keyboard.current.escapeKey`) ile Android Geri tuşu dinlemesi eklendi; açık olan Ayarlar, Yeni Oyun onayı veya Çıkış onay popup'ları ve sağ alt çekmece sırayla kapatılıyor, pencereler kapalıyken çıkış onayı tetikleniyor.
 - `WorldMapUI.cs`: Yeni Input System (`Keyboard.current.escapeKey`) ile Android Geri tuşu dinlemesi eklendi; açık olan Ayarlar penceresi, Kervan kenar çubuğu (Sidebar), Şehir/Han bilgi kartı veya sağ üst çekmece sırayla kapatılıyor.
