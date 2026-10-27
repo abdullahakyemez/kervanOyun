@@ -15,7 +15,7 @@
 | BUG-02 | 🔴 | Harita düğümleri ile SO'lar eşleşmiyor: sahnede 13 düğüm (`Node_Ahlat, Ankara, Antalya, Bursa, Cakalli, Eskisehir, Izmir, Iznik, Karatay, Kutahya, Sogut, Tashan, Trabzon`), SO'da 6 (`Bilecik, Bursa, Domanic, Iznik, KaratayHan, Sogut`). Eşleştirme GameObject adı ↔ `NodeName` ("Söğüt", "Bursa (Prusa)") ile yapıldığından hiçbiri tutmuyor; bilgi kartı varsayılan veri gösteriyor. | `WorldMapUI.cs` (`OnNodeViewClicked`, `SetupNodeViews`), `MapNodeView.cs` | A2.1 | Teyit | Çözüldü (16.10.2026) |
 | BUG-03 | 🔴 | Yeni oyunda `CurrentCity="Söğüt"`, tıklanan düğüm "Sogut" → `isCurrentLocation=false`. Kendi şehrine tıklayınca "Şehre Gir" yerine 2–5 günlük **rastgele** seyahat çıkabilir. Marker yalnızca `Node_Sogut` fallback'i sayesinde doğru yerde. | `WorldMapUI.cs`, `MainMenuUI.cs` (`OnNewGameClicked`) | A2.1 | Teyit | Çözüldü (16.10.2026) |
 | BUG-04 | 🔴 | "Seyahat Et"te `CurrentCity` yola çıkmadan hedefe yazılıyor; pusu/yenilgi/uygulama kapanması durumunda oyuncu hedefte görünür. | `WorldMapUI.cs` (`OnNodeActionConfirmed`), `GameSession.cs` (`StartTravel`) | A2.4 / A3.4 | Teyit | Çözüldü (19.10.2026) |
-| BUG-05 | 🔴 | `TravelManager` kendi `new CaravanData()` kopyasını tutuyor; seyahatte harcanan erzak/akçe `CaravanManager`'daki kervana yansımıyor (`GameSession` + `CaravanManager` köprüsü A2.2'de kuruldu; `TravelManager` entegrasyonu A3.2'de). | `TradeAndTravel/TravelManager.cs` | A3.2 | Kod | Açık |
+| BUG-05 | 🔴 | `TravelManager` kendi `new CaravanData()` kopyasını tutuyor; seyahatte harcanan erzak/akçe `CaravanManager`'daki kervana yansımıyor (`GameSession` + `CaravanManager` köprüsü A2.2'de kuruldu; `TravelManager` entegrasyonu A3.2–A3.3'te). | `TradeAndTravel/TravelManager.cs` | A3.3 | Kod | Çözüldü (27.10.2026) |
 | BUG-06 | 🟠 | Test gezinme menüsü `[RuntimeInitializeOnLoadMethod]` ile her sahnede ve **release build'de** açılıyor; sağ üstte Utility Drawer ile çakışıyor. | `Core/KervanSceneNavOverlay.cs` | A2.0 | Kod | Çözüldü (16.10.2026) |
 | BUG-07 | 🟠 | Mute iki sahnede farklı: Menü sadece AudioManager'ı susturuyor; Harita ayrıca `AudioListener.pause=true` + tüm AudioSource'ları `mute` ediyor (sahne değişince tutarsız). Ses ayarları kalıcı değil. | `WorldMapUI.cs` (`OnVolumeToggleClicked`), `MainMenuUI.cs`, `Audio/AudioManager.cs` | A2.0 | Teyit | Çözüldü (16.10.2026) |
 
@@ -54,6 +54,7 @@
 | AST-07 | ⚪ | Şablon kalıntıları: `Assets/Scenes/SampleScene.unity`, `Assets/Welcome/`, `TextMesh Pro/Examples & Extras` (~30 örnek sahne). | A7 | Açık |
 | AST-08 | ⚪ | `WorldMapScene.unity` 1.6 MB (diğer sahnelerin ~12 katı); prefab'lanmamış çok sayıda UI objesi olabilir — merge çakışması riski. | A2.5–A2.7 (parçaları prefab'a alarak) | Açık |
 | AST-09 | ⚪ | `BG_Travel_03_MidHiils.png` parallax katmanında yatay döngü (seamless loop) birleşim izi belli oluyor; son aşamada (A7) kenar geçişi (offset/inpaint) düzeltilecek veya görsel yenilenecek. | A7 | Açık |
+| AST-10 | ⚪ | `TravelScene` kervan konvoyu birimleri (`Unit_Travel_*`) şu an tek kare + prosedürel salınım (`CaravanConvoyUI`) ile ilerliyor; Cila aşamasında (A7) gerçek bacak adımlama animasyonu (çoklu kare sprite geçişi veya Unity 2D Animation kemik/rigging sistemi) eklenecek. | A7 | Açık |
 
 ---
 
@@ -75,3 +76,4 @@
 - `TD-07` — 25.10.2026 — A2.6 — Kalıcı `ScreenFader` (`DontDestroyOnLoad`, `sortingOrder = 32767`) ve `SceneLoader` asenkron sahne yükleyicisi kuruldu; tüm sahne geçişleri tek merkezden fade ve çift dokunma korumasıyla bağlandı.
 - `TD-14` — 25.10.2026 — A2.6 — `SceneIds` sabit sınıfı oluşturuldu; `Bootstrapper`, `MainMenuUI`, `WorldMapUI` ve `KervanSceneNavOverlay` içindeki dağınık string sahne adları sabitlere taşındı.
 - `TD-03` — 25.10.2026 — A2.7 — Sidebar kervan ve yük sekmeleri GameSession verisine bağlandı; sahte muhafız/emtia satırları kaldırıldı, boş durumlar ve esnek görev kartı eklendi.
+- `BUG-05` — 27.10.2026 — A3.2 / A3.3 — `TravelManager` içindeki ayrı `_caravanData` kopyası kaldırıldı; tüm erzak/akçe tüketimi ve gün ilerlemesi doğrudan `GameSession.Caravan` ve `GameSession.AdvanceDays` üzerine bağlandı.

@@ -6,6 +6,15 @@
 
 ---
 
+## [27.10.2026] A3.2 & A3.3 — Kervan Konvoyu, Seyahat HUD ve `GameSession` Bağlantısı (`BUG-05`)
+- `CaravanConvoyUI.cs`: Yol üzerinde ilerleyen kervan birimlerine (`Unit_Travel_AlpMounted`, `Camel`, `Mule`, `Muhafiz`, `Okcu`) faz farkıyla adımlama yaylanması (`bobbing`), yürüyüş eğimi (`tilt`) ve yere basma esnemesi (`squash`) uygulayan görünüm bileşeni eklendi. Gerçek bacak adımlama animasyonu Cila aşaması (A7) için `AST-10` olarak not edildi.
+- `TravelManager.cs`: Ayrı `_caravanData` kopyası kaldırılıp doğrudan `GameSession.Caravan`'a bağlandı (`BUG-05` çözüldü); `RouteDatabaseSO` çift yönlü rota çözümleme, `1x/2x` hız çarpanı (`1.2s` varsayılan gün süresi) ve varışta `GameSession.CompleteTravel()` entegrasyonu tamamlandı.
+- `TravelUI.cs`: `TravelParallaxUI` ve `CaravanConvoyUI` akış senkronizasyonu, `1x/2x Tempo` ve `Mola Ver` kontrolleri, Türkçe arazi/hava etiketleri, `SceneLoader` sahne geçişleri ve Android Geri tuşu eklendi.
+- Unity'de elle yapılanlar: `TravelScene` içinde `CaravanConvoy`, `SafeAreaContainer`, `TopBar_HUD.prefab`, `BottomTravelBar` (`Btn_Speed`, `ProgressSlider`, `OriginText`, `RouteInfoText`, `DestText`, `Btn_PauseResume`) ve `TravelManager` kuruldu.
+- Commit: `feat(travel): A3.2-A3.3 kervan konvoyu, seyahat HUD ve GameSession baglantisi (BUG-05)`
+
+---
+
 ## [27.10.2026] A3.1 — Seyahat Tasarım Önerisi & Parallax Arka Plan Kurulumu
 - `TravelParallaxUI.cs`: 4 katmanlı minyatür seyahat arka planını `RawImage.uvRect` üzerinden sıfır GC ile kaydıran, mola (`SetPaused`) ve hız çarpanı (`SetSpeedMultiplier`) destekli UI bileşeni oluşturuldu.
 - Varlıklar: `BG_Travel_01_Sky.png`, `BG_Travel_02_Mountains.png`, `BG_Travel_03_MidHiils.png`, `BG_Travel_04_Roads.png` eklendi (`Sprite Mode: Single`, `Wrap Mode: Repeat`). `MidHiils` katmanındaki yatay döngü birleşim izi Cila aşaması (A7) için `AST-09` olarak kayıt altına alındı.

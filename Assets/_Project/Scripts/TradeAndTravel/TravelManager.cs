@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Kervan.Core;
 
 namespace Kervan.TradeAndTravel
@@ -18,131 +17,334 @@ namespace Kervan.TradeAndTravel
     }
 
     /// <summary>
-    /// Kervanin seyahatini, yol sartlarini, erzak tuketimini ve
-    /// pusu/olay zarlarini yoneten merkezi seyahat motoru.
+    /// Kervanın seyahatini, yol şartlarını, erzak tüketimini ve
+    /// pusu/olay zarlarını yöneten merkezi seyahat motoru.
+    /// Tüm kervan ve takvim durumunu doğrudan <see cref="GameSession"/> üzerinden okur ve günceller (BUG-05).
     /// </summary>
     public class TravelManager : MonoBehaviour
     {
-        [Header("Veri Referanslari")]
-        [SerializeField] private CaravanData _caravanData = new CaravanData();
-        [SerializeField] private LocationNodeSO _currentLocation;
+        private const float DefaultDayDurationSeconds = 1.2f;
+        private const float AmbushChanceFactor = 0.40f;
+        private const float IncidentThreshold = 0.85f;
+        private const int BrokenAxleCost = 25;
+        private const int FoundFoodAmount = 3;
+
+        [Header("Rota Veri Tabanı & Test Fallback")]
+        [Tooltip("Aktif rotayı RouteId veya From/To NodeId üzerinden çözümlemek için kullanılan rota veri tabanı")]
+        [SerializeField] private RouteDatabaseSO _routeDatabase;
+
+        [Tooltip("Doğrudan TravelScene'den Play'e basıldığında veya ActiveTravel boş olduğunda kullanılacak varsayılan rota")]
         [SerializeField] private TravelRouteSO _activeRoute;
 
-        [Header("Seyahat Durumu")]
+        [Header("Seyahat Durumu & Tempo")]
+        [Tooltip("Seyahat şu anda akıyor mu?")]
         [SerializeField] private bool _isTraveling;
-        [SerializeField] private float _daysProgress; // 0.0f - TotalDays
-        [SerializeField] private float _dayDurationSeconds = 3.0f; // 1 oyun gunu kac gercek saniye surer
-        [SerializeField] private int _globalDayCount = 1;
 
-        private float _timeAccumulator;
+        [Tooltip("Rota üzerinde geride bırakılan gün ilerlemesi (0.0 .. TotalDays)")]
+        [SerializeField] private float _daysProgress;
+
+        [Tooltip("1x tempoda 1 oyun gününün kaç gerçek saniye süreceği")]
+        [Range(0.5f, 15f)]
+        [SerializeField] private float _dayDurationSeconds = DefaultDayDurationSeconds;
+
+        [Tooltip("Yürüyüş temposu çarpanı (1 = 1x normal, 2 = 2x hızlı)")]
+        [Range(0.5f, 4f)]
+        [SerializeField] private float _speedMultiplier = 1f;
+
+        private GameSession _gameSession;
+        private CaravanData _fallbackCaravan;
+        private LocationNodeSO _originNode;
+        private LocationNodeSO _destinationNode;
+        private int _totalRouteDays = 1;
         private int _lastDayRecorded;
 
         // Olaylar
-        public event Action<float, int> OnTravelProgressUpdated; // progress (0..1), day
+        public event Action<float, int> OnTravelProgressUpdated; // progress (0..1), routeDay
         public event Action<LocationNodeSO> OnDestinationReached;
         public event Action<TravelRouteSO> OnAmbushTriggered;
         public event Action<string, string> OnRandomEventTriggered;
 
-        // Getters
-        public CaravanData Caravan => _caravanData;
-        public LocationNodeSO CurrentLocation => _currentLocation;
+        /// <summary>
+        /// Tek doğruluk kaynağı olan <see cref="GameSession.Caravan"/> referansı (BUG-05 çözümü).
+        /// </summary>
+        public CaravanData Caravan
+        {
+            get
+            {
+                if (_gameSession != null && _gameSession.Caravan != null)
+                {
+                    return _gameSession.Caravan;
+                }
+
+                if (Services.TryGet<GameSession>(out _gameSession) && _gameSession.Caravan != null)
+                {
+                    return _gameSession.Caravan;
+                }
+
+                if (CaravanManager.Instance != null && CaravanManager.Instance.Caravan != null)
+                {
+                    return CaravanManager.Instance.Caravan;
+                }
+
+                if (_fallbackCaravan == null)
+                {
+                    _fallbackCaravan = new CaravanData();
+                }
+
+                return _fallbackCaravan;
+            }
+        }
+
+        public LocationNodeSO OriginNode => _originNode != null ? _originNode : (_activeRoute != null ? _activeRoute.FromNode : null);
+        public LocationNodeSO DestinationNode => _destinationNode != null ? _destinationNode : (_activeRoute != null ? _activeRoute.ToNode : null);
+        public LocationNodeSO CurrentLocation => _destinationNode;
         public TravelRouteSO ActiveRoute => _activeRoute;
         public bool IsTraveling => _isTraveling;
-        public int GlobalDayCount => _globalDayCount;
+        public float SpeedMultiplier => _speedMultiplier;
+        public int TotalRouteDays => _totalRouteDays;
+        public int CurrentRouteDay => Mathf.Clamp(Mathf.FloorToInt(_daysProgress) + 1, 1, _totalRouteDays);
+        public int GlobalDayCount => _gameSession != null ? _gameSession.DayCount : 1;
 
         private void Start()
         {
-            _lastDayRecorded = _globalDayCount;
+            Services.TryGet<GameSession>(out _gameSession);
+            InitializeTravelFromSessionOrFallback();
         }
 
         private void Update()
         {
-            if (!_isTraveling || _activeRoute == null) return;
-
-            _timeAccumulator += Time.deltaTime;
-            float dayDelta = Time.deltaTime / _dayDurationSeconds;
-            _daysProgress += dayDelta;
-
-            int currentRouteDay = Mathf.FloorToInt(_daysProgress);
-            if (currentRouteDay > _lastDayRecorded)
+            if (!_isTraveling || _activeRoute == null)
             {
-                _lastDayRecorded = currentRouteDay;
-                _globalDayCount++;
-                ProcessDailyLogistics();
+                return;
             }
 
-            float totalDays = Mathf.Max(1, _activeRoute.DistanceDays);
-            float normalizedProgress = Mathf.Clamp01(_daysProgress / totalDays);
+            float safeDuration = Mathf.Max(0.1f, _dayDurationSeconds);
+            float dayDelta = (Time.deltaTime * _speedMultiplier) / safeDuration;
+            _daysProgress += dayDelta;
 
-            OnTravelProgressUpdated?.Invoke(normalizedProgress, _globalDayCount);
+            int completedDays = Mathf.FloorToInt(_daysProgress);
+            while (completedDays > _lastDayRecorded && _isTraveling)
+            {
+                _lastDayRecorded++;
 
-            if (_daysProgress >= totalDays)
+                if (_gameSession != null)
+                {
+                    _gameSession.AdvanceDays(1);
+                }
+
+                // Son güne ulaşıldıysa varış gerçekleşir, pusu zarı atılmaz
+                if (_lastDayRecorded < _totalRouteDays)
+                {
+                    ProcessDailyLogistics();
+                }
+                else
+                {
+                    ConsumeDailyFoodOnly();
+                }
+            }
+
+            float normalizedProgress = Mathf.Clamp01(_daysProgress / _totalRouteDays);
+            OnTravelProgressUpdated?.Invoke(normalizedProgress, GlobalDayCount);
+
+            if (_daysProgress >= _totalRouteDays && _isTraveling)
             {
                 ArriveAtDestination();
             }
         }
 
-        public void StartTravel(TravelRouteSO route)
+        /// <summary>
+        /// Belirtilen rota üzerinde yeni bir seyahat başlatır.
+        /// </summary>
+        public void StartTravel(TravelRouteSO route, LocationNodeSO customOrigin = null, LocationNodeSO customDestination = null, int initialDaysElapsed = 0, int overrideTotalDays = 0)
         {
-            if (route == null || _isTraveling) return;
+            if (route == null)
+            {
+                Debug.LogWarning("[TravelManager] Başlatılacak rota (TravelRouteSO) atanmamış!", this);
+                return;
+            }
 
             _activeRoute = route;
-            _isTraveling = true;
-            _daysProgress = 0f;
-            _lastDayRecorded = 0;
-            _currentLocation = null;
+            _originNode = customOrigin != null ? customOrigin : route.FromNode;
+            _destinationNode = customDestination != null ? customDestination : route.ToNode;
+            _totalRouteDays = overrideTotalDays > 0 ? overrideTotalDays : Mathf.Max(1, route.DistanceDays);
 
-            Debug.Log($"[Travel] Seyahat basladi: {route.FromNode?.NodeName} -> {route.ToNode?.NodeName} ({route.DistanceDays} Gun)");
+            int clampedInitialDays = Mathf.Clamp(initialDaysElapsed, 0, _totalRouteDays - 1);
+            _daysProgress = clampedInitialDays;
+            _lastDayRecorded = clampedInitialDays;
+            _isTraveling = true;
+
+            float normalizedProgress = Mathf.Clamp01(_daysProgress / _totalRouteDays);
+            OnTravelProgressUpdated?.Invoke(normalizedProgress, GlobalDayCount);
+
+            Debug.Log($"[TravelManager] Seyahat başladı: {OriginNode?.NodeName} -> {DestinationNode?.NodeName} ({_totalRouteDays} Gün)");
         }
 
+        /// <summary>
+        /// Seyahati geçici olarak duraklatır (Mola / Kamp durumu).
+        /// </summary>
         public void PauseTravel()
         {
             _isTraveling = false;
         }
 
+        /// <summary>
+        /// Mola durumundaki seyahati kaldığı yerden devam ettirir.
+        /// </summary>
         public void ResumeTravel()
         {
-            if (_activeRoute != null && _daysProgress < _activeRoute.DistanceDays)
+            if (_activeRoute != null && _daysProgress < _totalRouteDays)
             {
                 _isTraveling = true;
             }
         }
 
+        /// <summary>
+        /// Seyahat hız çarpanını günceller (1f = 1x, 2f = 2x tempo).
+        /// </summary>
+        public void SetSpeedMultiplier(float multiplier)
+        {
+            _speedMultiplier = Mathf.Clamp(multiplier, 0.5f, 4f);
+        }
+
+        private void InitializeTravelFromSessionOrFallback()
+        {
+            if (_gameSession != null && _gameSession.ActiveTravel != null)
+            {
+                ActiveTravelState active = _gameSession.ActiveTravel;
+                TravelRouteSO resolvedRoute = ResolveRouteFromDatabase(active.RouteId, active.FromNodeId, active.ToNodeId);
+
+                if (resolvedRoute != null)
+                {
+                    DetermineDirectionNodes(resolvedRoute, active.FromNodeId, active.ToNodeId, out LocationNodeSO origin, out LocationNodeSO dest);
+                    StartTravel(resolvedRoute, origin, dest, active.DaysElapsed, active.TotalDays);
+                    return;
+                }
+            }
+
+            // Doğrudan TravelScene içinden Play'e basıldıysa Inspector'daki veya veri tabanındaki ilk rotayı kullan
+            if (_activeRoute == null && _routeDatabase != null && _routeDatabase.Routes != null && _routeDatabase.Routes.Count > 0)
+            {
+                _activeRoute = _routeDatabase.Routes[0];
+            }
+
+            if (_activeRoute != null)
+            {
+                StartTravel(_activeRoute);
+            }
+            else
+            {
+                Debug.LogWarning("[TravelManager] Aktif seyahat veya varsayılan rota bulunamadı. TravelManager Inspector'ından RouteDatabase veya ActiveRoute atayın.", this);
+            }
+        }
+
+        private TravelRouteSO ResolveRouteFromDatabase(string routeId, string fromNodeId, string toNodeId)
+        {
+            if (_routeDatabase != null && _routeDatabase.Routes != null)
+            {
+                var routes = _routeDatabase.Routes;
+
+                // 1. Önce RouteId ile eşleştir
+                if (!string.IsNullOrEmpty(routeId))
+                {
+                    for (int i = 0; i < routes.Count; i++)
+                    {
+                        TravelRouteSO r = routes[i];
+                        if (r != null && string.Equals(r.RouteId, routeId, StringComparison.Ordinal))
+                        {
+                            return r;
+                        }
+                    }
+                }
+
+                // 2. FromNodeId ve ToNodeId (çift yönlü) ile eşleştir
+                for (int i = 0; i < routes.Count; i++)
+                {
+                    TravelRouteSO r = routes[i];
+                    if (r == null || r.FromNode == null || r.ToNode == null)
+                    {
+                        continue;
+                    }
+
+                    string a = r.FromNode.NodeId;
+                    string b = r.ToNode.NodeId;
+
+                    bool forward = string.Equals(a, fromNodeId, StringComparison.Ordinal) && string.Equals(b, toNodeId, StringComparison.Ordinal);
+                    bool reverse = string.Equals(b, fromNodeId, StringComparison.Ordinal) && string.Equals(a, toNodeId, StringComparison.Ordinal);
+
+                    if (forward || reverse)
+                    {
+                        return r;
+                    }
+                }
+            }
+
+            return _activeRoute;
+        }
+
+        private static void DetermineDirectionNodes(TravelRouteSO route, string fromNodeId, string toNodeId, out LocationNodeSO origin, out LocationNodeSO dest)
+        {
+            origin = route.FromNode;
+            dest = route.ToNode;
+
+            if (route.FromNode != null && route.ToNode != null)
+            {
+                if (string.Equals(route.ToNode.NodeId, fromNodeId, StringComparison.Ordinal) &&
+                    string.Equals(route.FromNode.NodeId, toNodeId, StringComparison.Ordinal))
+                {
+                    origin = route.ToNode;
+                    dest = route.FromNode;
+                }
+            }
+        }
+
+        private void ConsumeDailyFoodOnly()
+        {
+            if (_activeRoute == null)
+            {
+                return;
+            }
+
+            int foodToConsume = Mathf.Max(1, Mathf.RoundToInt(1f * _activeRoute.FoodConsumptionMultiplier));
+            Caravan.ConsumeFood(foodToConsume);
+        }
+
         private void ProcessDailyLogistics()
         {
-            if (_activeRoute == null) return;
+            if (_activeRoute == null)
+            {
+                return;
+            }
 
-            // 1. Erzak Tuketimi
-            int foodToConsume = Mathf.RoundToInt(1 * _activeRoute.FoodConsumptionMultiplier);
-            bool hasFood = _caravanData.ConsumeFood(foodToConsume);
+            int foodToConsume = Mathf.Max(1, Mathf.RoundToInt(1f * _activeRoute.FoodConsumptionMultiplier));
+            bool hasFood = Caravan.ConsumeFood(foodToConsume);
 
             if (!hasFood)
             {
-                Debug.LogWarning("[Travel] Erzak tukendi! Kervan muhafizlari ac ve moralleri dusuyor.");
-                OnRandomEventTriggered?.Invoke("Açlık Tehlikesi!", "Kervanın erzakları bitti. Muhafızlar yorgun ve hoşnutsuz.");
+                Debug.LogWarning("[TravelManager] Erzak tükendi! Kervan muhafızları aç ve moralleri düşüyor.");
+                OnRandomEventTriggered?.Invoke("Açlık Tehlikesi!", "Kervanın erzakları tükendi. Muhafızlar yorgun ve hoşnutsuz.");
             }
 
-            // 2. Yol Tehlike ve Pusu Zari
             CheckRandomEncounters();
         }
 
         private void CheckRandomEncounters()
         {
-            if (_activeRoute == null) return;
+            if (_activeRoute == null)
+            {
+                return;
+            }
 
             float roll = UnityEngine.Random.value;
 
-            // Pusu Zari
-            if (roll <= _activeRoute.DangerLevel * 0.40f)
+            if (roll <= _activeRoute.DangerLevel * AmbushChanceFactor)
             {
                 _isTraveling = false;
-                Debug.Log("[Travel] PUSU! Haydutlar yolu kesti.");
+                Debug.Log("[TravelManager] PUSU! Haydutlar yolu kesti.");
                 OnAmbushTriggered?.Invoke(_activeRoute);
                 return;
             }
 
-            // Diger Yol Hadiseleri
-            if (roll > 0.85f)
+            if (roll > IncidentThreshold)
             {
                 TriggerRoadIncident();
             }
@@ -154,18 +356,15 @@ namespace Kervan.TradeAndTravel
             switch (eventType)
             {
                 case 0:
-                    // Bozuk yol aks kirilmasi
-                    _caravanData.ModifyAkce(-25);
-                    OnRandomEventTriggered?.Invoke("Araba Aksı Kırıldı", "Engebeli yolda arabanın aksı çatladı. Yerel köylülerden 25 Akçeye yedek parça temin edildi.");
+                    Caravan.ModifyAkce(-BrokenAxleCost);
+                    OnRandomEventTriggered?.Invoke("Yük Bağları Çözüldü", $"Engebeli yolda yük semeri hasar gördü. Yerel ustaya {BrokenAxleCost} Akçe ödendi.");
                     break;
                 case 1:
-                    // Dervis / Dua
-                    OnRandomEventTriggered?.Invoke("Gezgin Derviş", "Yol kenarında karşılaşılan bir derviş kervana hayır duası etti. Muhafızların morali yükseldi.");
+                    OnRandomEventTriggered?.Invoke("Gezgin Derviş", "Yol kenarında karşılaşılan bir Horasan dervişi kervana hayır duası etti. Muhafızların morali yükseldi.");
                     break;
                 case 2:
-                    // Sahipsiz tahil cuvali
-                    _caravanData.AddFood(3);
-                    OnRandomEventTriggered?.Invoke("Yol Azığı Bulundu", "Terk edilmiş bir göçebe kampında 3 günlük bozulmamış kuru erzak bulundu.");
+                    Caravan.AddFood(FoundFoodAmount);
+                    OnRandomEventTriggered?.Invoke("Yol Azığı Bulundu", $"Konaklama yerinde {FoundFoodAmount} günlük taze erzak temin edildi.");
                     break;
             }
         }
@@ -173,28 +372,49 @@ namespace Kervan.TradeAndTravel
         private void ArriveAtDestination()
         {
             _isTraveling = false;
-            _currentLocation = _activeRoute.ToNode;
-            var arrived = _currentLocation;
-            var completedRoute = _activeRoute;
-            _activeRoute = null;
+            LocationNodeSO arrivedNode = DestinationNode;
+            TravelRouteSO completedRoute = _activeRoute;
 
-            Debug.Log($"[Travel] Hedefe varildi: {arrived?.NodeName}");
-            OnDestinationReached?.Invoke(arrived);
-            EventBus.Publish(new TravelCompletedEvent(arrived, completedRoute));
+            if (_gameSession != null)
+            {
+                if (_gameSession.ActiveTravel != null)
+                {
+                    _gameSession.CompleteTravel();
+                }
+                else if (arrivedNode != null && !string.IsNullOrEmpty(arrivedNode.NodeId))
+                {
+                    _gameSession.SetCurrentNode(arrivedNode.NodeId);
+                }
+            }
+
+            Debug.Log($"[TravelManager] Hedefe varıldı: {arrivedNode?.NodeName}");
+            OnDestinationReached?.Invoke(arrivedNode);
+            EventBus.Publish(new TravelCompletedEvent(arrivedNode, completedRoute));
         }
 
         public bool RestAtCaravanserai(int days)
         {
-            if (_currentLocation == null || !_currentLocation.HasInn) return false;
+            LocationNodeSO loc = DestinationNode;
+            if (loc == null || !loc.HasInn)
+            {
+                return false;
+            }
 
-            int totalCost = _currentLocation.DailyRestCost * days;
-            if (!_caravanData.ModifyAkce(-totalCost)) return false;
+            int totalCost = loc.DailyRestCost * days;
+            if (!Caravan.ModifyAkce(-totalCost))
+            {
+                return false;
+            }
 
-            _globalDayCount += days;
-            _caravanData.HealAllGuards(_currentLocation.DailyHealAmount * days);
-            _caravanData.ConsumeFood(days);
+            if (_gameSession != null)
+            {
+                _gameSession.AdvanceDays(days);
+            }
 
-            Debug.Log($"[Travel] {days} gun han/kervansarayda dinlenildi. Masraf: {totalCost} Akce.");
+            Caravan.HealAllGuards(loc.DailyHealAmount * days);
+            Caravan.ConsumeFood(days);
+
+            Debug.Log($"[TravelManager] {days} gün kervansarayda dinlenildi. Masraf: {totalCost} Akçe.");
             return true;
         }
     }
