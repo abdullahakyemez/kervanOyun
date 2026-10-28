@@ -6,6 +6,27 @@
 
 ---
 
+## 🏆 [28.10.2026] A3 — Seyahat (`TravelScene` Yeniden) (Aşama Özeti)
+- **Kapsam:** A3.1–A3.4 arasındaki 4 adım başarıyla tamamlandı.
+- **Kazanımlar:**
+  1. **Minyatür Parallax Sahnesi:** 4 katmanlı (`Sky`, `Mountains`, `MidHills`, `Roads`) `RawImage` UV-scroll akışı (`TravelParallaxUI`) kuruldu.
+  2. **Kervan Konvoyu & HUD:** 5 yan profil birim (`Unit_Travel_*`) faz farklı adımlama salınımıyla (`CaravanConvoyUI`) sahneye yerleştirildi; `TopBar_HUD` ve `BottomTravelBar` (`1x/2x Tempo`, `Mola Ver`, `ProgressSlider`) entegre edildi.
+  3. **Oturum & Kayıt Bütünlüğü (`BUG-05`):** `TravelManager` doğrudan `GameSession.Caravan` ve `GameSession.ActiveTravel` ile senkronize edildi; çift yönlü `RouteDatabaseSO` çözümlemesi ve varışta `CompleteTravel()` döngüsü tamamlandı.
+  4. **Yol Olayları & Saldırı Altyapısı (`RoadEventSO`):** Lojistik hadiseler, olumlu karşılaşmalar, haydut pusuları ve yabani hayvan saldırıları için `RoadEventSO` veri yapısı ve `EventModal` penceresi kuruldu.
+- **Önerilen Git Etiketi:** `v0.3.0-alpha`
+
+---
+
+## [28.10.2026] A3.4 — Kamp/Mola Penceresi (`EventModal`) & Yol Olayları Altyapısı (`RoadEventSO`)
+- `RoadEventSO.cs`: ASCII `EventId`, 4 kategori (`Incident`, `Positive`, `BanditAmbush`, `WildBeastAttack`), akçe/erzak/şifa etkileri, ağırlıklı seçim ve A5 savaş hazırlık alanlarını içeren ScriptableObject eklendi.
+- `TravelRouteSO.cs`: Rotaya özel `_roadEvents` (`List<RoadEventSO>`) alanı eklendi; Türkçe karaktersiz açıklamalar düzeltildi (`TD-10`).
+- `TravelManager.cs`: Gömülü olay sabitleri kaldırılıp `RoadEventSO` ağırlıklı seçim sistemine taşındı; `GameSession.ActiveTravel.DaysElapsed` senkronizasyonu ve 5'li çalışma anı yedek olay havuzu eklendi.
+- `TravelUI.cs`: `EventModal` açılışında parşömen sesi, renkli etki özeti ve `"Yola Devam Et"` / `"Haritaya Dön"` buton akışı bağlandı.
+- Unity'de elle yapılanlar: `TravelScene > SafeAreaContainer` altına `UI_BottomMenuBG` ve `BottomMenuBtn` ile `EventModal` kuruldu ve `TravelUI` bileşenine bağlandı.
+- Commit: `feat(travel): A3.4 RoadEventSO yol olaylari altyapisi ve EventModal penceresi ile A3 asama kapanisi`
+
+---
+
 ## [27.10.2026] A3.2 & A3.3 — Kervan Konvoyu, Seyahat HUD ve `GameSession` Bağlantısı (`BUG-05`)
 - `CaravanConvoyUI.cs`: Yol üzerinde ilerleyen kervan birimlerine (`Unit_Travel_AlpMounted`, `Camel`, `Mule`, `Muhafiz`, `Okcu`) faz farkıyla adımlama yaylanması (`bobbing`), yürüyüş eğimi (`tilt`) ve yere basma esnemesi (`squash`) uygulayan görünüm bileşeni eklendi. Gerçek bacak adımlama animasyonu Cila aşaması (A7) için `AST-10` olarak not edildi.
 - `TravelManager.cs`: Ayrı `_caravanData` kopyası kaldırılıp doğrudan `GameSession.Caravan`'a bağlandı (`BUG-05` çözüldü); `RouteDatabaseSO` çift yönlü rota çözümleme, `1x/2x` hız çarpanı (`1.2s` varsayılan gün süresi) ve varışta `GameSession.CompleteTravel()` entegrasyonu tamamlandı.

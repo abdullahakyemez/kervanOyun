@@ -102,7 +102,7 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 
 ---
 
-## A3 — Seyahat (TravelScene yeniden) ⏳
+## A3 — Seyahat (TravelScene yeniden) ✅
 > **Karar (KR-3):** Plan mantığına uygun temiz kodlar korunacak, diğerleri baştan yazılacak; tüm arayüz/tasarım sıfırdan yapılacak.
 
 ### A3.1 Seyahat Tasarım Önerisi & Parallax Arka Plan Kurulumu ✅
@@ -117,10 +117,11 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Hedef:** Gün gün ilerleme, erzak tüketimi, `RouteDatabaseSO` çift yönlü rota çözümleme ve `GameSession.ActiveTravel` senkronizasyonu; `TravelManager`'ın ayrı `CaravanData` kopyasının kaldırılması (`BUG-05`); hedefe varışta `GameSession.CompleteTravel` ve `SceneLoader` ile `WorldMapScene` dönüşü.
 - **Uygulama notu:** Varsayılan gün süresi `1.2s` olarak hızlandırıldı; `1x/2x Tempo` ve `Mola Ver` hem `TravelManager` hem de `TravelParallaxUI` ve `CaravanConvoyUI` ile tam senkronize hale getirildi.
 
-### A3.4 Kamp/Mola Penceresi & Yol Olayları Altyapısı (`RoadEventSO`) ⬜
+### A3.4 Kamp/Mola Penceresi & Yol Olayları Altyapısı (`RoadEventSO`) ✅
 - **Hedef:** Sefer sırasında gün geçişlerinde olay/pusu zar kontrolü, kamp/olay bilgi penceresi ve A5'e zemin hazırlayan `RoadEventSO` veri yapısı.
+- **Uygulama notu:** `RoadEventSO` (4 kategori: `Incident`, `Positive`, `BanditAmbush`, `WildBeastAttack`) oluşturuldu; `TravelRouteSO` ve `TravelManager`'a bağlandı. `UI_BottomMenuBG` ile `EventModal` kuruldu; parşömen sesi, renkli etki özeti ve `"Yola Devam Et"` / `"Haritaya Dön"` akışı tamamlandı (`v0.3.0-alpha`).
 
-## A4 — Şehir: Pazar + Kervansaray + Divan ⬜
+## A4 — Şehir: Pazar + Kervansaray + Divan ⏳
 - A4.1 Şehir hub tasarımı (sekme: Pazar / Kervansaray / Divan).
 - A4.2 Pazar: `CityMarket` mantığının GameSession'a bağlanması, alış-satış UI, kâr/zarar göstergesi.
 - A4.3 Pazar doygunluğu ve gün geçtikçe toparlanma (GDD §4).

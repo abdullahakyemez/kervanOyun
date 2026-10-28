@@ -66,13 +66,29 @@ namespace Kervan.TradeAndTravel
         [Tooltip("Tempo butonunun üzerindeki metin (1x / 2x)")]
         [SerializeField] private TextMeshProUGUI _speedToggleText;
 
-        [Header("Olay & Varış Penceresi (Opsiyonel Modal)")]
+        [Header("Olay & Varış Penceresi (EventModal)")]
+        [Tooltip("Olay ve varış bildirim penceresinin kök GameObject'i")]
         [SerializeField] private GameObject _eventModalRoot;
+
+        [Tooltip("Olay penceresi başlık metni")]
         [SerializeField] private TextMeshProUGUI _eventTitleText;
+
+        [Tooltip("Olay penceresi hikâye/açıklama metni")]
         [SerializeField] private TextMeshProUGUI _eventDescText;
+
+        [Tooltip("Olayın kervana etkisini gösteren özet metin (Boş bırakılırsa açıklama metninin altına eklenir)")]
+        [SerializeField] private TextMeshProUGUI _eventOutcomeText;
+
+        [Tooltip("Olay penceresindeki opsiyonel ikon görseli")]
+        [SerializeField] private Image _eventIconImage;
+
+        [Tooltip("Olay penceresini kapatıp yola devam ettiren / haritaya döndüren buton")]
         [SerializeField] private Button _eventCloseButton;
 
-        [Header("Pusu Uyarısı (Opsiyonel Modal)")]
+        [Tooltip("Kapatma butonunun üzerindeki metin ('Yola Devam Et' / 'Haritaya Dön')")]
+        [SerializeField] private TextMeshProUGUI _eventCloseButtonText;
+
+        [Header("Pusu Uyarısı (A5 Hazırlık Modalı)")]
         [SerializeField] private GameObject _ambushPanelRoot;
         [SerializeField] private Button _enterCombatButton;
 
@@ -102,6 +118,11 @@ namespace Kervan.TradeAndTravel
             {
                 _convoyUI = FindAnyObjectByType<CaravanConvoyUI>();
             }
+
+            if (_eventCloseButtonText == null && _eventCloseButton != null)
+            {
+                _eventCloseButtonText = _eventCloseButton.GetComponentInChildren<TextMeshProUGUI>(true);
+            }
         }
 
         private void Start()
@@ -111,7 +132,7 @@ namespace Kervan.TradeAndTravel
             if (_travelManager != null)
             {
                 _travelManager.OnTravelProgressUpdated += HandleProgressUpdated;
-                _travelManager.OnRandomEventTriggered += HandleRandomEvent;
+                _travelManager.OnRoadEventTriggered += HandleRoadEventTriggered;
                 _travelManager.OnAmbushTriggered += HandleAmbushTriggered;
                 _travelManager.OnDestinationReached += HandleDestinationReached;
             }
@@ -164,7 +185,7 @@ namespace Kervan.TradeAndTravel
             if (_travelManager != null)
             {
                 _travelManager.OnTravelProgressUpdated -= HandleProgressUpdated;
-                _travelManager.OnRandomEventTriggered -= HandleRandomEvent;
+                _travelManager.OnRoadEventTriggered -= HandleRoadEventTriggered;
                 _travelManager.OnAmbushTriggered -= HandleAmbushTriggered;
                 _travelManager.OnDestinationReached -= HandleDestinationReached;
             }
@@ -290,20 +311,113 @@ namespace Kervan.TradeAndTravel
             }
         }
 
-        private void HandleRandomEvent(string title, string description)
+        private void HandleRoadEventTriggered(RoadEventSO roadEvent, string outcomeSummary)
         {
-            if (_eventModalRoot != null)
+            if (roadEvent == null)
             {
-                if (_travelManager != null && !_hasArrived)
+                return;
+            }
+
+            string hexColor = GetOutcomeHexColor(roadEvent);
+            ShowEventModal(
+                roadEvent.EventTitle,
+                roadEvent.EventDescription,
+                outcomeSummary,
+                hexColor,
+                roadEvent.EventIcon,
+                isArrivalModal: false);
+        }
+
+        private void ShowEventModal(
+            string title,
+            string description,
+            string outcomeSummary,
+            string outcomeHexColor,
+            Sprite eventIcon,
+            bool isArrivalModal)
+        {
+            if (_eventModalRoot == null)
+            {
+                return;
+            }
+
+            if (_travelManager != null && !_hasArrived)
+            {
+                _travelManager.PauseTravel();
+                SyncVisualFlowWithTravelState();
+            }
+
+            _eventModalRoot.SetActive(true);
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayParchment();
+            }
+
+            if (_eventTitleText != null)
+            {
+                _eventTitleText.text = title;
+            }
+
+            if (_eventOutcomeText != null)
+            {
+                if (_eventDescText != null)
                 {
-                    _travelManager.PauseTravel();
-                    SyncVisualFlowWithTravelState();
+                    _eventDescText.text = description;
                 }
 
-                _eventModalRoot.SetActive(true);
-                if (_eventTitleText != null) _eventTitleText.text = title;
-                if (_eventDescText != null) _eventDescText.text = description;
+                _eventOutcomeText.gameObject.SetActive(!string.IsNullOrEmpty(outcomeSummary));
+                _eventOutcomeText.text = !string.IsNullOrEmpty(outcomeSummary)
+                    ? $"<color={outcomeHexColor}>{outcomeSummary}</color>"
+                    : string.Empty;
             }
+            else if (_eventDescText != null)
+            {
+                _eventDescText.text = !string.IsNullOrEmpty(outcomeSummary)
+                    ? $"{description}\n\n<color={outcomeHexColor}><b>[{outcomeSummary}]</b></color>"
+                    : description;
+            }
+
+            if (_eventIconImage != null)
+            {
+                bool hasIcon = eventIcon != null;
+                _eventIconImage.gameObject.SetActive(hasIcon);
+                if (hasIcon)
+                {
+                    _eventIconImage.sprite = eventIcon;
+                }
+            }
+
+            if (_eventCloseButtonText != null)
+            {
+                _eventCloseButtonText.text = isArrivalModal ? "Haritaya Dön" : "Yola Devam Et";
+            }
+
+            RefreshStaticStats();
+        }
+
+        private static string GetOutcomeHexColor(RoadEventSO roadEvent)
+        {
+            if (roadEvent == null)
+            {
+                return "#D9B359"; // AntiqueGold
+            }
+
+            if (roadEvent.Category == RoadEventCategory.Positive || roadEvent.AkceDelta > 0 || roadEvent.FoodDelta > 0 || roadEvent.HealDelta > 0)
+            {
+                return "#2E7D32"; // MoraleHigh (Yeşil)
+            }
+
+            if (roadEvent.Category == RoadEventCategory.BanditAmbush ||
+                roadEvent.Category == RoadEventCategory.WildBeastAttack ||
+                roadEvent.AkceDelta < 0 ||
+                roadEvent.FoodDelta < 0 ||
+                roadEvent.HealDelta < 0)
+            {
+                return "#D9534F"; // Okunaklı Kırmızı / Tehlike
+            }
+
+            return "#D9B359"; // AntiqueGold
         }
 
         private void HandleAmbushTriggered(TravelRouteSO route)
@@ -314,9 +428,9 @@ namespace Kervan.TradeAndTravel
             {
                 _ambushPanelRoot.SetActive(true);
             }
-            else if (_travelManager != null)
+            else if (_eventModalRoot == null && _travelManager != null)
             {
-                // Pusu paneli henüz sahnede kurulmadıysa (A5 öncesi) yolculuğun kilitlenmemesi için devam ettir
+                // Ne AmbushPanel ne de EventModal sahnede kurulmadıysa yolculuğun kilitlenmemesi için devam ettir
                 _travelManager.ResumeTravel();
                 SyncVisualFlowWithTravelState();
             }
@@ -345,7 +459,13 @@ namespace Kervan.TradeAndTravel
 
             if (_eventModalRoot != null)
             {
-                HandleRandomEvent("Menzile Ulaşıldı!", $"{cityName} kapılarına varıldı. Kervan güvenle menzile girdi.");
+                ShowEventModal(
+                    "Menzile Ulaşıldı!",
+                    $"{cityName} kapılarına varıldı. Kervan yükü ve muhafızlarıyla güvenle menzile girdi.",
+                    $"Konum güncellendi: {cityName}",
+                    "#D9B359",
+                    arrivedNode != null ? arrivedNode.NodeIcon : null,
+                    isArrivalModal: true);
             }
             else
             {

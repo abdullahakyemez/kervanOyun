@@ -7,26 +7,26 @@ namespace Kervan.TradeAndTravel
 {
     public enum RoadQuality
     {
-        PavedRomanRoad, // Roma Yolu: Hizli, arabalara zarar vermez
-        DirtRoad,       // Toprak Yol: Standart bozkir yolu
-        RoughPass,      // Engebeli Gecit: Araba aksı kirilma veya hayvan sakatlanma riski
-        SwampTrail      // Bataklik Iz: Erzak tuketimini katlar
+        PavedRomanRoad, // Roma Yolu: Hızlı, arabalara zarar vermez
+        DirtRoad,       // Toprak Yol: Standart bozkır yolu
+        RoughPass,      // Engebeli Geçit: Araba aksı kırılma veya hayvan sakatlanma riski
+        SwampTrail      // Bataklık İz: Erzak tüketimini katlar
     }
 
     /// <summary>
-    /// Iki cografi dugum arasindaki rotayi, yol sartlarini ve pusu riskini
-    /// tanimlayan ScriptableObject veri modeli.
+    /// İki coğrafi düğüm arasındaki rotayı, yol şartlarını, pusu riskini ve
+    /// rotaya özgü yol olaylarını tanımlayan ScriptableObject veri modeli.
     /// </summary>
     [CreateAssetMenu(fileName = "Route_New", menuName = "Kervan/Travel/Travel Route", order = 2)]
     public class TravelRouteSO : ScriptableObject
     {
-        [Header("Baglanti Dugumleri")]
+        [Header("Bağlantı Düğümleri")]
         [SerializeField] private string _routeId;
         [SerializeField] private LocationNodeSO _fromNode;
         [SerializeField] private LocationNodeSO _toNode;
 
-        [Header("Fiziksel Yol Kosullari")]
-        [Tooltip("Standart seyahat suresi (Oyun Gunu)")]
+        [Header("Fiziksel Yol Koşulları")]
+        [Tooltip("Standart seyahat süresi (Oyun Günü)")]
         [SerializeField] private int _distanceDays = 3;
         [SerializeField] private TerrainType _terrain = TerrainType.Steppe;
         [SerializeField] private RoadQuality _roadQuality = RoadQuality.DirtRoad;
@@ -34,13 +34,17 @@ namespace Kervan.TradeAndTravel
 
         [Header("Tehlike ve Lojistik")]
         [Range(0f, 1f)]
-        [Tooltip("Pusuya dusme olasiligi (0.0 = Guvenli, 1.0 = Kesin pusu)")]
+        [Tooltip("Pusuya düşme olasılığı (0.0 = Güvenli, 1.0 = Kesin pusu)")]
         [SerializeField] private float _dangerLevel = 0.25f;
-        [Tooltip("Zorlu sartlarda erzak harcama carpani (1.0 = normal)")]
+        [Tooltip("Zorlu şartlarda erzak harcama çarpanı (1.0 = normal)")]
         [SerializeField] private float _foodConsumptionMultiplier = 1.0f;
 
-        [Header("Karşılaşma Düşmanları")]
+        [Header("Karşılaşma Düşmanları & Yol Olayları")]
+        [Tooltip("Bu rotada pusuya düşüldüğünde çıkabilecek düşman birimleri (Haydut, Kurt vb.)")]
         [SerializeField] private List<UnitDataSO> _potentialEnemies = new List<UnitDataSO>();
+
+        [Tooltip("Bu rotada tetiklenebilecek özel yol olayları (Boş bırakılırsa TravelManager genel havuzunu kullanır)")]
+        [SerializeField] private List<RoadEventSO> _roadEvents = new List<RoadEventSO>();
 
         // Getters
         public string RouteId => _routeId;
@@ -53,5 +57,6 @@ namespace Kervan.TradeAndTravel
         public float DangerLevel => _dangerLevel;
         public float FoodConsumptionMultiplier => _foodConsumptionMultiplier;
         public IReadOnlyList<UnitDataSO> PotentialEnemies => _potentialEnemies;
+        public IReadOnlyList<RoadEventSO> RoadEvents => _roadEvents;
     }
 }

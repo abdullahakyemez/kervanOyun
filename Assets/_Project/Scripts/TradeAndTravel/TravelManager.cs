@@ -1,18 +1,34 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Kervan.Core;
 
 namespace Kervan.TradeAndTravel
 {
-    public struct TravelCompletedEvent : IGameEvent
+    public readonly struct TravelCompletedEvent : IGameEvent
     {
-        public LocationNodeSO Destination;
-        public TravelRouteSO Route;
+        public readonly LocationNodeSO Destination;
+        public readonly TravelRouteSO Route;
 
         public TravelCompletedEvent(LocationNodeSO dest, TravelRouteSO route)
         {
             Destination = dest;
             Route = route;
+        }
+    }
+
+    /// <summary>
+    /// Seyahat sırasında bir yol hadisesi (<see cref="RoadEventSO"/>) tetiklendiğinde yayınlanır.
+    /// </summary>
+    public readonly struct RoadEventTriggeredEvent : IGameEvent
+    {
+        public readonly RoadEventSO RoadEvent;
+        public readonly string OutcomeSummary;
+
+        public RoadEventTriggeredEvent(RoadEventSO roadEvent, string outcomeSummary)
+        {
+            RoadEvent = roadEvent;
+            OutcomeSummary = outcomeSummary;
         }
     }
 
@@ -24,10 +40,8 @@ namespace Kervan.TradeAndTravel
     public class TravelManager : MonoBehaviour
     {
         private const float DefaultDayDurationSeconds = 1.2f;
-        private const float AmbushChanceFactor = 0.40f;
-        private const float IncidentThreshold = 0.85f;
-        private const int BrokenAxleCost = 25;
-        private const int FoundFoodAmount = 3;
+        private const float AmbushChanceFactor = 0.35f;
+        private const float DefaultDailyEventChance = 0.35f;
 
         [Header("Rota Veri Tabanı & Test Fallback")]
         [Tooltip("Aktif rotayı RouteId veya From/To NodeId üzerinden çözümlemek için kullanılan rota veri tabanı")]
@@ -35,6 +49,14 @@ namespace Kervan.TradeAndTravel
 
         [Tooltip("Doğrudan TravelScene'den Play'e basıldığında veya ActiveTravel boş olduğunda kullanılacak varsayılan rota")]
         [SerializeField] private TravelRouteSO _activeRoute;
+
+        [Header("Yol Olayları Havuzu (RoadEventSO)")]
+        [Tooltip("Rotada özel olay listesi tanımlanmadığında kullanılacak genel yol olayları havuzu")]
+        [SerializeField] private List<RoadEventSO> _defaultRoadEvents = new List<RoadEventSO>();
+
+        [Tooltip("Her gün sonunda bir yol hadisesi tetiklenme olasılığı (0.0 = Hiç, 1.0 = Her gün)")]
+        [Range(0f, 1f)]
+        [SerializeField] private float _dailyEventChance = DefaultDailyEventChance;
 
         [Header("Seyahat Durumu & Tempo")]
         [Tooltip("Seyahat şu anda akıyor mu?")]
@@ -57,12 +79,14 @@ namespace Kervan.TradeAndTravel
         private LocationNodeSO _destinationNode;
         private int _totalRouteDays = 1;
         private int _lastDayRecorded;
+        private List<RoadEventSO> _runtimeFallbackEvents;
 
         // Olaylar
-        public event Action<float, int> OnTravelProgressUpdated; // progress (0..1), routeDay
+        public event Action<float, int> OnTravelProgressUpdated; // progress (0..1), globalDay
         public event Action<LocationNodeSO> OnDestinationReached;
         public event Action<TravelRouteSO> OnAmbushTriggered;
-        public event Action<string, string> OnRandomEventTriggered;
+        public event Action<RoadEventSO, string> OnRoadEventTriggered; // roadEvent, outcomeSummary
+        public event Action<string, string> OnRandomEventTriggered; // başlık, açıklama (geriye dönük uyumluluk)
 
         /// <summary>
         /// Tek doğruluk kaynağı olan <see cref="GameSession.Caravan"/> referansı (BUG-05 çözümü).
@@ -129,6 +153,11 @@ namespace Kervan.TradeAndTravel
 
                 if (_gameSession != null)
                 {
+                    if (_gameSession.ActiveTravel != null)
+                    {
+                        _gameSession.ActiveTravel.DaysElapsed = _lastDayRecorded;
+                    }
+
                     _gameSession.AdvanceDays(1);
                 }
 
@@ -321,7 +350,16 @@ namespace Kervan.TradeAndTravel
             if (!hasFood)
             {
                 Debug.LogWarning("[TravelManager] Erzak tükendi! Kervan muhafızları aç ve moralleri düşüyor.");
-                OnRandomEventTriggered?.Invoke("Açlık Tehlikesi!", "Kervanın erzakları tükendi. Muhafızlar yorgun ve hoşnutsuz.");
+                RoadEventSO starvationEvent = RoadEventSO.CreateRuntimeInstance(
+                    "event_starvation_warning",
+                    "Açlık Tehlikesi!",
+                    "Kervanın erzak çuvalları boşaldı. Muhafızlar yorgun ve hoşnutsuz bir halde yola devam etmeye çalışıyor.",
+                    RoadEventCategory.Incident,
+                    0,
+                    0,
+                    -5);
+                TriggerSelectedRoadEvent(starvationEvent);
+                return;
             }
 
             CheckRandomEncounters();
@@ -334,39 +372,220 @@ namespace Kervan.TradeAndTravel
                 return;
             }
 
-            float roll = UnityEngine.Random.value;
+            float ambushRoll = UnityEngine.Random.value;
 
-            if (roll <= _activeRoute.DangerLevel * AmbushChanceFactor)
+            if (ambushRoll <= _activeRoute.DangerLevel * AmbushChanceFactor)
             {
                 _isTraveling = false;
-                Debug.Log("[TravelManager] PUSU! Haydutlar yolu kesti.");
+                RoadEventSO ambushEvent = SelectWeightedRoadEvent(ambushOnly: true);
+                Debug.Log($"[TravelManager] PUSU / SALDIRI! ({ambushEvent?.EventTitle})");
                 OnAmbushTriggered?.Invoke(_activeRoute);
+
+                if (ambushEvent != null)
+                {
+                    TriggerSelectedRoadEvent(ambushEvent);
+                }
+
                 return;
             }
 
-            if (roll > IncidentThreshold)
+            float incidentRoll = UnityEngine.Random.value;
+            if (incidentRoll <= _dailyEventChance)
             {
-                TriggerRoadIncident();
+                RoadEventSO selectedEvent = SelectWeightedRoadEvent(ambushOnly: false);
+                if (selectedEvent != null)
+                {
+                    TriggerSelectedRoadEvent(selectedEvent);
+                }
             }
         }
 
-        private void TriggerRoadIncident()
+        private void TriggerSelectedRoadEvent(RoadEventSO roadEvent)
         {
-            int eventType = UnityEngine.Random.Range(0, 3);
-            switch (eventType)
+            if (roadEvent == null)
             {
-                case 0:
-                    Caravan.ModifyAkce(-BrokenAxleCost);
-                    OnRandomEventTriggered?.Invoke("Yük Bağları Çözüldü", $"Engebeli yolda yük semeri hasar gördü. Yerel ustaya {BrokenAxleCost} Akçe ödendi.");
-                    break;
-                case 1:
-                    OnRandomEventTriggered?.Invoke("Gezgin Derviş", "Yol kenarında karşılaşılan bir Horasan dervişi kervana hayır duası etti. Muhafızların morali yükseldi.");
-                    break;
-                case 2:
-                    Caravan.AddFood(FoundFoodAmount);
-                    OnRandomEventTriggered?.Invoke("Yol Azığı Bulundu", $"Konaklama yerinde {FoundFoodAmount} günlük taze erzak temin edildi.");
-                    break;
+                return;
             }
+
+            ApplyRoadEventEffects(roadEvent);
+            string outcomeSummary = roadEvent.BuildOutcomeSummary();
+
+            OnRoadEventTriggered?.Invoke(roadEvent, outcomeSummary);
+            OnRandomEventTriggered?.Invoke(roadEvent.EventTitle, roadEvent.EventDescription);
+            EventBus.Publish(new RoadEventTriggeredEvent(roadEvent, outcomeSummary));
+        }
+
+        private void ApplyRoadEventEffects(RoadEventSO roadEvent)
+        {
+            if (roadEvent.AkceDelta != 0)
+            {
+                int delta = roadEvent.AkceDelta;
+                if (delta < 0 && Caravan.CurrentAkce + delta < 0)
+                {
+                    delta = -Caravan.CurrentAkce;
+                }
+
+                if (delta != 0)
+                {
+                    Caravan.ModifyAkce(delta);
+                }
+            }
+
+            if (roadEvent.FoodDelta > 0)
+            {
+                Caravan.AddFood(roadEvent.FoodDelta);
+            }
+            else if (roadEvent.FoodDelta < 0)
+            {
+                Caravan.ConsumeFood(-roadEvent.FoodDelta);
+            }
+
+            if (roadEvent.HealDelta != 0)
+            {
+                Caravan.HealAllGuards(roadEvent.HealDelta);
+            }
+        }
+
+        private RoadEventSO SelectWeightedRoadEvent(bool ambushOnly)
+        {
+            IReadOnlyList<RoadEventSO> candidatePool = GetActiveEventPool();
+            float totalWeight = 0f;
+
+            for (int i = 0; i < candidatePool.Count; i++)
+            {
+                RoadEventSO candidate = candidatePool[i];
+                if (candidate == null || !IsCategoryMatch(candidate.Category, ambushOnly))
+                {
+                    continue;
+                }
+
+                totalWeight += candidate.SelectionWeight;
+            }
+
+            // Eğer rotada/havuzda istenen kategoride olay yoksa tüm havuzdan veya çalışma anı yedeklerinden seç
+            if (totalWeight <= 0f)
+            {
+                candidatePool = GetOrCreateRuntimeFallbackPool();
+                for (int i = 0; i < candidatePool.Count; i++)
+                {
+                    RoadEventSO candidate = candidatePool[i];
+                    if (candidate == null || !IsCategoryMatch(candidate.Category, ambushOnly))
+                    {
+                        continue;
+                    }
+
+                    totalWeight += candidate.SelectionWeight;
+                }
+            }
+
+            if (totalWeight <= 0f)
+            {
+                return null;
+            }
+
+            float pick = UnityEngine.Random.Range(0f, totalWeight);
+            float cumulative = 0f;
+
+            for (int i = 0; i < candidatePool.Count; i++)
+            {
+                RoadEventSO candidate = candidatePool[i];
+                if (candidate == null || !IsCategoryMatch(candidate.Category, ambushOnly))
+                {
+                    continue;
+                }
+
+                cumulative += candidate.SelectionWeight;
+                if (pick <= cumulative)
+                {
+                    return candidate;
+                }
+            }
+
+            return candidatePool[candidatePool.Count - 1];
+        }
+
+        private static bool IsCategoryMatch(RoadEventCategory category, bool ambushOnly)
+        {
+            bool isAmbushType = category == RoadEventCategory.BanditAmbush || category == RoadEventCategory.WildBeastAttack;
+            return ambushOnly ? isAmbushType : true;
+        }
+
+        private IReadOnlyList<RoadEventSO> GetActiveEventPool()
+        {
+            if (_activeRoute != null && _activeRoute.RoadEvents != null && _activeRoute.RoadEvents.Count > 0)
+            {
+                return _activeRoute.RoadEvents;
+            }
+
+            if (_defaultRoadEvents != null && _defaultRoadEvents.Count > 0)
+            {
+                return _defaultRoadEvents;
+            }
+
+            return GetOrCreateRuntimeFallbackPool();
+        }
+
+        private List<RoadEventSO> GetOrCreateRuntimeFallbackPool()
+        {
+            if (_runtimeFallbackEvents != null && _runtimeFallbackEvents.Count > 0)
+            {
+                return _runtimeFallbackEvents;
+            }
+
+            _runtimeFallbackEvents = new List<RoadEventSO>
+            {
+                RoadEventSO.CreateRuntimeInstance(
+                    "event_broken_axle",
+                    "Yük Bağları Çözüldü",
+                    "Engebeli geçitte kervan katırlarından birinin yük semeri hasar gördü. Yakındaki han ustasına onarım bedeli ödendi.",
+                    RoadEventCategory.Incident,
+                    akceDelta: -25,
+                    foodDelta: 0,
+                    healDelta: 0,
+                    weight: 1.0f),
+
+                RoadEventSO.CreateRuntimeInstance(
+                    "event_wandering_dervish",
+                    "Gezgin Horasan Dervişi",
+                    "Yol kenarındaki çeşme başında karşılaşılan bir Horasan ereni kervana hayır duası etti ve şifalı otlar ikram etti.",
+                    RoadEventCategory.Positive,
+                    akceDelta: 0,
+                    foodDelta: 0,
+                    healDelta: 10,
+                    weight: 1.0f),
+
+                RoadEventSO.CreateRuntimeInstance(
+                    "event_road_provisions",
+                    "Yol Azığı Bulundu",
+                    "Konaklama menzilinde dost bir Yörük obası kervana taze kurutulmuş et ve peksimet ikram etti.",
+                    RoadEventCategory.Positive,
+                    akceDelta: 0,
+                    foodDelta: 3,
+                    healDelta: 0,
+                    weight: 1.0f),
+
+                RoadEventSO.CreateRuntimeInstance(
+                    "event_bandit_ambush",
+                    "Dağ Eşkıyaları Yolu Kesti!",
+                    "Dar boğazda pusuya yatan başıbozuk eşkıyalar kervanın önünü kesti. Muhafızlar kılıç sıyırıp kervan yükünü savundu!",
+                    RoadEventCategory.BanditAmbush,
+                    akceDelta: -15,
+                    foodDelta: 0,
+                    healDelta: -5,
+                    weight: 0.7f),
+
+                RoadEventSO.CreateRuntimeInstance(
+                    "event_wolf_pack",
+                    "Bozkır Kurt Sürüsü!",
+                    "Alacakaranlıkta aç bir kurt sürüsü kervan hayvanlarının kokusunu alarak yaklaştı. Okçular meşale ve ok yağmuruyla sürüyü püskürttü.",
+                    RoadEventCategory.WildBeastAttack,
+                    akceDelta: 0,
+                    foodDelta: -1,
+                    healDelta: -5,
+                    weight: 0.7f)
+            };
+
+            return _runtimeFallbackEvents;
         }
 
         private void ArriveAtDestination()
