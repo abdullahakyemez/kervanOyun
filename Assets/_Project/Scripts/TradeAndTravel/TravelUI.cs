@@ -88,12 +88,35 @@ namespace Kervan.TradeAndTravel
         [Tooltip("Kapatma butonunun üzerindeki metin ('Yola Devam Et' / 'Haritaya Dön')")]
         [SerializeField] private TextMeshProUGUI _eventCloseButtonText;
 
+        [Header("Pusu & Karşılaşma Karar Kümesi (A5.1)")]
+        [Tooltip("Karar gerektiren pusularda açılan 3'lü buton kümesi konteyneri")]
+        [SerializeField] private GameObject _choiceContainer;
+
+        [Tooltip("Kaçış denemesi butonu")]
+        [SerializeField] private Button _btnChoiceFlee;
+
+        [Tooltip("Kaçış butonu altındaki açıklama / şans metni")]
+        [SerializeField] private TextMeshProUGUI _btnChoiceFleeText;
+
+        [Tooltip("Haraç verme butonu")]
+        [SerializeField] private Button _btnChoiceTribute;
+
+        [Tooltip("Haraç butonu altındaki bedel metni")]
+        [SerializeField] private TextMeshProUGUI _btnChoiceTributeText;
+
+        [Tooltip("Savaş başlatma butonu")]
+        [SerializeField] private Button _btnChoiceFight;
+
+        [Tooltip("Savaş butonu üzerindeki metin")]
+        [SerializeField] private TextMeshProUGUI _btnChoiceFightText;
+
         [Header("Pusu Uyarısı (A5 Hazırlık Modalı)")]
         [SerializeField] private GameObject _ambushPanelRoot;
         [SerializeField] private Button _enterCombatButton;
 
         private bool _hasArrived;
         private bool _isFastForward;
+        private bool _mustEnterCombat;
 
         private void Reset()
         {
@@ -157,6 +180,21 @@ namespace Kervan.TradeAndTravel
                 _enterCombatButton.onClick.AddListener(OnEnterCombatClicked);
             }
 
+            if (_btnChoiceFlee != null)
+            {
+                _btnChoiceFlee.onClick.AddListener(OnChoiceFleeClicked);
+            }
+
+            if (_btnChoiceTribute != null)
+            {
+                _btnChoiceTribute.onClick.AddListener(OnChoiceTributeClicked);
+            }
+
+            if (_btnChoiceFight != null)
+            {
+                _btnChoiceFight.onClick.AddListener(OnChoiceFightClicked);
+            }
+
             if (_eventModalRoot != null)
             {
                 _eventModalRoot.SetActive(false);
@@ -208,6 +246,21 @@ namespace Kervan.TradeAndTravel
             if (_enterCombatButton != null)
             {
                 _enterCombatButton.onClick.RemoveListener(OnEnterCombatClicked);
+            }
+
+            if (_btnChoiceFlee != null)
+            {
+                _btnChoiceFlee.onClick.RemoveListener(OnChoiceFleeClicked);
+            }
+
+            if (_btnChoiceTribute != null)
+            {
+                _btnChoiceTribute.onClick.RemoveListener(OnChoiceTributeClicked);
+            }
+
+            if (_btnChoiceFight != null)
+            {
+                _btnChoiceFight.onClick.RemoveListener(OnChoiceFightClicked);
             }
         }
 
@@ -325,7 +378,8 @@ namespace Kervan.TradeAndTravel
                 outcomeSummary,
                 hexColor,
                 roadEvent.EventIcon,
-                isArrivalModal: false);
+                isArrivalModal: false,
+                roadEvent: roadEvent);
         }
 
         private void ShowEventModal(
@@ -334,7 +388,8 @@ namespace Kervan.TradeAndTravel
             string outcomeSummary,
             string outcomeHexColor,
             Sprite eventIcon,
-            bool isArrivalModal)
+            bool isArrivalModal,
+            RoadEventSO roadEvent = null)
         {
             if (_eventModalRoot == null)
             {
@@ -348,6 +403,7 @@ namespace Kervan.TradeAndTravel
             }
 
             _eventModalRoot.SetActive(true);
+            _mustEnterCombat = false;
 
             if (AudioManager.Instance != null)
             {
@@ -388,9 +444,78 @@ namespace Kervan.TradeAndTravel
                 }
             }
 
-            if (_eventCloseButtonText != null)
+            bool isCombatChoice = roadEvent != null && roadEvent.RequiresCombatChoice;
+            if (isCombatChoice && _choiceContainer != null)
             {
-                _eventCloseButtonText.text = isArrivalModal ? "Haritaya Dön" : "Yola Devam Et";
+                _choiceContainer.SetActive(true);
+                if (_eventCloseButton != null)
+                {
+                    _eventCloseButton.gameObject.SetActive(false);
+                }
+
+                // 1. Kaçış Butonu
+                if (_btnChoiceFlee != null)
+                {
+                    _btnChoiceFlee.interactable = true;
+                    if (_btnChoiceFleeText != null)
+                    {
+                        int chancePercent = Mathf.RoundToInt(roadEvent.FleeChance * 100f);
+                        _btnChoiceFleeText.text = $"Kaç\n<size=18>(%{chancePercent} Şans)</size>";
+                    }
+                }
+
+                // 2. Haraç Butonu
+                if (_btnChoiceTribute != null)
+                {
+                    if (roadEvent.Category == RoadEventCategory.WildBeastAttack)
+                    {
+                        _btnChoiceTribute.interactable = false;
+                        if (_btnChoiceTributeText != null)
+                        {
+                            _btnChoiceTributeText.text = "Haraç\n<size=18>(Geçersiz)</size>";
+                        }
+                    }
+                    else
+                    {
+                        int cost = roadEvent.TributeAkceCost > 0 ? roadEvent.TributeAkceCost : 30;
+                        int currentAkce = _travelManager != null && _travelManager.Caravan != null ? _travelManager.Caravan.CurrentAkce : 0;
+                        bool canAfford = currentAkce >= cost;
+                        _btnChoiceTribute.interactable = canAfford;
+                        if (_btnChoiceTributeText != null)
+                        {
+                            _btnChoiceTributeText.text = canAfford
+                                ? $"Haraç Ver\n<size=18>({cost} Akçe)</size>"
+                                : $"Haraç Ver\n<size=18>(Yetersiz: {cost})</size>";
+                        }
+                    }
+                }
+
+                // 3. Savaş Butonu
+                if (_btnChoiceFight != null)
+                {
+                    _btnChoiceFight.interactable = true;
+                    if (_btnChoiceFightText != null)
+                    {
+                        _btnChoiceFightText.text = "Savaş!\n<size=18>(Kılıç Çek)</size>";
+                    }
+                }
+            }
+            else
+            {
+                if (_choiceContainer != null)
+                {
+                    _choiceContainer.SetActive(false);
+                }
+
+                if (_eventCloseButton != null)
+                {
+                    _eventCloseButton.gameObject.SetActive(true);
+                }
+
+                if (_eventCloseButtonText != null)
+                {
+                    _eventCloseButtonText.text = isArrivalModal ? "Haritaya Dön" : "Yola Devam Et";
+                }
             }
 
             RefreshStaticStats();
@@ -560,6 +685,14 @@ namespace Kervan.TradeAndTravel
                 _eventModalRoot.SetActive(false);
             }
 
+            if (_mustEnterCombat)
+            {
+                _mustEnterCombat = false;
+                Debug.Log("[TravelUI] Kaçış başarısız oldu, savaşa geçiliyor -> CombatScene");
+                SceneLoader.Load(SceneIds.Combat);
+                return;
+            }
+
             if (_hasArrived)
             {
                 SceneLoader.Load(SceneIds.WorldMap);
@@ -571,6 +704,118 @@ namespace Kervan.TradeAndTravel
                 _travelManager.ResumeTravel();
                 SyncVisualFlowWithTravelState();
             }
+        }
+
+        private void OnChoiceFleeClicked()
+        {
+            if (_travelManager == null)
+            {
+                return;
+            }
+
+            AmbushResolutionResult result = _travelManager.ResolveAmbushFlee();
+
+            if (_eventDescText != null)
+            {
+                _eventDescText.text = result.Message;
+            }
+
+            if (_eventOutcomeText != null)
+            {
+                _eventOutcomeText.gameObject.SetActive(true);
+                string colorHex = result.Success ? "#2E7D32" : "#D9534F";
+                _eventOutcomeText.text = $"<color={colorHex}><b>[{result.OutcomeSummary}]</b></color>";
+            }
+
+            if (_choiceContainer != null)
+            {
+                _choiceContainer.SetActive(false);
+            }
+
+            if (_eventCloseButton != null)
+            {
+                _eventCloseButton.gameObject.SetActive(true);
+            }
+
+            if (result.Success)
+            {
+                _mustEnterCombat = false;
+                if (_eventCloseButtonText != null)
+                {
+                    _eventCloseButtonText.text = "Yola Devam Et";
+                }
+            }
+            else
+            {
+                _mustEnterCombat = true;
+                if (_eventCloseButtonText != null)
+                {
+                    _eventCloseButtonText.text = "Savaşa Gir!";
+                }
+            }
+
+            RefreshStaticStats();
+        }
+
+        private void OnChoiceTributeClicked()
+        {
+            if (_travelManager == null)
+            {
+                return;
+            }
+
+            AmbushResolutionResult result = _travelManager.ResolveAmbushTribute();
+
+            if (result.Success)
+            {
+                if (_eventDescText != null)
+                {
+                    _eventDescText.text = result.Message;
+                }
+
+                if (_eventOutcomeText != null)
+                {
+                    _eventOutcomeText.gameObject.SetActive(true);
+                    _eventOutcomeText.text = $"<color=#DAA520><b>[{result.OutcomeSummary}]</b></color>";
+                }
+
+                if (_choiceContainer != null)
+                {
+                    _choiceContainer.SetActive(false);
+                }
+
+                if (_eventCloseButton != null)
+                {
+                    _eventCloseButton.gameObject.SetActive(true);
+                }
+
+                _mustEnterCombat = false;
+                if (_eventCloseButtonText != null)
+                {
+                    _eventCloseButtonText.text = "Yola Devam Et";
+                }
+
+                RefreshStaticStats();
+            }
+            else
+            {
+                if (_eventOutcomeText != null)
+                {
+                    _eventOutcomeText.gameObject.SetActive(true);
+                    _eventOutcomeText.text = $"<color=#D9534F><b>[{result.Message}]</b></color>";
+                }
+            }
+        }
+
+        private void OnChoiceFightClicked()
+        {
+            if (_travelManager != null)
+            {
+                _travelManager.ResolveAmbushFight();
+            }
+
+            Debug.Log("[TravelUI] Pusu savaşı seçildi -> CombatScene");
+            SceneLoader.Load(SceneIds.Combat);
         }
 
         private void OnEnterCombatClicked()

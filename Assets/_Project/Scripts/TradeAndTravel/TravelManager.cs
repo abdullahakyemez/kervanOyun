@@ -33,6 +33,25 @@ namespace Kervan.TradeAndTravel
     }
 
     /// <summary>
+    /// Pusu veya tehlikeli yol olayında oyuncunun seçimi (Kaç / Haraç Ver / Savaş) sonucunu taşıyan veri yapısı.
+    /// </summary>
+    public readonly struct AmbushResolutionResult
+    {
+        public readonly bool Success;
+        public readonly bool ShouldEnterCombat;
+        public readonly string Message;
+        public readonly string OutcomeSummary;
+
+        public AmbushResolutionResult(bool success, bool shouldEnterCombat, string message, string outcomeSummary)
+        {
+            Success = success;
+            ShouldEnterCombat = shouldEnterCombat;
+            Message = message;
+            OutcomeSummary = outcomeSummary;
+        }
+    }
+
+    /// <summary>
     /// Kervanın seyahatini, yol şartlarını, erzak tüketimini ve
     /// pusu/olay zarlarını yöneten merkezi seyahat motoru.
     /// Tüm kervan ve takvim durumunu doğrudan <see cref="GameSession"/> üzerinden okur ve günceller (BUG-05).
@@ -80,6 +99,7 @@ namespace Kervan.TradeAndTravel
         private int _totalRouteDays = 1;
         private int _lastDayRecorded;
         private List<RoadEventSO> _runtimeFallbackEvents;
+        private RoadEventSO _activeRoadEvent;
 
         // Olaylar
         public event Action<float, int> OnTravelProgressUpdated; // progress (0..1), globalDay
@@ -87,6 +107,11 @@ namespace Kervan.TradeAndTravel
         public event Action<TravelRouteSO> OnAmbushTriggered;
         public event Action<RoadEventSO, string> OnRoadEventTriggered; // roadEvent, outcomeSummary
         public event Action<string, string> OnRandomEventTriggered; // başlık, açıklama (geriye dönük uyumluluk)
+
+        /// <summary>
+        /// O an tetiklenmiş olan ve çözüm bekleyen yol hadisesi veya pusu referansı.
+        /// </summary>
+        public RoadEventSO ActiveRoadEvent => _activeRoadEvent;
 
         /// <summary>
         /// Tek doğruluk kaynağı olan <see cref="GameSession.Caravan"/> referansı (BUG-05 çözümü).
@@ -407,12 +432,106 @@ namespace Kervan.TradeAndTravel
                 return;
             }
 
-            ApplyRoadEventEffects(roadEvent);
-            string outcomeSummary = roadEvent.BuildOutcomeSummary();
+            _activeRoadEvent = roadEvent;
+
+            string outcomeSummary;
+            if (roadEvent.RequiresCombatChoice)
+            {
+                // Karar gerektiren pusularda anlık cezalar hemen uygulanmaz, oyuncunun seçimi beklenir.
+                outcomeSummary = string.Empty;
+            }
+            else
+            {
+                ApplyRoadEventEffects(roadEvent);
+                outcomeSummary = roadEvent.BuildOutcomeSummary();
+            }
 
             OnRoadEventTriggered?.Invoke(roadEvent, outcomeSummary);
             OnRandomEventTriggered?.Invoke(roadEvent.EventTitle, roadEvent.EventDescription);
             EventBus.Publish(new RoadEventTriggeredEvent(roadEvent, outcomeSummary));
+        }
+
+        /// <summary>
+        /// Pusu olayında oyuncu 'Kaç' seçeneğini seçtiğinde kaçış denemesini çözümler.
+        /// Başarılı olursa kervan hasarsız kurtulur; başarısız olursa yıpranma ile savaşa yönlendirilir.
+        /// </summary>
+        public AmbushResolutionResult ResolveAmbushFlee()
+        {
+            RoadEventSO roadEvent = _activeRoadEvent;
+            float fleeChance = roadEvent != null ? roadEvent.FleeChance : 0.65f;
+            float roll = UnityEngine.Random.value;
+
+            if (roll <= fleeChance)
+            {
+                _activeRoadEvent = null;
+                Debug.Log($"[TravelManager] PUSUDAN KAÇIŞ BAŞARILI! (Zar: {roll:F2} <= Şans: {fleeChance:F2})");
+                return new AmbushResolutionResult(
+                    success: true,
+                    shouldEnterCombat: false,
+                    message: "Kervan çevik bir manevrayla dağ geçidinde izini kaybettirdi. Pusudan sıyrılıp güvenle yola devam ediyorsunuz.",
+                    outcomeSummary: "Pusu Savuşturuldu · Hasar Alınmadı");
+            }
+            else
+            {
+                int penalty = -5;
+                Caravan.HealAllGuards(penalty);
+                Debug.Log($"[TravelManager] PUSUDAN KAÇIŞ BAŞARISIZ! (Zar: {roll:F2} > Şans: {fleeChance:F2})");
+                return new AmbushResolutionResult(
+                    success: false,
+                    shouldEnterCombat: true,
+                    message: "Kaçış başarısız oldu! Düşmanlar kervanın arkasını sardı. Muhafızlar panikle savunmaya çekildi, çatışma kaçınılmaz!",
+                    outcomeSummary: "Kaçış Başarısız · Muhafızlarda -5 Yıpranma");
+            }
+        }
+
+        /// <summary>
+        /// Pusu olayında oyuncu 'Haraç Ver' seçeneğini seçtiğinde akçe ödemesini gerçekleştirir.
+        /// </summary>
+        public AmbushResolutionResult ResolveAmbushTribute()
+        {
+            RoadEventSO roadEvent = _activeRoadEvent;
+            if (roadEvent != null && roadEvent.Category == RoadEventCategory.WildBeastAttack)
+            {
+                return new AmbushResolutionResult(
+                    success: false,
+                    shouldEnterCombat: false,
+                    message: "Yabani hayvanlar akçe kabul etmez!",
+                    outcomeSummary: "Geçersiz Seçim");
+            }
+
+            int cost = roadEvent != null && roadEvent.TributeAkceCost > 0 ? roadEvent.TributeAkceCost : 30;
+
+            if (Caravan.CurrentAkce < cost)
+            {
+                return new AmbushResolutionResult(
+                    success: false,
+                    shouldEnterCombat: false,
+                    message: $"Eşkıyaların istediği {cost} Akçe kervan kesesinde bulunmuyor!",
+                    outcomeSummary: "Yetersiz Akçe");
+            }
+
+            Caravan.ModifyAkce(-cost);
+            _activeRoadEvent = null;
+            Debug.Log($"[TravelManager] HARAÇ ÖDENDİ: -{cost} Akçe");
+
+            return new AmbushResolutionResult(
+                success: true,
+                shouldEnterCombat: false,
+                message: $"Eşkıyalar {cost} Akçeyi sayıp memnuniyetle yolu açtı. Kervan kan dökülmeden seyahate devam ediyor.",
+                outcomeSummary: $"-{cost} Akçe Ödendi · Yol Açıldı");
+        }
+
+        /// <summary>
+        /// Pusu olayında oyuncu 'Savaş' seçeneğini seçtiğinde savaşa geçiş kararını onaylar.
+        /// </summary>
+        public AmbushResolutionResult ResolveAmbushFight()
+        {
+            Debug.Log("[TravelManager] SAVAŞ SEÇİLDİ!");
+            return new AmbushResolutionResult(
+                success: true,
+                shouldEnterCombat: true,
+                message: "Kervan muhafızları kılıçlarını sıyırdı, kalkanlar birleşti. Meydan savaşı başlıyor!",
+                outcomeSummary: "Savaşa Giriliyor");
         }
 
         private void ApplyRoadEventEffects(RoadEventSO roadEvent)
@@ -572,7 +691,9 @@ namespace Kervan.TradeAndTravel
                     akceDelta: -15,
                     foodDelta: 0,
                     healDelta: -5,
-                    weight: 0.7f),
+                    weight: 0.7f,
+                    tributeCost: 30,
+                    fleeChance: 0.65f),
 
                 RoadEventSO.CreateRuntimeInstance(
                     "event_wolf_pack",
@@ -582,7 +703,9 @@ namespace Kervan.TradeAndTravel
                     akceDelta: 0,
                     foodDelta: -1,
                     healDelta: -5,
-                    weight: 0.7f)
+                    weight: 0.7f,
+                    tributeCost: 0,
+                    fleeChance: 0.60f)
             };
 
             return _runtimeFallbackEvents;

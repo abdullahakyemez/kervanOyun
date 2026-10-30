@@ -160,8 +160,11 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Test:** Kervansarayda "1 Gün Konakla" → akçe düşer, takvim 1 gün ilerler, yaralı muhafızların canı ve moral artar. Erzak al → erzak artar. Muhafız/Deve kirala → kadroya veya azami yük kapasitesine (`MaxWeightKg`) anında yansır.
 - **Uygulama notu:** `CaravanseraiInnUI.cs` oluşturuldu ve 3 kart (`Card_RestAndSupply`, `Card_HireGuards`, `Card_HireMounts`) ile `BottomBar_InnMeta` (`Btn_HireSpy` 50 Akçe casusluk istihbaratı) birbirine bağlandı. `CaravanData` içine `RestAtInn`, `BuySupplies`, `AddPackAnimal`, `RecruitGuardWithCost`, `RestoreGuardRecord` eklendi; kiralanan muhafızlar ve yük kapasitesi `GameSession` ve `save_0.json` ile kalıcı hale getirildi.
 
-## A5 — Olay & Pusu → Savaş ⬜
-- A5.1 Olay penceresi: **Kaç / Haraç Ver / Savaş** (GDD §11/5).
+## A5 — Olay & Pusu → Savaş ⏳
+- **A5.1 Olay penceresi: Kaç / Haraç Ver / Savaş (GDD §11/5) ✅**
+  - **Hedef:** Seyahat sırasında çıkan haydut pusularında ve tehlikeli yol olaylarında oyuncuya 3 seçenek sunan karar penceresinin (`EventModal`) kurulması: **Kaç** (çeviklik kontrolü), **Haraç Ver** (akçe kaybı) ve **Savaş** (muharebeye geçiş).
+  - **Test:** Pusu çıktığında modal 3 seçenekle açılır. Kaç başarılı olursa hasarsız devam eder, başarısız olursa yıpranma bildirip savaşa yönlendirir. Haraç yeterli akçe varsa akçeyi düşüp yolu açar (yabani hayvanda haraç geçersizdir). Savaş seçilince savaşa geçilir.
+  - **Uygulama notu:** `RoadEventSO.cs` (`FleeChance`, `TributeAkceCost`), `TravelManager.cs` (`ResolveAmbushFlee`, `ResolveAmbushTribute`, `ResolveAmbushFight`, `AmbushResolutionResult`) ve `TravelUI.cs` (`_choiceContainer`, `_btnChoiceFlee`, `_btnChoiceTribute`, `_btnChoiceFight`) güncellendi. Karar gerektiren pusularda anlık hasar oyuncu seçimi yapılana kadar ertelendi.
 - A5.2 Savaş seçimi: Manuel / Otomatik (otomatik çözümleme formülü).
 - A5.3 CombatScene yeniden (mevcut `DamageCalculator`, `HexPathfinder` korunur), GDD Unit HUD + Action Cluster yerleşimi.
 - A5.4 Sonuç → kayıp/yaralanma → kervana yansıma → seyahate dönüş.

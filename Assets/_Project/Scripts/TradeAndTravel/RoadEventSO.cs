@@ -61,7 +61,11 @@ namespace Kervan.TradeAndTravel
 
         [Tooltip("Haydut pususunda 'Haraç Ver' seçildiğinde istenecek akçe miktarı (Yabani hayvanlarda 0)")]
         [Min(0)]
-        [SerializeField] private int _tributeAkceCost;
+        [SerializeField] private int _tributeAkceCost = 30;
+
+        [Tooltip("Kaçış denemesinde temel başarı olasılığı (0.0 = İmkânsız, 1.0 = Kesin kaçış)")]
+        [Range(0.05f, 1f)]
+        [SerializeField] private float _fleeChance = 0.65f;
 
         public string EventId => _eventId;
         public string EventTitle => _eventTitle;
@@ -74,6 +78,7 @@ namespace Kervan.TradeAndTravel
         public int HealDelta => _healDelta;
         public bool RequiresCombatChoice => _requiresCombatChoice;
         public int TributeAkceCost => _tributeAkceCost;
+        public float FleeChance => Mathf.Clamp01(_fleeChance > 0f ? _fleeChance : 0.65f);
 
         /// <summary>
         /// Olayın kervan üzerinde oluşturduğu net etkiyi oyuncu için okunaklı Türkçe özet metnine dönüştürür.
@@ -131,7 +136,9 @@ namespace Kervan.TradeAndTravel
             int akceDelta,
             int foodDelta,
             int healDelta = 0,
-            float weight = 1f)
+            float weight = 1f,
+            int tributeCost = 0,
+            float fleeChance = 0.65f)
         {
             RoadEventSO instance = CreateInstance<RoadEventSO>();
             instance.name = id;
@@ -144,6 +151,8 @@ namespace Kervan.TradeAndTravel
             instance._healDelta = healDelta;
             instance._selectionWeight = Mathf.Max(0.05f, weight);
             instance._requiresCombatChoice = category == RoadEventCategory.BanditAmbush || category == RoadEventCategory.WildBeastAttack;
+            instance._tributeAkceCost = tributeCost > 0 ? tributeCost : (category == RoadEventCategory.BanditAmbush ? 30 : 0);
+            instance._fleeChance = fleeChance > 0f ? fleeChance : 0.65f;
             return instance;
         }
 

@@ -18,9 +18,9 @@
 | Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON: kervan envanteri, muhafız kadrosu, binek kapasitesi, pazar doygunlukları) devrede. |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), Android Geri tuşu, SafeArea ve ses kalıcılığı tamam (A2.0, A2.8). |
 
-**Özet:** A4 (Şehir: Pazar + Kervansaray + Divan) aşaması başarıyla tamamlandı. Dinamik pazar doygunluğu/kurtarma, handa konaklama (can/moral/gün geçişi), erzak ikmali, muhafız/binek kiralama ve casusluk istihbaratı çalışır durumda. Sırada A5 (Olay & Pusu → Savaş) aşaması var.
+**Özet:** A4 (Şehir: Pazar + Kervansaray + Divan) aşaması başarıyla tamamlandı. A5 (Olay & Pusu → Savaş) aşamasına geçildi; A5.1 kapsamında seyahatteki pusu ve tehlikeli olaylarda Kaç / Haraç Ver / Savaş karar mekanizması ve arayüzü kuruldu. Sırada A5.2 (Manuel / Otomatik savaş seçimi) var.
 
-**Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene` ✅ güncel · `TownHubScene` ✅ A4 tamamlandı · `CombatScene` ⚠️ A5'te yeniden ele alınacak · `MarketScene` ⚠️ arşiv/eski prototip.
+**Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene` ✅ A5.1 güncel · `TownHubScene` ✅ A4 tamamlandı · `CombatScene` ⚠️ A5'te yeniden ele alınacak · `MarketScene` ⚠️ arşiv/eski prototip.
 
 ---
 
@@ -32,24 +32,23 @@ A1 Ana Menü & UI Temelleri ............. ✅
 A2 Dünya Haritası & Oyun Omurgası ...... ✅
 A3 Seyahat (TravelScene) ............... ✅
 A4 Şehir: Pazar/Kervansaray/Divan ...... ✅
-A5 Olay & Pusu → Savaş ................. ⏳  ← ŞU AN
+A5 Olay & Pusu → Savaş ................. ⏳  ← ŞU AN (A5.1 bitti)
 A6 Meta: İstihbarat/İtibar/Dükkân ...... ⬜
 A7 Cila (Dil, Performans, Temizlik) .... ⬜
 A8 Android Sürüm & Test ................ ⬜
 ```
 
-### A4 Adımları (Tamamlandı ✅)
-- [x] A4.1 Şehir Hub tasarımı & 3 sekmeli sahne iskeleti (`TownHubScene`: Pazar / Kervansaray / Divan özel arka planları ve sayfa bazlı UI)
-- [x] A4.2 Pazar: 13 düğüm `CityMarketDataSO`, 4 yeni `ItemDataSO`, `CityMarket` ↔ `GameSession` bağlantısı, alış-satış UI, kâr/zarar göstergesi
-- [x] A4.3 Pazar doygunluğu (`MarketSaturation`), kalıcı kayıt (`SaveData`) ve gün geçtikçe toparlanma (GDD §4)
-- [x] A4.4 Kervansaray: dinlenme/iyileşme, erzak ikmali, muhafız ve yük hayvanı kiralama, casus istihbaratı
+### A5 Adımları (Olay & Pusu → Savaş ⏳)
+- [x] A5.1 Olay penceresi: **Kaç / Haraç Ver / Savaş** (`EventModal` 3'lü karar kümesi, `RoadEventSO` `FleeChance` & `TributeAkceCost`, anlık etki ertelemesi)
+- [ ] A5.2 Savaş seçimi: Manuel / Otomatik (otomatik çözümleme formülü)
+- [ ] A5.3 CombatScene yeniden (mevcut `DamageCalculator`, `HexPathfinder` korunur), GDD Unit HUD + Action Cluster yerleşimi
+- [ ] A5.4 Sonuç → kayıp/yaralanma → kervana yansıma → seyahate dönüş
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A5.1 — Olay Penceresi: Kaç / Haraç Ver / Savaş (GDD §11/5)
-- **Hedef:** Seyahat sırasında çıkan haydut pusularında ve tehlikeli yol olaylarında oyuncuya 3 seçenek sunan karar penceresinin (`EventModal`) kurulması: **Kaç** (hız/çeviklik kontrolü), **Haraç Ver** (akçe veya yük kaybı) ve **Savaş** (manuel taktik savaş veya otomatik çözümleme seçimine geçiş).
-- **Önemli Hatırlatma:** Seyahatteki `EventModal` altyapısı genişletilecek, `RoadEventSO` olaylarına seçenek (`EventChoice`) desteği eklenecek.
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A5` / `### A5.1`
+## 3. ▶️ Sıradaki Adım: A5.2 — Savaş Seçimi: Manuel / Otomatik (GDD §11/5)
+- **Hedef:** Pusu veya tehlikeli olayda "Savaş" seçildiğinde oyuncuya iki seçenek sunulması: **Manuel Taktik Savaş** (`CombatScene` üzerinde sıra tabanlı altıgen çatışma) veya **Otomatik Çözümleme** (kervanın muhafız sayısı/canı ile düşman gücünü kıyaslayan hızlı sonuç algoritması).
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A5` / `### A5.2`
 
 ---
 

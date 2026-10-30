@@ -6,6 +6,15 @@
 
 ---
 
+## [31.10.2026] A5.1 — Olay Penceresi: Kaç / Haraç Ver / Savaş Karar Kümesi
+- `RoadEventSO.cs`: `FleeChance` (%65 varsayılan), `TributeAkceCost` (30 akçe varsayılan) ve `CreateRuntimeInstance` parametreleri eklendi.
+- `TravelManager.cs`: Pusularda anlık hasarın oyuncu seçimi öncesinde uygulanması engellendi; `AmbushResolutionResult` veri yapısı ile `ResolveAmbushFlee()`, `ResolveAmbushTribute()` ve `ResolveAmbushFight()` metotları oluşturuldu.
+- `TravelUI.cs`: `EventModal` içine `_choiceContainer` 3'lü karar butonları (`_btnChoiceFlee`, `_btnChoiceTribute`, `_btnChoiceFight`), dinamik buton metinleri (% şans, akçe maliyeti, yabani hayvan koruması) ve sonuç bildirimleri bağlandı.
+- Unity'de elle: `TravelScene` içinde `EventModal / ModalCard` altına `ChoiceContainer` (HorizontalLayoutGroup) ve 3 karar butonu yerleştirilip `TravelUI` bileşenine bağlandı.
+- Commit: `feat(travel): A5.1 olay ve pusu penceresine Kac / Harac Ver / Savas karar kumesi eklendi`
+
+---
+
 ## 🏆 [31.10.2026] A4 — Şehir: Pazar, Kervansaray ve Şehir Merkezi (Aşama Özeti)
 - **Kapsam:** A4.1–A4.4 arasındaki 4 adım başarıyla tamamlandı.
 - **Kazanımlar:**
