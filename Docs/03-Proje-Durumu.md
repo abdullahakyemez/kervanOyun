@@ -4,7 +4,7 @@
 
 **Proje:** Uç Beyliği Kervanı · 14. yy Anadolu · Taktiksel RPG & Ticaret
 **Motor:** Unity 6 (6000.6.3f1), URP 2D · **Platform:** Android, yatay (landscape)
-**Sürüm etiketi:** v0.3.0 Alpha · **Son güncelleme:** 28.10.2026
+**Sürüm etiketi:** v0.3.0 Alpha · **Son güncelleme:** 30.10.2026
 
 ---
 
@@ -12,15 +12,15 @@
 
 | Alan | Durum | Not |
 |---|---|---|
-| Görsel / UI | 🟢 | MainMenu, WorldMap, TravelScene (4 katman Parallax, Konvoy, EventModal), TopBar HUD ve Sidebar hazır. |
-| Veri tanımları (SO) | 🟢 | 13 düğüm (`LocationNodeSO`), `RouteDatabaseSO` ve yol olayları/pusu (`RoadEventSO`) bağlı (A2.1, A2.4, A3.4). |
-| Oyun döngüsü | 🟢 | `00_Boot` + `GameSession` + `RouteGraph` + `GameCalendar` + `TravelManager` sefer/olay/varış döngüsü kuruldu (A2–A3). |
-| Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON kayıt/yükleme ve otomatik kayıt) tamamlandı (A2.3). |
+| Görsel / UI | 🟢 | MainMenu, WorldMap, TravelScene, TownHubScene (Pazar alış-satış UI + Kervansaray/Divan mizanpajı), TopBar HUD ve Sidebar hazır. |
+| Veri tanımları (SO) | 🟢 | 13 düğüm (`LocationNodeSO`), 10 ticaret malı (`ItemDataSO`), `CityMarketDataSO`, `RouteDatabaseSO` ve `RoadEventSO` bağlı. |
+| Oyun döngüsü | 🟢 | `00_Boot` + `GameSession` + `RouteGraph` + `GameCalendar` + `TravelManager` + `TownHubUI` + `CityMarket` döngüsü kuruldu (A2–A4.2). |
+| Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON kayıt/yükleme, kervan envanteri `InventorySlotSaveData` geri yükleme) tamamlandı. |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), Android Geri tuşu, SafeArea ve ses kalıcılığı tamam (A2.0, A2.8). |
 
-**Özet:** A3 (Seyahat - `TravelScene`) aşaması başarıyla tamamlandı (`v0.3.0-alpha`). 4 katmanlı parallax arka plan, yürüyen kervan konvoyu, `GameSession` senkronizasyonu, `RoadEventSO` yol hadiseleri/saldırıları ve `EventModal` penceresi mühürlendi; sırada A4 (Şehir: Pazar / Kervansaray / Divan) aşaması var.
+**Özet:** A4.2 (Pazar Sistemi, 4 Yeni Ticaret Malı & Alış-Satış UI) tamamlandı. 10 ticaret malı (`ItemDataSO`), `CityMarket` ↔ `GameSession` bağlantısı, ortalama alış maliyeti (`AveragePurchasePrice`) üzerinden `+%Kâr ▲` / `-%Zarar ▼` rozetli Pazar arayüzü (`MarketUI`) devreye alındı; sırada A4.3 (Pazar Doygunluğu, Kalıcı Kayıt ve Günlük Toparlanma) adımı var.
 
-**Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene` ✅ güncel · `MarketScene`, `TownHubScene`, `CombatScene` ⚠️ eski prototip (yeniden ele alınacak).
+**Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene` ✅ güncel · `TownHubScene` ⏳ A4.1–A4.2 hazır · `MarketScene`, `CombatScene` ⚠️ eski prototip (yeniden ele alınacak).
 
 ---
 
@@ -45,16 +45,17 @@ A8 Android Sürüm & Test ................ ⬜
 - [x] A3.4 Kamp/Mola penceresi (`EventModal`) & Yol olayları altyapısı (`RoadEventSO`)
 
 ### A4 Adımları
-- [ ] A4.1 Şehir Hub tasarımı (sekme: Pazar / Kervansaray / Divan)
-- [ ] A4.2 Pazar: `CityMarket` mantığının `GameSession`'a bağlanması, alış-satış UI, kâr/zarar göstergesi
-- [ ] A4.3 Pazar doygunluğu ve gün geçtikçe toparlanma (GDD §4)
-- [ ] A4.4 Kervansaray: dinlenme, iyileşme, erzak ikmali, muhafız kiralama
+- [x] A4.1 Şehir Hub tasarımı & 3 sekmeli sahne iskeleti (`TownHubScene`: Pazar / Kervansaray / Divan özel arka planları ve sayfa bazlı UI)
+- [x] A4.2 Pazar: 13 düğüm `CityMarketDataSO`, 4 yeni `ItemDataSO`, `CityMarket` ↔ `GameSession` bağlantısı, alış-satış UI, kâr/zarar göstergesi
+- [ ] A4.3 Pazar doygunluğu (`MarketSaturation`), kalıcı kayıt (`SaveData`) ve gün geçtikçe toparlanma (GDD §4)
+- [ ] A4.4 Kervansaray: dinlenme/iyileşme, erzak ikmali, muhafız ve yük hayvanı kiralama
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A4.1 — Şehir Hub Tasarımı (Pazar / Kervansaray / Divan)
-- **Hedef:** Haritadan `"Şehre Gir"` veya `"Kervansaraya Gir"` seçildiğinde açılacak şehir/han merkezi (`TownHubScene` / `MarketScene`) mizanpajının (`arayuz-tasarimi`) ve A4 alt adımlarının netleştirilmesi.
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A4`
+## 3. ▶️ Sıradaki Adım: A4.3 — Pazar Doygunluğu (`MarketSaturation`), Kalıcı Kayıt ve Günlük Toparlanma
+- **Hedef:** Şehir pazarlarındaki anlık stok ve doygunluk (`Saturation`) değerlerinin `GameSession` ve `SaveData` (`save_0.json`) içinde şehir bazlı kalıcı saklanması; gün geçtikçe (`DayPassedEvent`) piyasaların kademeli olarak başlangıç dengesine toparlanması (GDD §4 & §10).
+- **Önemli Hatırlatma (Sonraki Oturum İçin):** `TownHubScene` içinde `Panel_Market`, `Panel_Caravanserai` ve `Panel_Divan` görsel sahne mizanpajları hazırlandı. **A4.3** (saf C# pazar kalıcılığı) tamamlanır tamamlanmaz **A4.4** adımında kurulan `Panel_Caravanserai` (Konaklama/Erzak, Muhafız Ocağı, Ahır, Dükkân/Casus) ve `Panel_Divan` (İtibar & Görevler) panellerinin kod ve Inspector bağlantıları yapılacak.
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `### A4.3` ve `### A4.4`
 
 ---
 

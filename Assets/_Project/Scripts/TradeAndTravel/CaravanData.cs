@@ -136,13 +136,64 @@ namespace Kervan.TradeAndTravel
             NotifyStatsChanged();
         }
 
+        /// <summary>
+        /// Envanterdeki tüm ticaret mallarını temizler (kayıt yükleme veya yeni oyun için).
+        /// </summary>
+        public void ClearInventory()
+        {
+            _inventory.Clear();
+            NotifyStatsChanged();
+        }
+
+        /// <summary>
+        /// Diskteki JSON kaydından çözümlenen bir ticaret malı yuvasını envantere geri yükler.
+        /// </summary>
+        public void RestoreInventorySlot(ItemDataSO item, int quantity, int averagePurchasePrice)
+        {
+            if (item == null || quantity <= 0) return;
+
+            int safeAvgPrice = Mathf.Max(1, averagePurchasePrice);
+            var existing = FindSlot(item.ItemId);
+            if (existing != null)
+            {
+                existing.Quantity += quantity;
+                existing.AveragePurchasePrice = safeAvgPrice;
+            }
+            else
+            {
+                _inventory.Add(new CaravanItemSlot(item, quantity, safeAvgPrice));
+            }
+
+            NotifyStatsChanged();
+        }
+
+        /// <summary>
+        /// Belirtilen ASCII emtia kimliğine (<paramref name="itemId"/>) sahip envanter yuvasını döndürür.
+        /// </summary>
+        public CaravanItemSlot FindSlot(string itemId)
+        {
+            if (string.IsNullOrWhiteSpace(itemId)) return null;
+
+            for (int i = 0; i < _inventory.Count; i++)
+            {
+                var slot = _inventory[i];
+                if (slot != null && slot.Item != null &&
+                    string.Equals(slot.Item.ItemId, itemId, StringComparison.Ordinal))
+                {
+                    return slot;
+                }
+            }
+
+            return null;
+        }
+
         public bool AddGoods(ItemDataSO item, int count, int unitPrice)
         {
             if (item == null || count <= 0) return false;
             float addedWeight = item.UnitWeightKg * count;
             if (!CanCarry(addedWeight)) return false;
 
-            var existing = _inventory.Find(s => s.Item != null && s.Item.ItemId == item.ItemId);
+            var existing = FindSlot(item.ItemId);
             if (existing != null)
             {
                 long totalOldValue = (long)existing.AveragePurchasePrice * existing.Quantity;
@@ -161,7 +212,7 @@ namespace Kervan.TradeAndTravel
 
         public bool RemoveGoods(string itemId, int count)
         {
-            var existing = _inventory.Find(s => s.Item != null && s.Item.ItemId == itemId);
+            var existing = FindSlot(itemId);
             if (existing == null || existing.Quantity < count) return false;
 
             existing.Quantity -= count;

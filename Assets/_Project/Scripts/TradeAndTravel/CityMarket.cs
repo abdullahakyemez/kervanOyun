@@ -5,46 +5,120 @@ using Kervan.Core;
 
 namespace Kervan.TradeAndTravel
 {
+    /// <summary>
+    /// Bir emtianın şehir pazarındaki arz-talep kademesini belirtir.
+    /// </summary>
+    public enum MarketSupplyTier
+    {
+        LocalAbundant,  // Yerel üretim (Bol ve ucuz — alış için ideal)
+        Standard,       // Standart piyasa
+        HighDemand      // Yüksek talep / kıtlık (Pahalı — satış için ideal)
+    }
+
     [Serializable]
     public class LiveMarketItem
     {
         public ItemDataSO Item;
         public int CurrentStock;
         public float BaseMultiplier;
-        public float Saturation; // 0.0 = Doygunluk yok, 1.0 = Asiri doymus (fiyat dipte)
+        public float Saturation; // 0.0 = Doygunluk yok, 1.0 = Aşırı doymuş (fiyat dipte)
+        public MarketSupplyTier SupplyTier;
 
-        public LiveMarketItem(ItemDataSO item, int initialStock, float baseMultiplier)
+        public LiveMarketItem(
+            ItemDataSO item,
+            int initialStock,
+            float baseMultiplier,
+            MarketSupplyTier supplyTier = MarketSupplyTier.Standard)
         {
             Item = item;
             CurrentStock = initialStock;
             BaseMultiplier = baseMultiplier;
             Saturation = 0f;
+            SupplyTier = supplyTier;
         }
     }
 
     /// <summary>
-    /// GDD.md standardinda sehir pazarinin dinamik arz-talep, doygunluk ve
-    /// fiyatlandirma motorunu calistiran sinif.
+    /// Şehir pazarının dinamik arz-talep, doygunluk ve fiyatlandırma motorunu çalıştıran sınıf.
+    /// <see cref="GameSession.CurrentNodeId"/> üzerinden aktif şehrin pazar verisini otomatik çözümler.
     /// </summary>
     public class CityMarket : MonoBehaviour
     {
-        [Header("Veri Referansi")]
+        [Header("Veri Referansları")]
+        [Tooltip("Varsayılan veya yedek şehir pazarı verisi")]
         [SerializeField] private CityMarketDataSO _marketData;
+        [Tooltip("Haritadaki düğümleri çözümlemek için kullanılan rota veri tabanı")]
+        [SerializeField] private RouteDatabaseSO _routeDatabase;
+        [Tooltip("Şehir bazlı tanımlı tüm CityMarketDataSO varlıkları")]
+        [SerializeField] private List<CityMarketDataSO> _allCityMarkets = new List<CityMarketDataSO>();
+        [Tooltip("Oyundaki tüm ticaret mallarının (10 emtia) tam kataloğu")]
+        [SerializeField] private List<ItemDataSO> _allTradeItems = new List<ItemDataSO>();
 
-        [Header("Canli Stok & Fiyatlar")]
+        [Header("Canlı Stok & Fiyatlar")]
         [SerializeField] private List<LiveMarketItem> _marketItems = new List<LiveMarketItem>();
+
+        private LocationNodeSO _activeCityNode;
+        private float _activeTaxRate = 0.08f;
 
         public event Action OnMarketUpdated;
 
         public CityMarketDataSO Data => _marketData;
+        public LocationNodeSO ActiveCityNode => _activeCityNode;
+        public float ActiveTaxRate => _activeTaxRate;
         public IReadOnlyList<LiveMarketItem> MarketItems => _marketItems;
+        public IReadOnlyList<ItemDataSO> AllTradeItems => _allTradeItems;
 
         private void Awake()
         {
-            if (_marketItems.Count == 0 && _marketData != null)
+            InitializeForCurrentSessionNode();
+        }
+
+        /// <summary>
+        /// <see cref="GameSession.CurrentNodeId"/> değerine göre aktif şehrin pazarını kurar ve
+        /// varsa diskten yüklenen kervan envanter kayıtlarını gerçek <see cref="ItemDataSO"/> referanslarıyla eşleştirir.
+        /// </summary>
+        public void InitializeForCurrentSessionNode()
+        {
+            string currentNodeId = GameSession.DefaultStartNodeId;
+            if (Services.TryGet<GameSession>(out var session))
             {
-                InitializeFromData(_marketData);
+                session.SyncFromLegacyPrefsIfChanged();
+                if (!string.IsNullOrWhiteSpace(session.CurrentNodeId))
+                {
+                    currentNodeId = session.CurrentNodeId;
+                }
+
+                session.ResolveSavedInventoryItems(BuildEffectiveItemCatalog());
             }
+
+            if (_routeDatabase != null)
+            {
+                _activeCityNode = _routeDatabase.FindNodeById(currentNodeId);
+            }
+
+            CityMarketDataSO matchedMarket = FindMarketDataForNode(currentNodeId);
+            if (matchedMarket != null)
+            {
+                if (_activeCityNode == null) _activeCityNode = matchedMarket.CityNode;
+                InitializeFromData(matchedMarket);
+                AppendMissingCatalogItems(currentNodeId);
+                OnMarketUpdated?.Invoke();
+                return;
+            }
+
+            if (_marketData != null &&
+                _marketData.CityNode != null &&
+                string.Equals(_marketData.CityNode.NodeId, currentNodeId, StringComparison.Ordinal))
+            {
+                if (_activeCityNode == null) _activeCityNode = _marketData.CityNode;
+                InitializeFromData(_marketData);
+                AppendMissingCatalogItems(currentNodeId);
+                OnMarketUpdated?.Invoke();
+                return;
+            }
+
+            // Özel CityMarketDataSO henüz oluşturulmamış şehirler için katalog üzerinden deterministik pazar kur
+            BuildDeterministicMarketForNode(currentNodeId, _activeCityNode);
         }
 
         public void InitializeFromData(CityMarketDataSO data)
@@ -54,39 +128,246 @@ namespace Kervan.TradeAndTravel
 
             if (_marketData == null) return;
 
-            // Yerel mallar (Bol uretim, ucuz)
-            foreach (var entry in _marketData.LocalGoods)
+            _activeTaxRate = _marketData.BaseTaxRate;
+            if (_marketData.CityNode != null)
             {
-                if (entry.Item != null)
-                    _marketItems.Add(new LiveMarketItem(entry.Item, entry.BaseStock, entry.PriceMultiplier));
+                _activeCityNode = _marketData.CityNode;
             }
 
-            // Talep edilen mallar (Kitlik, pahali)
+            // Yerel mallar (Bol üretim, ucuz)
+            foreach (var entry in _marketData.LocalGoods)
+            {
+                if (entry != null && entry.Item != null && !ContainsItem(entry.Item.ItemId))
+                {
+                    _marketItems.Add(new LiveMarketItem(
+                        entry.Item,
+                        entry.BaseStock,
+                        entry.PriceMultiplier,
+                        MarketSupplyTier.LocalAbundant));
+                }
+            }
+
+            // Talep edilen mallar (Kıtlık, pahalı)
             foreach (var entry in _marketData.DemandedGoods)
             {
-                if (entry.Item != null && !_marketItems.Exists(m => m.Item.ItemId == entry.Item.ItemId))
-                    _marketItems.Add(new LiveMarketItem(entry.Item, entry.BaseStock, entry.PriceMultiplier));
+                if (entry != null && entry.Item != null && !ContainsItem(entry.Item.ItemId))
+                {
+                    _marketItems.Add(new LiveMarketItem(
+                        entry.Item,
+                        entry.BaseStock,
+                        entry.PriceMultiplier,
+                        MarketSupplyTier.HighDemand));
+                }
             }
 
             // Standart mallar
             foreach (var entry in _marketData.StandardGoods)
             {
-                if (entry.Item != null && !_marketItems.Exists(m => m.Item.ItemId == entry.Item.ItemId))
-                    _marketItems.Add(new LiveMarketItem(entry.Item, entry.BaseStock, entry.PriceMultiplier));
+                if (entry != null && entry.Item != null && !ContainsItem(entry.Item.ItemId))
+                {
+                    _marketItems.Add(new LiveMarketItem(
+                        entry.Item,
+                        entry.BaseStock,
+                        entry.PriceMultiplier,
+                        ClassifyMultiplier(entry.PriceMultiplier)));
+                }
             }
 
             OnMarketUpdated?.Invoke();
         }
 
+        private CityMarketDataSO FindMarketDataForNode(string nodeId)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId) || _allCityMarkets == null) return null;
+
+            for (int i = 0; i < _allCityMarkets.Count; i++)
+            {
+                var marketSo = _allCityMarkets[i];
+                if (marketSo != null && marketSo.CityNode != null &&
+                    string.Equals(marketSo.CityNode.NodeId, nodeId, StringComparison.Ordinal))
+                {
+                    return marketSo;
+                }
+            }
+
+            return null;
+        }
+
+        private List<ItemDataSO> BuildEffectiveItemCatalog()
+        {
+            var result = new List<ItemDataSO>();
+            var seenIds = new HashSet<string>(StringComparer.Ordinal);
+
+            void TryAdd(ItemDataSO item)
+            {
+                if (item != null && !string.IsNullOrWhiteSpace(item.ItemId) && seenIds.Add(item.ItemId))
+                {
+                    result.Add(item);
+                }
+            }
+
+            if (_allTradeItems != null)
+            {
+                for (int i = 0; i < _allTradeItems.Count; i++) TryAdd(_allTradeItems[i]);
+            }
+
+            void TryAddFromMarket(CityMarketDataSO m)
+            {
+                if (m == null) return;
+                foreach (var e in m.LocalGoods) if (e != null) TryAdd(e.Item);
+                foreach (var e in m.DemandedGoods) if (e != null) TryAdd(e.Item);
+                foreach (var e in m.StandardGoods) if (e != null) TryAdd(e.Item);
+            }
+
+            TryAddFromMarket(_marketData);
+            if (_allCityMarkets != null)
+            {
+                for (int i = 0; i < _allCityMarkets.Count; i++) TryAddFromMarket(_allCityMarkets[i]);
+            }
+
+            return result;
+        }
+
+        private void AppendMissingCatalogItems(string nodeId)
+        {
+            var catalog = BuildEffectiveItemCatalog();
+            for (int i = 0; i < catalog.Count; i++)
+            {
+                var item = catalog[i];
+                if (item == null || ContainsItem(item.ItemId)) continue;
+
+                ComputeDeterministicEntry(nodeId, item, i, out int stock, out float mult, out MarketSupplyTier tier);
+                _marketItems.Add(new LiveMarketItem(item, stock, mult, tier));
+            }
+        }
+
+        private void BuildDeterministicMarketForNode(string nodeId, LocationNodeSO cityNode)
+        {
+            _marketItems.Clear();
+
+            if (cityNode != null)
+            {
+                switch (cityNode.RulingFaction)
+                {
+                    case FactionType.Ottoman:
+                        _activeTaxRate = 0.06f;
+                        break;
+                    case FactionType.Byzantine:
+                        _activeTaxRate = 0.12f;
+                        break;
+                    default:
+                        _activeTaxRate = 0.08f;
+                        break;
+                }
+            }
+            else if (_marketData != null)
+            {
+                _activeTaxRate = _marketData.BaseTaxRate;
+            }
+            else
+            {
+                _activeTaxRate = 0.08f;
+            }
+
+            var catalog = BuildEffectiveItemCatalog();
+            for (int i = 0; i < catalog.Count; i++)
+            {
+                var item = catalog[i];
+                if (item == null) continue;
+
+                ComputeDeterministicEntry(nodeId, item, i, out int stock, out float mult, out MarketSupplyTier tier);
+                _marketItems.Add(new LiveMarketItem(item, stock, mult, tier));
+            }
+
+            OnMarketUpdated?.Invoke();
+        }
+
+        private static void ComputeDeterministicEntry(
+            string nodeId,
+            ItemDataSO item,
+            int index,
+            out int stock,
+            out float multiplier,
+            out MarketSupplyTier tier)
+        {
+            int hash = GetStableHash((nodeId ?? GameSession.DefaultStartNodeId) + "_" + item.ItemId) + index * 17;
+            int bucket = Mathf.Abs(hash) % 10;
+
+            if (bucket < 3)
+            {
+                // Yerel üretim (Ucuz & bol stok)
+                tier = MarketSupplyTier.LocalAbundant;
+                multiplier = 0.72f + ((Mathf.Abs(hash / 10) % 10) * 0.01f); // 0.72 - 0.81
+                stock = 45 + (Mathf.Abs(hash) % 35);
+            }
+            else if (bucket >= 7)
+            {
+                // Yüksek talep (Pahalı & sınırlı stok)
+                tier = MarketSupplyTier.HighDemand;
+                multiplier = 1.32f + ((Mathf.Abs(hash / 10) % 25) * 0.01f); // 1.32 - 1.56
+                stock = 15 + (Mathf.Abs(hash) % 20);
+            }
+            else
+            {
+                // Standart piyasa
+                tier = MarketSupplyTier.Standard;
+                multiplier = 0.95f + ((Mathf.Abs(hash / 10) % 18) * 0.01f); // 0.95 - 1.12
+                stock = 25 + (Mathf.Abs(hash) % 25);
+            }
+        }
+
+        private static int GetStableHash(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return 0;
+            unchecked
+            {
+                int hash = 23;
+                for (int i = 0; i < text.Length; i++)
+                {
+                    hash = (hash * 31) + text[i];
+                }
+                return hash;
+            }
+        }
+
+        private static MarketSupplyTier ClassifyMultiplier(float mult)
+        {
+            if (mult <= 0.85f) return MarketSupplyTier.LocalAbundant;
+            if (mult >= 1.25f) return MarketSupplyTier.HighDemand;
+            return MarketSupplyTier.Standard;
+        }
+
+        private bool ContainsItem(string itemId)
+        {
+            return FindLiveItem(itemId) != null;
+        }
+
+        public LiveMarketItem FindLiveItem(string itemId)
+        {
+            if (string.IsNullOrWhiteSpace(itemId)) return null;
+
+            for (int i = 0; i < _marketItems.Count; i++)
+            {
+                var item = _marketItems[i];
+                if (item != null && item.Item != null &&
+                    string.Equals(item.Item.ItemId, itemId, StringComparison.Ordinal))
+                {
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
-        /// Oyuncunun pazardan satin alirken odeyecegi birim fiyat (Vergi dahil).
+        /// Oyuncunun pazardan satın alırken ödeyeceği birim fiyat (Vergi dahil).
         /// </summary>
         public int GetBuyPrice(string itemId)
         {
-            var liveItem = _marketItems.Find(m => m.Item != null && m.Item.ItemId == itemId);
+            var liveItem = FindLiveItem(itemId);
             if (liveItem == null) return 0;
 
-            float taxRate = _marketData != null ? _marketData.BaseTaxRate : 0.10f;
+            float taxRate = _activeTaxRate;
             float saturationDiscount = Mathf.Clamp01(liveItem.Saturation * 0.40f);
             float effectiveMultiplier = liveItem.BaseMultiplier * (1.0f - saturationDiscount);
 
@@ -97,14 +378,14 @@ namespace Kervan.TradeAndTravel
         }
 
         /// <summary>
-        /// Sehrin oyuncudan mali satin alirken odeyecegi birim fiyat (Vergi kesintili).
+        /// Şehrin oyuncudan malı satın alırken ödeyeceği birim fiyat (Vergi kesintili).
         /// </summary>
         public int GetSellPrice(string itemId)
         {
-            var liveItem = _marketItems.Find(m => m.Item != null && m.Item.ItemId == itemId);
+            var liveItem = FindLiveItem(itemId);
             if (liveItem == null) return 0;
 
-            float taxRate = _marketData != null ? _marketData.BaseTaxRate : 0.10f;
+            float taxRate = _activeTaxRate;
             float saturationDiscount = Mathf.Clamp01(liveItem.Saturation * 0.50f);
             float effectiveMultiplier = liveItem.BaseMultiplier * (1.0f - saturationDiscount);
 
@@ -118,7 +399,7 @@ namespace Kervan.TradeAndTravel
         {
             if (caravan == null || quantity <= 0) return false;
 
-            var liveItem = _marketItems.Find(m => m.Item != null && m.Item.ItemId == itemId);
+            var liveItem = FindLiveItem(itemId);
             if (liveItem == null || liveItem.CurrentStock < quantity) return false;
 
             int unitPrice = GetBuyPrice(itemId);
@@ -129,12 +410,12 @@ namespace Kervan.TradeAndTravel
             float totalWeight = liveItem.Item.UnitWeightKg * quantity;
             if (!caravan.CanCarry(totalWeight)) return false;
 
-            // Satin alma gerceklesti
+            // Satın alma gerçekleşti
             caravan.ModifyAkce(-totalPrice);
             caravan.AddGoods(liveItem.Item, quantity, unitPrice);
             liveItem.CurrentStock -= quantity;
 
-            // Stok azaldikca fiyatin hafif artmasi (kitlasma)
+            // Stok azaldıkça fiyatın hafif artması (kıtlaşma)
             liveItem.Saturation = Mathf.Max(0f, liveItem.Saturation - (quantity * 0.01f));
 
             EventBus.Publish(new MarketTransactionEvent(itemId, quantity, unitPrice, true));
@@ -146,7 +427,7 @@ namespace Kervan.TradeAndTravel
         {
             if (caravan == null || quantity <= 0) return false;
 
-            var liveItem = _marketItems.Find(m => m.Item != null && m.Item.ItemId == itemId);
+            var liveItem = FindLiveItem(itemId);
             if (liveItem == null) return false;
 
             int unitPrice = GetSellPrice(itemId);
@@ -158,8 +439,8 @@ namespace Kervan.TradeAndTravel
             caravan.ModifyAkce(totalEarnings);
             liveItem.CurrentStock += quantity;
 
-            // GDD.md kurali: Doygunluk Carpani (Market Saturation)
-            // Ayni sehirlere arka arkaya cok mal satilirsa sehir o mala doyar ve fiyat duser!
+            // GDD §4 kuralı: Doygunluk Çarpanı (Market Saturation)
+            // Aynı şehre arka arkaya çok mal satılırsa şehir o mala doyar ve fiyat düşer
             liveItem.Saturation = Mathf.Clamp01(liveItem.Saturation + (quantity * 0.03f));
 
             EventBus.Publish(new MarketTransactionEvent(itemId, quantity, unitPrice, false));
@@ -168,13 +449,13 @@ namespace Kervan.TradeAndTravel
         }
 
         /// <summary>
-        /// Sehirde zaman gectikce pazarin doygunlugunu temizler ve stoklari tazeler.
+        /// Şehirde zaman geçtikçe pazarın doygunluğunu temizler ve stokları tazeler.
         /// </summary>
         public void DailyMarketRecovery()
         {
             foreach (var item in _marketItems)
             {
-                // Doygunluk her gun %20 azalir
+                // Doygunluk her gün %20 azalır
                 item.Saturation = Mathf.Max(0f, item.Saturation - 0.20f);
             }
             OnMarketUpdated?.Invoke();

@@ -12,7 +12,7 @@
 ```text
 A0 Hazırlık & Veri Omurgası (prototip) ............ ✅
 A1 Ana Menü & UI Temelleri ......................... ✅
-A2 Dünya Haritası & Oyun Omurgası .................. ⏳  ← ŞU AN
+A2 Dünya Haritası & Oyun Omurgası .................. ✅
    A2.0 Hijyen (Input, DevOverlay, Ses kalıcılığı)  ✅
    A2.1 Kimlik birliği (NodeId + MapNodeView)        ✅
    A2.2 Boot sahnesi + GameSession                   ✅
@@ -22,8 +22,12 @@ A2 Dünya Haritası & Oyun Omurgası .................. ⏳  ← ŞU AN
    A2.6 Sahne geçiş servisi (SceneLoader + Fade)    ✅
    A2.7 Sidebar gerçek veri + boş durumlar          ✅
    A2.8 Cihaz testi (Device Simulator) & Aşama kapanışı ✅
-A3 Seyahat (TravelScene yeniden) ................... ⏳
-A4 Şehir: Pazar + Kervansaray + Divan .............. ⬜
+A3 Seyahat (TravelScene yeniden) ................... ✅
+A4 Şehir: Pazar + Kervansaray + Divan .............. ⏳  ← ŞU AN
+   A4.1 Şehir Hub tasarımı & 3 sekmeli sahne iskeleti ⏳
+   A4.2 Pazar: CityMarket ↔ GameSession & Alış-Satış UI ⬜
+   A4.3 Pazar doygunluğu, kayıt ve günlük toparlanma ⬜
+   A4.4 Kervansaray: konaklama, erzak, muhafız/hayvan ⬜
 A5 Olay & Pusu → Savaş (Combat) .................... ⬜
 A6 Meta: İstihbarat, İtibar, Dükkân ................ ⬜
 A7 Cila: Yerelleştirme, Performans, Android Back ... ⬜
@@ -122,10 +126,37 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Uygulama notu:** `RoadEventSO` (4 kategori: `Incident`, `Positive`, `BanditAmbush`, `WildBeastAttack`) oluşturuldu; `TravelRouteSO` ve `TravelManager`'a bağlandı. `UI_BottomMenuBG` ile `EventModal` kuruldu; parşömen sesi, renkli etki özeti ve `"Yola Devam Et"` / `"Haritaya Dön"` akışı tamamlandı (`v0.3.0-alpha`).
 
 ## A4 — Şehir: Pazar + Kervansaray + Divan ⏳
-- A4.1 Şehir hub tasarımı (sekme: Pazar / Kervansaray / Divan).
-- A4.2 Pazar: `CityMarket` mantığının GameSession'a bağlanması, alış-satış UI, kâr/zarar göstergesi.
-- A4.3 Pazar doygunluğu ve gün geçtikçe toparlanma (GDD §4).
-- A4.4 Kervansaray: dinlenme, iyileşme, erzak ikmali, muhafız kiralama.
+> **Karar (KR-3 & A4 Planı):** Pazar, Kervansaray ve Divan etkileşimleri `TownHubScene` içinde 3 sekmeli tek bir merkezde birleştirilir; her sekmenin kendine özgü 14. yy minyatür arka planı (`UI_BG_Market`, `UI_BG_Caravanserai`, `UI_BG_Divan`) ve sayfa bazlı özel arayüz elemanları adım adım tasarlanıp kurulur.
+
+### A4.1 — Şehir Hub Tasarımı & 3 Sekmeli Sahne İskeleti (`TownHubScene`) ✅
+- **Amaç:** Haritadan `"Şehre Gir"` veya `"Kervansaraya Gir"` seçildiğinde açılan `TownHubScene` merkezinin 3 sekmeli (Pazar / Kervansaray / Divan) yapısının, her sekmeye özel atmosferik arka planlarının ve üst başlık/çıkış iskeletinin kurulması.
+- **Çözer:** `KR-3` (TownHub ve Market sahnelerinin tek merkezde birleştirilmesi), `TD-02` (`TownHubUI` içindeki sabit şehir adı ve 500 akçe varsayılanlarının kaldırılması)
+- **Dosyalar:** `TradeAndTravel/RouteDatabaseSO.cs`, `IntelSystem/TownHubUI.cs`, `UI/MenuDrawerController.cs`.
+- **Unity'de elle:** `UI_BG_Market`, `UI_BG_Caravanserai`, `UI_BG_Divan` arka planlarının, 3 sekme ikonunun (`Icon_Tab_Market`, `Icon_Tab_Inn`, `Icon_Tab_Divan`) ve 3 kuşaklı üst mizanpajın (`TopBar_HUD`, `CityBanner`, `TabsMenu`, `ContentArea`) `TownHubScene` içine yerleştirilmesi; `AudioManager`, `Popup_Settings` ve `Main Camera` `AudioListener` bağlantıları.
+- **Test:** Haritada bir şehre gir → gerçek şehir adı ve fraksiyonu yazar, Pazar sekmesi ve Pazar arka planı açılır. Sekmeler arası geçişte arka plan ve aktif panel anında değişir. Kervansaray düğümüne girildiğinde doğrudan Kervansaray sekmesi açılır. Haritaya Dön / Android Back ile `WorldMapScene`'e dönülür.
+- **Uygulama notu:** `MenuDrawerController` altındaki Ses/Ayarlar/Çıkış butonları tüm sahnelerde otomatik çalışacak şekilde genişletildi; 4 yeni ticaret malı görseli (`Item_Cini`, `Item_Hali`, `Item_Deri`, `Item_Zeytinyagi`) `Sprites/Items/` klasörüne eklendi.
+
+### A4.2 — Pazar Sistemi: 13 Düğüm `CityMarketDataSO`, `GameSession` Bağlantısı & Alış-Satış UI ✅
+- **Amaç:** Şehir pazarlarının `GameSession` ile gerçek veri üzerinden çalışması, kervan ambarındaki malların ortalama alış maliyetiyle (`AveragePurchasePrice`) takip edilmesi ve kâr/zarar marjı rozetli alış-satış arayüzünün devreye alınması.
+- **Çözer:** `MarketUI` içindeki sahte `+400 akçe` ve izole `CaravanData` kopyasının kaldırılması; `SaveData` envanter geri yüklemesi ve tüm şehirler için 10 emtialı pazar kurulumu.
+- **Dosyalar:** `TradeAndTravel/CaravanData.cs`, `Core/GameSession.cs`, `TradeAndTravel/CityMarket.cs`, `TradeAndTravel/MarketUI.cs`.
+- **Unity'de elle:** 4 yeni `ItemDataSO` (`Item_Zeytinyagi`, `Item_Deri`, `Item_Hali`, `Item_Cini`) oluşturulması; `TownHubScene` içinde `Panel_Market`, `Panel_Caravanserai`, `Panel_Divan` içeriklerinin kurulması ve `CityMarket` / `MarketUI` referanslarının bağlanması.
+- **Test:** Pazarda yerel mal (`[Yerel Üretim · Ucuz]`) satın al → akçe düşer, ambar ağırlığı artar, `TopBarHUD` güncellenir. Başka şehre git → malın yanında `+%Kâr ▲` görünür, satınca akçe artar ve kayıt dosyasına (`save_0.json`) yazılır.
+- **Uygulama notu:** Özel `CityMarketDataSO` dosyası olmayan şehirler için `CityMarket` içinde `_allTradeItems` kataloğu ve şehir kimliği bazlı deterministik arz/talep (`MarketSupplyTier`) üretimi eklendi.
+
+### A4.3 — Pazar Doygunluğu (`MarketSaturation`), Kalıcı Kayıt ve Günlük Toparlanma ⬜
+- **Amaç:** Aynı şehre yüksek miktarda mal satıldığında fiyatların düşmesi (doygunluk), satın alındığında stokların azalması ve günler geçtikçe (`DayPassedEvent`) piyasaların kademeli olarak başlangıç dengesine toparlanması (GDD §4 & §10).
+- **Çözer:** GDD §4 Dinamik Arz-Talep & Enflasyon/Doygunluk sistemi ve §10 piyasa durumunun `SaveData` içinde kalıcı saklanması.
+- **Muhtemel dosyalar:** `TradeAndTravel/CityMarket.cs`, `Core/GameSession.cs`, `Core/Save/SaveData.cs`.
+- **Unity'de elle:** Yok (saf mantık ve mevcut Pazar UI üzerinde dinamik fiyat/stok etiketi güncellemesi).
+- **Test:** Bir şehirde aynı malı arka arkaya sat → satış fiyatı kademeli düşer. Oyunu kapat/aç → düşmüş fiyat korunur. Seyahat et veya handa konakla (gün geçsin) → fiyat ve stok kademeli olarak toparlanır.
+
+### A4.4 — Kervansaray (Han): Konaklama/İyileşme, Erzak İkmali ve Muhafız/Hayvan Kiralama ⬜
+- **Amaç:** Oyuncunun Kervansaray sekmesinde konaklayarak gün geçirip yaralılarını iyileştirmesi/moral tazelemesi, erzak satın alması ve kervana yeni muhafız veya yük hayvanı (at, katır, deve) kiralayıp katması (GDD §3.1).
+- **Çözer:** GDD §3.1 Kervansaray işlevleri.
+- **Muhtemel dosyalar:** Yeni `TradeAndTravel/CaravanseraiInnUI.cs`, `TradeAndTravel/CaravanData.cs` (konaklama iyileşmesi, erzak/birim/hayvan ekleme API'leri), `IntelSystem/TownHubUI.cs`.
+- **Unity'de elle:** `Panel_Caravanserai` altında Konaklama, Erzak İkmali ve Muhafız/Binek Kiralama kartlarının (`Portrait_*` görselleriyle) kurulması ve bağlanması.
+- **Test:** Kervansarayda "1 Gün Konakla" → akçe düşer, takvim 1 gün ilerler, yaralı muhafızların canı ve moral artar. Erzak al → erzak artar. Muhafız/Deve kirala → kadroya veya azami yük kapasitesine (`MaxWeightKg`) anında yansır.
 
 ## A5 — Olay & Pusu → Savaş ⬜
 - A5.1 Olay penceresi: **Kaç / Haraç Ver / Savaş** (GDD §11/5).

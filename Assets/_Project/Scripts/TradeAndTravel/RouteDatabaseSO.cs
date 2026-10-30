@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,5 +20,37 @@ namespace Kervan.TradeAndTravel
         /// Veri tabanında tanımlı tüm seyahat rotalarının salt okunur listesi.
         /// </summary>
         public IReadOnlyList<TravelRouteSO> Routes => _routes;
+
+        /// <summary>
+        /// Verilen ASCII düğüm kimliğine (<paramref name="nodeId"/>, ör. "node_sogut") karşılık gelen
+        /// <see cref="LocationNodeSO"/> tanımını kayıtlı rotaların uç noktalarından bulur.
+        /// </summary>
+        public LocationNodeSO FindNodeById(string nodeId)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId) || _routes == null)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < _routes.Count; i++)
+            {
+                TravelRouteSO route = _routes[i];
+                if (route == null) continue;
+
+                if (route.FromNode != null &&
+                    string.Equals(route.FromNode.NodeId, nodeId, StringComparison.Ordinal))
+                {
+                    return route.FromNode;
+                }
+
+                if (route.ToNode != null &&
+                    string.Equals(route.ToNode.NodeId, nodeId, StringComparison.Ordinal))
+                {
+                    return route.ToNode;
+                }
+            }
+
+            return null;
+        }
     }
 }

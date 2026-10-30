@@ -92,6 +92,7 @@ namespace Kervan.Core
         private CaravanData _caravan = new CaravanData();
         private ActiveTravelState _activeTravel;
         private readonly HashSet<string> _visitedNodeIds = new HashSet<string>(StringComparer.Ordinal);
+        private readonly List<InventorySlotSaveData> _pendingSavedItems = new List<InventorySlotSaveData>();
         private bool _hasSeenIntro;
         private bool _isSessionActive;
 
@@ -135,6 +136,7 @@ namespace Kervan.Core
             _isSessionActive = true;
             _visitedNodeIds.Clear();
             _visitedNodeIds.Add(_currentNodeId);
+            _pendingSavedItems.Clear();
 
             ClearLegacyPlayerPrefs();
 
@@ -184,10 +186,10 @@ namespace Kervan.Core
                 data.caravan.mules = _caravan.Mules;
                 data.caravan.camels = _caravan.Camels;
 
-                if (_caravan.Inventory != null)
+                if (_caravan.Inventory != null && _caravan.Inventory.Count > 0)
                 {
                     for (int i = 0; i < _caravan.Inventory.Count; i++)
-                    {
+                        {
                         var slot = _caravan.Inventory[i];
                         if (slot == null || slot.Item == null || string.IsNullOrWhiteSpace(slot.Item.ItemId)) continue;
 
@@ -196,6 +198,21 @@ namespace Kervan.Core
                             itemId = slot.Item.ItemId,
                             quantity = slot.Quantity,
                             averagePurchasePrice = slot.AveragePurchasePrice
+                        });
+                    }
+                }
+                else if (_pendingSavedItems.Count > 0)
+                {
+                    for (int i = 0; i < _pendingSavedItems.Count; i++)
+                    {
+                        var pending = _pendingSavedItems[i];
+                        if (pending == null || string.IsNullOrWhiteSpace(pending.itemId) || pending.quantity <= 0) continue;
+
+                        data.caravan.items.Add(new InventorySlotSaveData
+                        {
+                            itemId = pending.itemId,
+                            quantity = pending.quantity,
+                            averagePurchasePrice = pending.averagePurchasePrice
                         });
                     }
                 }
@@ -277,6 +294,24 @@ namespace Kervan.Core
                     data.caravan.mules,
                     data.caravan.camels
                 );
+
+                _caravan.ClearInventory();
+                _pendingSavedItems.Clear();
+                if (data.caravan.items != null)
+                {
+                    for (int i = 0; i < data.caravan.items.Count; i++)
+                    {
+                        var itemSave = data.caravan.items[i];
+                        if (itemSave == null || string.IsNullOrWhiteSpace(itemSave.itemId) || itemSave.quantity <= 0) continue;
+
+                        _pendingSavedItems.Add(new InventorySlotSaveData
+                        {
+                            itemId = itemSave.itemId,
+                            quantity = itemSave.quantity,
+                            averagePurchasePrice = itemSave.averagePurchasePrice
+                        });
+                    }
+                }
             }
 
             if (data.activeTravel != null && data.activeTravel.isActive && !string.IsNullOrWhiteSpace(data.activeTravel.toNodeId))
@@ -300,6 +335,45 @@ namespace Kervan.Core
             {
                 EventBus.Publish(new LocationChangedEvent(previousNodeId, _currentNodeId));
             }
+        }
+
+        /// <summary>
+        /// Diskten yüklenen envanter kayıtlarını (<see cref="InventorySlotSaveData"/>) verilen <see cref="ItemDataSO"/> kataloğu
+        /// üzerinden çözümleyerek <see cref="CaravanData.Inventory"/> listesine aktarır.
+        /// </summary>
+        public void ResolveSavedInventoryItems(IEnumerable<ItemDataSO> itemCatalog)
+        {
+            if (_pendingSavedItems.Count == 0 || itemCatalog == null || _caravan == null) return;
+
+            var catalogById = new Dictionary<string, ItemDataSO>(StringComparer.Ordinal);
+            foreach (var item in itemCatalog)
+            {
+                if (item != null && !string.IsNullOrWhiteSpace(item.ItemId) && !catalogById.ContainsKey(item.ItemId))
+                {
+                    catalogById.Add(item.ItemId, item);
+                }
+            }
+
+            if (catalogById.Count == 0) return;
+
+            var unresolved = new List<InventorySlotSaveData>();
+            for (int i = 0; i < _pendingSavedItems.Count; i++)
+            {
+                var savedSlot = _pendingSavedItems[i];
+                if (savedSlot == null || string.IsNullOrWhiteSpace(savedSlot.itemId) || savedSlot.quantity <= 0) continue;
+
+                if (catalogById.TryGetValue(savedSlot.itemId, out var itemSo))
+                {
+                    _caravan.RestoreInventorySlot(itemSo, savedSlot.quantity, savedSlot.averagePurchasePrice);
+                }
+                else
+                {
+                    unresolved.Add(savedSlot);
+                }
+            }
+
+            _pendingSavedItems.Clear();
+            _pendingSavedItems.AddRange(unresolved);
         }
 
         /// <summary>

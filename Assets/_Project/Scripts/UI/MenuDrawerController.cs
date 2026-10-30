@@ -1,13 +1,14 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using Kervan.Core;
 using Kervan.Audio;
 
 namespace Kervan.UI
 {
     /// <summary>
     /// Yardımcı araçlar çekmecesini (ses, ayarlar, çıkış) ok butonuna tıklandığında
-    /// pürüzsüzce açıp kapatan kontrolcü.
+    /// pürüzsüzce açıp kapatan ve alt butonların varsayılan işlevlerini yöneten kontrolcü.
     /// </summary>
     public class MenuDrawerController : MonoBehaviour
     {
@@ -27,12 +28,28 @@ namespace Kervan.UI
         [Tooltip("İçinde butonları barındıran çekmece paneli")]
         [SerializeField] private RectTransform _drawerPanel;
 
+        [Header("Çekmece İçi Aksiyon Butonları (Boşsa Otomatik Çözümlenir)")]
+        [Tooltip("Ses açma/kapama (Mute) butonu")]
+        [SerializeField] private Button _volumeButton;
+        [Tooltip("Ses açıkken gösterilecek ikon (opsiyonel)")]
+        [SerializeField] private Sprite _volumeOnSprite;
+        [Tooltip("Ses kapalıyken gösterilecek ikon (opsiyonel)")]
+        [SerializeField] private Sprite _volumeOffSprite;
+        [Tooltip("Ayarlar penceresini açan buton")]
+        [SerializeField] private Button _settingsButton;
+        [Tooltip("Ana menüye dönen çıkış butonu")]
+        [SerializeField] private Button _exitButton;
+        [Tooltip("Sahnedeki ayarlar penceresi (boşsa sahnede otomatik aranır)")]
+        [SerializeField] private SettingsPopupUI _settingsPopup;
+
         [Header("Animasyon & Başlangıç Ayarları")]
         [SerializeField] private float _animationDuration = 0.25f;
         [Tooltip("Oyun ilk açıldığında çekmece açık mı başlasın? (Varsayılan: false / kapalı)")]
         [SerializeField] private bool _startOpen = false;
 
         private bool _isOpen;
+        private bool _managesActionButtons;
+        private Image _volumeIconImage;
         private Coroutine _animCoroutine;
         private Vector2 _openPosition;
         private Vector2 _closedPosition;
@@ -50,6 +67,8 @@ namespace Kervan.UI
                     _canvasGroup = _drawerPanel.gameObject.AddComponent<CanvasGroup>();
                 }
             }
+
+            ResolveDrawerButtons();
         }
 
         private void Start()
@@ -57,6 +76,16 @@ namespace Kervan.UI
             if (_toggleButton != null)
             {
                 _toggleButton.onClick.AddListener(ToggleDrawer);
+            }
+
+            // WorldMapUI kendi içinde bu butonları zaten bağlıyorsa çift tetiklemeyi önle
+            _managesActionButtons = FindAnyObjectByType<WorldMapUI>() == null;
+            if (_managesActionButtons)
+            {
+                if (_volumeButton != null) _volumeButton.onClick.AddListener(OnVolumeButtonClicked);
+                if (_settingsButton != null) _settingsButton.onClick.AddListener(OnSettingsButtonClicked);
+                if (_exitButton != null) _exitButton.onClick.AddListener(OnExitButtonClicked);
+                RefreshVolumeVisual();
             }
 
             if (_drawerPanel != null)
@@ -79,6 +108,82 @@ namespace Kervan.UI
             {
                 _toggleButton.onClick.RemoveListener(ToggleDrawer);
             }
+
+            if (_managesActionButtons)
+            {
+                if (_volumeButton != null) _volumeButton.onClick.RemoveListener(OnVolumeButtonClicked);
+                if (_settingsButton != null) _settingsButton.onClick.RemoveListener(OnSettingsButtonClicked);
+                if (_exitButton != null) _exitButton.onClick.RemoveListener(OnExitButtonClicked);
+            }
+        }
+
+        private void ResolveDrawerButtons()
+        {
+            if (_drawerPanel != null && (_volumeButton == null || _settingsButton == null || _exitButton == null))
+            {
+                Button[] childButtons = _drawerPanel.GetComponentsInChildren<Button>(true);
+                if (childButtons.Length >= 3)
+                {
+                    if (_volumeButton == null) _volumeButton = childButtons[0];
+                    if (_settingsButton == null) _settingsButton = childButtons[1];
+                    if (_exitButton == null) _exitButton = childButtons[2];
+                }
+            }
+
+            if (_volumeButton != null)
+            {
+                _volumeIconImage = _volumeButton.GetComponent<Image>();
+                if (_volumeOnSprite == null && _volumeIconImage != null)
+                {
+                    _volumeOnSprite = _volumeIconImage.sprite;
+                }
+            }
+        }
+
+        private void OnVolumeButtonClicked()
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.ToggleMute();
+            }
+
+            RefreshVolumeVisual();
+        }
+
+        private void RefreshVolumeVisual()
+        {
+            if (_volumeIconImage == null) return;
+
+            bool isMuted = AudioManager.Instance != null && AudioManager.Instance.IsMuted;
+            if (_volumeOnSprite != null && _volumeOffSprite != null)
+            {
+                _volumeIconImage.sprite = isMuted ? _volumeOffSprite : _volumeOnSprite;
+            }
+
+            // İkon sprite'ı atanmamış olsa bile görsel geri bildirim için soluklaştır
+            _volumeIconImage.color = isMuted ? new Color(1f, 0.55f, 0.55f, 0.55f) : Color.white;
+        }
+
+        private void OnSettingsButtonClicked()
+        {
+            if (_settingsPopup == null)
+            {
+                _settingsPopup = FindAnyObjectByType<SettingsPopupUI>(FindObjectsInactive.Include);
+            }
+
+            if (_settingsPopup != null)
+            {
+                _settingsPopup.Show();
+            }
+            else
+            {
+                Debug.LogWarning("[MenuDrawerController] Sahnede SettingsPopupUI (Popup_Settings prefabı) bulunamadı.");
+            }
+        }
+
+        private void OnExitButtonClicked()
+        {
+            SceneLoader.Load(SceneIds.MainMenu);
         }
 
         /// <summary>

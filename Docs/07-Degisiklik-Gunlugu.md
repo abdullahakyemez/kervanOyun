@@ -6,6 +6,26 @@
 
 ---
 
+## [30.10.2026] A4.2 — Pazar Sistemi, 4 Yeni `ItemDataSO`, `GameSession` Bağlantısı & Alış-Satış UI
+- `CaravanData.cs`: `FindSlot`, `ClearInventory` ve `RestoreInventorySlot` metotları eklendi; tüm `ItemId` karşılaştırmaları `StringComparison.Ordinal` standardına çekildi.
+- `GameSession.cs`: Diskten okunan `InventorySlotSaveData` kayıtlarının korunması ve `ResolveSavedInventoryItems` ile `CaravanData.Inventory` listesine dönüştürülmesi sağlandı.
+- `CityMarket.cs`: `GameSession.CurrentNodeId` üzerinden aktif şehrin pazarını (`_allCityMarkets` + `_allTradeItems` 10 emtia kataloğuyla) otomatik kuran ve `MarketSupplyTier` (`LocalAbundant`, `Standard`, `HighDemand`) sınıflandırması yapan yapıya geçirildi.
+- `MarketUI.cs`: İzole `CaravanData` ve sahte `+400 Akçe` kodu kaldırılıp doğrudan `GameSession.Caravan`'a bağlandı; kurumsal çerçevelerle (`UI_BottomMenuInfoBG`, `UI_BG_Itemicon`) sol ambar (`+%Kâr ▲` / `-%Zarar ▼` rozeti + boş durum) ve sağ şehir pazarı satırlarının dinamik üretimi, `[-]`, `Slider`, `[+]`, `[MAKS]` ve `SATIN AL` / `SAT` akışı tamamlandı.
+- Unity'de elle yapılanlar: `Item_Zeytinyagi`, `Item_Deri`, `Item_Hali`, `Item_Cini` (`ItemDataSO`) oluşturuldu; `TownHubScene` içinde `Panel_Market`, `Panel_Caravanserai`, `Panel_Divan` içerikleri kuruldu ve `CityMarket` / `MarketUI` bileşenleri bağlandı.
+- Commit: `feat(market): A4.2 sehir pazari GameSession entegrasyonu, 4 yeni emtia ve kar-zarar rozetli MarketUI`
+
+---
+
+## [29.10.2026] A4.1 — Şehir Hub Tasarımı & 3 Sekmeli Sahne İskeleti (`TownHubScene`)
+- `RouteDatabaseSO.cs`: Kayıtlı rotalar üzerinden ASCII `nodeId` (`StringComparison.Ordinal`) ile `LocationNodeSO` çözümleyen `FindNodeById(string nodeId)` metodu eklendi.
+- `TownHubUI.cs`: 3 sekmeli (`Market`, `Caravanserai`, `Divan`) merkez yapısına taşındı; sekmeye göre tam ekran arka plan (`_bgMarket`, `_bgCaravanserai`, `_bgDivan`) ve aktif/pasif sekme görseli değişimi, `GameSession.CurrentNodeId` üzerinden dinamik şehir/fraksiyon başlığı, kervansaray düğümlerinde tesis kilitleme (`!HasMarket`), `SceneLoader.Load(SceneIds.WorldMap)` ve Android Geri tuşu (`Escape`) desteği eklendi.
+- `MenuDrawerController.cs`: `TopBar_HUD` içindeki `UtilityDrawer` alt butonlarının (`Btn_Volume`, `Btn_Settings`, `Btn_Exit`) `WorldMapScene` dışındaki sahnelerde de otomatik çözümlenip çalışması sağlandı.
+- Varlıklar: `UI_BG_Market.png`, `UI_BG_Caravanserai.jpg`, `UI_BG_Divan.jpg` arka planları; `Icon_Tab_Market.png`, `Icon_Tab_Inn.png`, `Icon_Tab_Divan.png` sekme ikonları; `Item_Cini.png`, `Item_Hali.png`, `Item_Deri.png`, `Item_Zeytinyagi.png` ticaret malı ikonları projeye eklendi.
+- Unity'de elle yapılanlar: `TownHubScene` içinde 3 kuşaklı mizanpaj (`TopBar_HUD` + `Btn_ReturnToMap`, `CityBanner` + `TabsMenu`, `ContentArea` altında `Panel_Market`/`Panel_Caravanserai`/`Panel_Divan`), `AudioManager`, `Popup_Settings` ve `Main Camera` `AudioListener` bileşeni kuruldu; sahne müziği `BGM_Market` olarak ayarlandı.
+- Commit: `feat(townhub): A4.1 3 sekmeli sehir merkezi iskeleti, ozel arka planlar ve TopBar cekmece entegrasyonu`
+
+---
+
 ## 🏆 [28.10.2026] A3 — Seyahat (`TravelScene` Yeniden) (Aşama Özeti)
 - **Kapsam:** A3.1–A3.4 arasındaki 4 adım başarıyla tamamlandı.
 - **Kazanımlar:**
