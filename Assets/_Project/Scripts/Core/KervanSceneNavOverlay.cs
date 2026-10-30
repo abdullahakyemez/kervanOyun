@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using UnityEngine.SceneManagement;
 using Kervan.Core;
 #endif
@@ -9,11 +9,11 @@ namespace Kervan.DevTools
     /// <summary>
     /// Test ve geliştirme sürecinde sahneler arasında (Savaş, Seyahat, Pazar, Divan)
     /// tek tıkla geçiş yapmayı sağlayan geliştirici arayüzü.
-    /// Yalnızca Editör ve Development Build sürümlerinde aktif olur.
+    /// Yalnızca Editör ve Debug sürümlerinde aktif olur.
     /// </summary>
     public class KervanSceneNavOverlay : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private static bool _initialized = false;
         private bool _isCollapsed = false;
 

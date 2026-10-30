@@ -125,7 +125,7 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Hedef:** Sefer sırasında gün geçişlerinde olay/pusu zar kontrolü, kamp/olay bilgi penceresi ve A5'e zemin hazırlayan `RoadEventSO` veri yapısı.
 - **Uygulama notu:** `RoadEventSO` (4 kategori: `Incident`, `Positive`, `BanditAmbush`, `WildBeastAttack`) oluşturuldu; `TravelRouteSO` ve `TravelManager`'a bağlandı. `UI_BottomMenuBG` ile `EventModal` kuruldu; parşömen sesi, renkli etki özeti ve `"Yola Devam Et"` / `"Haritaya Dön"` akışı tamamlandı (`v0.3.0-alpha`).
 
-## A4 — Şehir: Pazar + Kervansaray + Divan ⏳
+## A4 — Şehir: Pazar + Kervansaray + Divan ✅
 > **Karar (KR-3 & A4 Planı):** Pazar, Kervansaray ve Divan etkileşimleri `TownHubScene` içinde 3 sekmeli tek bir merkezde birleştirilir; her sekmenin kendine özgü 14. yy minyatür arka planı (`UI_BG_Market`, `UI_BG_Caravanserai`, `UI_BG_Divan`) ve sayfa bazlı özel arayüz elemanları adım adım tasarlanıp kurulur.
 
 ### A4.1 — Şehir Hub Tasarımı & 3 Sekmeli Sahne İskeleti (`TownHubScene`) ✅
@@ -144,19 +144,21 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Test:** Pazarda yerel mal (`[Yerel Üretim · Ucuz]`) satın al → akçe düşer, ambar ağırlığı artar, `TopBarHUD` güncellenir. Başka şehre git → malın yanında `+%Kâr ▲` görünür, satınca akçe artar ve kayıt dosyasına (`save_0.json`) yazılır.
 - **Uygulama notu:** Özel `CityMarketDataSO` dosyası olmayan şehirler için `CityMarket` içinde `_allTradeItems` kataloğu ve şehir kimliği bazlı deterministik arz/talep (`MarketSupplyTier`) üretimi eklendi.
 
-### A4.3 — Pazar Doygunluğu (`MarketSaturation`), Kalıcı Kayıt ve Günlük Toparlanma ⬜
+### A4.3 — Pazar Doygunluğu (`MarketSaturation`), Kalıcı Kayıt ve Günlük Toparlanma ✅
 - **Amaç:** Aynı şehre yüksek miktarda mal satıldığında fiyatların düşmesi (doygunluk), satın alındığında stokların azalması ve günler geçtikçe (`DayPassedEvent`) piyasaların kademeli olarak başlangıç dengesine toparlanması (GDD §4 & §10).
 - **Çözer:** GDD §4 Dinamik Arz-Talep & Enflasyon/Doygunluk sistemi ve §10 piyasa durumunun `SaveData` içinde kalıcı saklanması.
-- **Muhtemel dosyalar:** `TradeAndTravel/CityMarket.cs`, `Core/GameSession.cs`, `Core/Save/SaveData.cs`.
-- **Unity'de elle:** Yok (saf mantık ve mevcut Pazar UI üzerinde dinamik fiyat/stok etiketi güncellemesi).
+- **Dosyalar:** `Core/Save/SaveData.cs`, `Core/Save/SaveService.cs`, `Core/GameSession.cs`, `TradeAndTravel/CityMarket.cs`, `TradeAndTravel/MarketUI.cs`.
+- **Unity'de elle:** Yok (saf mantık ve mevcut Pazar UI üzerinde dinamik fiyat/stok etiketi ve durum rozeti güncellemesi).
 - **Test:** Bir şehirde aynı malı arka arkaya sat → satış fiyatı kademeli düşer. Oyunu kapat/aç → düşmüş fiyat korunur. Seyahat et veya handa konakla (gün geçsin) → fiyat ve stok kademeli olarak toparlanır.
+- **Uygulama notu:** Stok azaldıkça devreye giren hafif kıtlık primi (`CalculateScarcityBonus`), `MarketUI` üzerinde `[Arz Fazlası · -%X]` / `[Pazar Doygun · -%X]` / `[Azalan Stok · +%X]` durum rozetleri ve `GameSession.ApplyDailyMarketRecovery` ile günlük erime/toparlanma bağlandı.
 
-### A4.4 — Kervansaray (Han): Konaklama/İyileşme, Erzak İkmali ve Muhafız/Hayvan Kiralama ⬜
+### A4.4 — Kervansaray (Han): Konaklama/İyileşme, Erzak İkmali ve Muhafız/Hayvan Kiralama ✅
 - **Amaç:** Oyuncunun Kervansaray sekmesinde konaklayarak gün geçirip yaralılarını iyileştirmesi/moral tazelemesi, erzak satın alması ve kervana yeni muhafız veya yük hayvanı (at, katır, deve) kiralayıp katması (GDD §3.1).
 - **Çözer:** GDD §3.1 Kervansaray işlevleri.
 - **Muhtemel dosyalar:** Yeni `TradeAndTravel/CaravanseraiInnUI.cs`, `TradeAndTravel/CaravanData.cs` (konaklama iyileşmesi, erzak/birim/hayvan ekleme API'leri), `IntelSystem/TownHubUI.cs`.
 - **Unity'de elle:** `Panel_Caravanserai` altında Konaklama, Erzak İkmali ve Muhafız/Binek Kiralama kartlarının (`Portrait_*` görselleriyle) kurulması ve bağlanması.
 - **Test:** Kervansarayda "1 Gün Konakla" → akçe düşer, takvim 1 gün ilerler, yaralı muhafızların canı ve moral artar. Erzak al → erzak artar. Muhafız/Deve kirala → kadroya veya azami yük kapasitesine (`MaxWeightKg`) anında yansır.
+- **Uygulama notu:** `CaravanseraiInnUI.cs` oluşturuldu ve 3 kart (`Card_RestAndSupply`, `Card_HireGuards`, `Card_HireMounts`) ile `BottomBar_InnMeta` (`Btn_HireSpy` 50 Akçe casusluk istihbaratı) birbirine bağlandı. `CaravanData` içine `RestAtInn`, `BuySupplies`, `AddPackAnimal`, `RecruitGuardWithCost`, `RestoreGuardRecord` eklendi; kiralanan muhafızlar ve yük kapasitesi `GameSession` ve `save_0.json` ile kalıcı hale getirildi.
 
 ## A5 — Olay & Pusu → Savaş ⬜
 - A5.1 Olay penceresi: **Kaç / Haraç Ver / Savaş** (GDD §11/5).

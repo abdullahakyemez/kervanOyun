@@ -223,6 +223,11 @@ namespace Kervan.Core.Save
                 data.visitedNodeIds = new System.Collections.Generic.List<string>();
             }
 
+            if (data.cityMarkets == null)
+            {
+                data.cityMarkets = new System.Collections.Generic.List<CityMarketNodeSaveData>();
+            }
+
             return true;
         }
 

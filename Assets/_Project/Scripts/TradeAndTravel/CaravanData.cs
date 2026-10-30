@@ -6,6 +6,13 @@ using Kervan.Combat;
 
 namespace Kervan.TradeAndTravel
 {
+    public enum PackAnimalType
+    {
+        Horse,
+        Mule,
+        Camel
+    }
+
     [Serializable]
     public class CaravanItemSlot
     {
@@ -225,26 +232,124 @@ namespace Kervan.TradeAndTravel
             return true;
         }
 
+        public const int MaxGuardsCount = 8;
+
+        public bool CanRecruitGuard()
+        {
+            return _guards.Count < MaxGuardsCount;
+        }
+
+        public bool RecruitGuardWithCost(UnitDataSO unitData, int costAkce)
+        {
+            if (unitData == null || !CanRecruitGuard() || _currentAkce < costAkce) return false;
+
+            _currentAkce -= costAkce;
+            _guards.Add(new CaravanGuardRecord(unitData));
+            NotifyStatsChanged();
+            return true;
+        }
+
         public void RecruitGuard(UnitDataSO unitData)
         {
-            if (unitData == null) return;
+            if (unitData == null || !CanRecruitGuard()) return;
             _guards.Add(new CaravanGuardRecord(unitData));
+            NotifyStatsChanged();
+        }
+
+        public void ClearGuards()
+        {
+            _guards.Clear();
+            NotifyStatsChanged();
+        }
+
+        public void RestoreGuardRecord(string guardId, UnitDataSO unitData, int currentHealth, int currentMorale)
+        {
+            if (unitData == null) return;
+            var record = new CaravanGuardRecord(unitData)
+            {
+                GuardId = !string.IsNullOrWhiteSpace(guardId) ? guardId : Guid.NewGuid().ToString().Substring(0, 8),
+                CurrentHealth = Mathf.Max(1, currentHealth),
+                CurrentMorale = Mathf.Max(0, currentMorale)
+            };
+            _guards.Add(record);
+            NotifyStatsChanged();
         }
 
         public void RemoveGuard(string guardId)
         {
             _guards.RemoveAll(g => g.GuardId == guardId);
+            NotifyStatsChanged();
         }
 
-        public void HealAllGuards(int healAmount)
+        public void HealAllGuards(int healAmount, int moraleBonus = 0)
         {
-            foreach (var guard in _guards)
+            for (int i = 0; i < _guards.Count; i++)
             {
-                if (guard.UnitData != null)
-                {
-                    guard.CurrentHealth = Mathf.Min(guard.UnitData.MaxHealth, guard.CurrentHealth + healAmount);
-                }
+                var guard = _guards[i];
+                if (guard == null) continue;
+
+                int maxHealth = guard.UnitData != null ? guard.UnitData.MaxHealth : 100;
+                guard.CurrentHealth = Mathf.Min(maxHealth, guard.CurrentHealth + healAmount);
+
+                int maxMorale = guard.UnitData != null ? guard.UnitData.BaseMorale : 100;
+                guard.CurrentMorale = Mathf.Min(maxMorale, guard.CurrentMorale + moraleBonus);
             }
+        }
+
+        /// <summary>
+        /// Kervansarayda konaklayarak muhafızların canını ve moralini tazeler.
+        /// </summary>
+        public bool RestAtInn(int costAkce, int healAmount, int moraleBonus)
+        {
+            if (_currentAkce < costAkce) return false;
+
+            _currentAkce -= costAkce;
+            HealAllGuards(healAmount, moraleBonus);
+            NotifyStatsChanged();
+            return true;
+        }
+
+        /// <summary>
+        /// Kervansaraydan kervan ambarına erzak satın alır.
+        /// </summary>
+        public bool BuySupplies(int foodAmount, int costAkce)
+        {
+            if (foodAmount <= 0 || _currentAkce < costAkce) return false;
+
+            _currentAkce -= costAkce;
+            _currentFood += foodAmount;
+            NotifyStatsChanged();
+            return true;
+        }
+
+        /// <summary>
+        /// Kervana yeni bir binek veya yük hayvanı katarak azami yük kapasitesini artırır.
+        /// </summary>
+        public bool AddPackAnimal(PackAnimalType animalType, float addedCapacityKg, int costAkce)
+        {
+            if (_currentAkce < costAkce) return false;
+
+            _currentAkce -= costAkce;
+            switch (animalType)
+            {
+                case PackAnimalType.Horse:
+                    _horses++;
+                    break;
+                case PackAnimalType.Mule:
+                    _mules++;
+                    break;
+                case PackAnimalType.Camel:
+                    _camels++;
+                    break;
+            }
+
+            if (addedCapacityKg > 0f)
+            {
+                _maxWeightCapacity += addedCapacityKg;
+            }
+
+            NotifyStatsChanged();
+            return true;
         }
 
         private void NotifyStatsChanged()

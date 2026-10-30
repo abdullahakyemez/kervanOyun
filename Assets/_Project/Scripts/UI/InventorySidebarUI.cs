@@ -1,10 +1,11 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Kervan.TradeAndTravel;
 using Kervan.Audio;
 using Kervan.Core;
-using System.Collections.Generic;
 
 namespace Kervan.UI
 {
@@ -421,11 +422,13 @@ namespace Kervan.UI
 
                 if (caravan != null && caravan.Guards != null && caravan.Guards.Count > 0)
                 {
-                    Dictionary<string, (int count, Sprite portrait)> guardData = new Dictionary<string, (int, Sprite)>();
+                    Dictionary<string, (int count, Sprite portrait)> guardData = new Dictionary<string, (int, Sprite)>(StringComparer.Ordinal);
                     foreach (var g in caravan.Guards)
                     {
-                        if (g.UnitData == null) continue;
-                        string uName = g.UnitData.UnitName;
+                        if (g == null) continue;
+                        string uName = (g.UnitData != null && !string.IsNullOrWhiteSpace(g.UnitData.UnitName))
+                            ? g.UnitData.UnitName
+                            : "Muhafız";
                         Sprite p = GetPortraitForUnit(uName);
 
                         if (!guardData.ContainsKey(uName))

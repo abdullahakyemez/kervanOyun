@@ -20,6 +20,29 @@ namespace Kervan.Core.Save
         public CaravanSaveData caravan = new CaravanSaveData();
         public ActiveTravelSaveData activeTravel = new ActiveTravelSaveData();
         public List<string> visitedNodeIds = new List<string>();
+        public List<CityMarketNodeSaveData> cityMarkets = new List<CityMarketNodeSaveData>();
+    }
+
+    /// <summary>
+    /// Bir şehrin (düğümün) pazarındaki emtiaların kalıcı stok ve doygunluk kayıtlarını tutar.
+    /// </summary>
+    [Serializable]
+    public class CityMarketNodeSaveData
+    {
+        public string nodeId = string.Empty;
+        public List<CityMarketItemSaveData> items = new List<CityMarketItemSaveData>();
+    }
+
+    /// <summary>
+    /// Bir şehir pazarındaki tek bir ticari malın kalıcı stok, başlangıç dengesi ve doygunluk kaydı.
+    /// </summary>
+    [Serializable]
+    public class CityMarketItemSaveData
+    {
+        public string itemId = string.Empty;
+        public int currentStock;
+        public int initialStock;
+        public float saturation;
     }
 
     /// <summary>

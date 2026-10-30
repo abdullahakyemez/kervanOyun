@@ -86,6 +86,9 @@ namespace Kervan.Core
     public class GameSession
     {
         public const string DefaultStartNodeId = "node_sogut";
+        public const float DailySaturationRecoveryRate = 0.18f;
+        public const float DailyStockRecoveryRatio = 0.25f;
+        public const int MinDailyStockRecoveryStep = 3;
 
         private string _currentNodeId = DefaultStartNodeId;
         private int _dayCount = 1;
@@ -93,6 +96,8 @@ namespace Kervan.Core
         private ActiveTravelState _activeTravel;
         private readonly HashSet<string> _visitedNodeIds = new HashSet<string>(StringComparer.Ordinal);
         private readonly List<InventorySlotSaveData> _pendingSavedItems = new List<InventorySlotSaveData>();
+        private readonly Dictionary<string, Dictionary<string, CityMarketItemSaveData>> _cityMarketStates =
+            new Dictionary<string, Dictionary<string, CityMarketItemSaveData>>(StringComparer.Ordinal);
         private bool _hasSeenIntro;
         private bool _isSessionActive;
 
@@ -137,6 +142,7 @@ namespace Kervan.Core
             _visitedNodeIds.Clear();
             _visitedNodeIds.Add(_currentNodeId);
             _pendingSavedItems.Clear();
+            _cityMarketStates.Clear();
 
             ClearLegacyPlayerPrefs();
 
@@ -249,6 +255,35 @@ namespace Kervan.Core
                 data.activeTravel.isActive = false;
             }
 
+            foreach (var nodePair in _cityMarketStates)
+            {
+                if (string.IsNullOrWhiteSpace(nodePair.Key) || nodePair.Value == null || nodePair.Value.Count == 0) continue;
+
+                var nodeMarketSave = new CityMarketNodeSaveData
+                {
+                    nodeId = nodePair.Key
+                };
+
+                foreach (var itemPair in nodePair.Value)
+                {
+                    var state = itemPair.Value;
+                    if (state == null || string.IsNullOrWhiteSpace(state.itemId)) continue;
+
+                    nodeMarketSave.items.Add(new CityMarketItemSaveData
+                    {
+                        itemId = state.itemId,
+                        currentStock = Mathf.Max(0, state.currentStock),
+                        initialStock = Mathf.Max(0, state.initialStock),
+                        saturation = Mathf.Clamp01(state.saturation)
+                    });
+                }
+
+                if (nodeMarketSave.items.Count > 0)
+                {
+                    data.cityMarkets.Add(nodeMarketSave);
+                }
+            }
+
             return data;
         }
 
@@ -312,6 +347,23 @@ namespace Kervan.Core
                         });
                     }
                 }
+
+                _caravan.ClearGuards();
+                if (data.caravan.guards != null && data.caravan.guards.Count > 0)
+                {
+                    for (int i = 0; i < data.caravan.guards.Count; i++)
+                    {
+                        var guardSave = data.caravan.guards[i];
+                        if (guardSave == null) continue;
+
+                        string unitId = !string.IsNullOrWhiteSpace(guardSave.unitDataId) ? guardSave.unitDataId : "unit_muhafiz";
+                        string unitName = unitId.ToLowerInvariant().Contains("okcu") ? "Okçu" : "Kılıçlı Muhafız";
+                        var unitSo = ScriptableObject.CreateInstance<Combat.UnitDataSO>();
+                        unitSo.Initialize(unitId, unitName);
+
+                        _caravan.RestoreGuardRecord(guardSave.guardId, unitSo, guardSave.currentHealth, guardSave.currentMorale);
+                    }
+                }
             }
 
             if (data.activeTravel != null && data.activeTravel.isActive && !string.IsNullOrWhiteSpace(data.activeTravel.toNodeId))
@@ -329,6 +381,29 @@ namespace Kervan.Core
             else
             {
                 _activeTravel = null;
+            }
+
+            _cityMarketStates.Clear();
+            if (data.cityMarkets != null)
+            {
+                for (int i = 0; i < data.cityMarkets.Count; i++)
+                {
+                    var nodeSave = data.cityMarkets[i];
+                    if (nodeSave == null || string.IsNullOrWhiteSpace(nodeSave.nodeId) || nodeSave.items == null) continue;
+
+                    for (int j = 0; j < nodeSave.items.Count; j++)
+                    {
+                        var itemSave = nodeSave.items[j];
+                        if (itemSave == null || string.IsNullOrWhiteSpace(itemSave.itemId)) continue;
+
+                        SetMarketItemState(
+                            nodeSave.nodeId,
+                            itemSave.itemId,
+                            itemSave.currentStock,
+                            itemSave.initialStock,
+                            itemSave.saturation);
+                    }
+                }
             }
 
             if (!string.Equals(previousNodeId, _currentNodeId, StringComparison.Ordinal))
@@ -421,7 +496,96 @@ namespace Kervan.Core
         }
 
         /// <summary>
-        /// Oyun gününü belirtilen gün kadar ilerletir ve olay yayınlar.
+        /// Belirtilen şehir düğümü ve emtia kimliği için kayıtlı stok/doygunluk durumunu döndürür.
+        /// </summary>
+        public bool TryGetMarketItemState(string nodeId, string itemId, out CityMarketItemSaveData state)
+        {
+            state = null;
+            if (string.IsNullOrWhiteSpace(nodeId) || string.IsNullOrWhiteSpace(itemId)) return false;
+
+            if (_cityMarketStates.TryGetValue(nodeId, out var itemsById) &&
+                itemsById != null &&
+                itemsById.TryGetValue(itemId, out state) &&
+                state != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Belirtilen şehir düğümü ve emtia kimliği için güncel stok, başlangıç dengesi ve doygunluk değerini kaydeder.
+        /// </summary>
+        public void SetMarketItemState(string nodeId, string itemId, int currentStock, int initialStock, float saturation)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId) || string.IsNullOrWhiteSpace(itemId)) return;
+
+            if (!_cityMarketStates.TryGetValue(nodeId, out var itemsById) || itemsById == null)
+            {
+                itemsById = new Dictionary<string, CityMarketItemSaveData>(StringComparer.Ordinal);
+                _cityMarketStates[nodeId] = itemsById;
+            }
+
+            int clampedCurrent = Mathf.Max(0, currentStock);
+            int clampedInitial = Mathf.Max(0, initialStock > 0 ? initialStock : clampedCurrent);
+            float clampedSaturation = Mathf.Clamp01(saturation);
+
+            if (itemsById.TryGetValue(itemId, out var existing) && existing != null)
+            {
+                existing.currentStock = clampedCurrent;
+                if (initialStock > 0 || existing.initialStock <= 0)
+                {
+                    existing.initialStock = clampedInitial;
+                }
+                existing.saturation = clampedSaturation;
+            }
+            else
+            {
+                itemsById[itemId] = new CityMarketItemSaveData
+                {
+                    itemId = itemId,
+                    currentStock = clampedCurrent,
+                    initialStock = clampedInitial,
+                    saturation = clampedSaturation
+                };
+            }
+        }
+
+        /// <summary>
+        /// Oyun içi günler ilerledikçe tüm şehirlerin kayıtlı pazar doygunluğunu azaltır ve
+        /// stoklarını başlangıç dengesine (<see cref="CityMarketItemSaveData.initialStock"/>) doğru kademeli toparlar.
+        /// </summary>
+        public void ApplyDailyMarketRecovery(int days = 1)
+        {
+            if (days <= 0 || _cityMarketStates.Count == 0) return;
+
+            foreach (var nodePair in _cityMarketStates)
+            {
+                if (nodePair.Value == null) continue;
+
+                foreach (var itemPair in nodePair.Value)
+                {
+                    var state = itemPair.Value;
+                    if (state == null) continue;
+
+                    for (int d = 0; d < days; d++)
+                    {
+                        state.saturation = Mathf.Max(0f, state.saturation - DailySaturationRecoveryRate);
+
+                        if (state.initialStock > 0 && state.currentStock != state.initialStock)
+                        {
+                            int diff = Mathf.Abs(state.initialStock - state.currentStock);
+                            int step = Mathf.Max(MinDailyStockRecoveryStep, Mathf.CeilToInt(diff * DailyStockRecoveryRatio));
+                            state.currentStock = Mathf.RoundToInt(Mathf.MoveTowards(state.currentStock, state.initialStock, step));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Oyun gününü belirtilen gün kadar ilerletir, şehir pazarlarını toparlar ve olay yayınlar.
         /// </summary>
         public void AdvanceDays(int days = 1)
         {
@@ -434,6 +598,7 @@ namespace Kervan.Core
                 _activeTravel.DaysElapsed += days;
             }
 
+            ApplyDailyMarketRecovery(days);
             EventBus.Publish(new DayPassedEvent(_dayCount, days));
         }
 

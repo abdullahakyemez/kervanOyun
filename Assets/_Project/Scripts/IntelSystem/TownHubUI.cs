@@ -81,6 +81,8 @@ namespace Kervan.IntelSystem
         [SerializeField] private GameObject _panelMarket;
         [Tooltip("Kervansaray (Dinlenme, Erzak, Muhafız) sekmesi kök paneli (Panel_Caravanserai)")]
         [SerializeField] private GameObject _panelCaravanserai;
+        [Tooltip("Kervansaray hizmetlerini yöneten arayüz kontrolcüsü")]
+        [SerializeField] private CaravanseraiInnUI _caravanseraiInnUI;
         [Tooltip("Divan (Makam, İtibar, İstihbarat, Dükkân) sekmesi kök paneli (Panel_Divan)")]
         [SerializeField] private GameObject _panelDivan;
 
@@ -126,6 +128,8 @@ namespace Kervan.IntelSystem
             if (_reputationManager == null) _reputationManager = ReputationManager.Instance;
             if (_questManager == null) _questManager = QuestManager.Instance;
             if (_shopManager == null) _shopManager = ShopManager.Instance;
+
+            EnsureCaravanseraiComponent();
 
             if (_intelRowTemplate != null) _intelRowTemplate.SetActive(false);
 
@@ -375,9 +379,27 @@ namespace Kervan.IntelSystem
         public void RefreshAllViews()
         {
             UpdateHeader();
+            EnsureCaravanseraiComponent();
+            if (_caravanseraiInnUI != null)
+            {
+                _caravanseraiInnUI.RefreshView(_currentNode);
+            }
             UpdateDivanTab();
             UpdateIntelTab();
             UpdateShopTab();
+        }
+
+        private void EnsureCaravanseraiComponent()
+        {
+            if (_caravanseraiInnUI == null && _panelCaravanserai != null)
+            {
+                _caravanseraiInnUI = _panelCaravanserai.GetComponent<CaravanseraiInnUI>();
+                if (_caravanseraiInnUI == null)
+                {
+                    _caravanseraiInnUI = _panelCaravanserai.AddComponent<CaravanseraiInnUI>();
+                    Debug.Log("[TownHubUI] CaravanseraiInnUI bileşeni Panel_Caravanserai üzerine otomatik eklendi.");
+                }
+            }
         }
 
         private void UpdateHeader()

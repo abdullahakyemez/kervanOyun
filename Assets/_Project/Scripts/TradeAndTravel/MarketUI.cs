@@ -322,11 +322,13 @@ namespace Kervan.TradeAndTravel
             {
                 int buyUnit = _cityMarket.GetBuyPrice(_selectedItem.ItemId);
                 int sellUnit = _cityMarket.GetSellPrice(_selectedItem.ItemId);
+                var liveItem = _cityMarket.FindLiveItem(_selectedItem.ItemId);
                 var slot = _caravanData != null ? _caravanData.FindSlot(_selectedItem.ItemId) : null;
 
+                string saturationBadge = FormatSaturationStatusBadge(liveItem);
                 string profitBadge = BuildProfitComparisonText(slot, sellUnit);
                 _selectedItemNameText.text =
-                    $"<b>{_selectedItem.ItemName}</b> ({_selectedItem.UnitWeightKg:F1} Kg)\n" +
+                    $"<b>{_selectedItem.ItemName}</b> ({_selectedItem.UnitWeightKg:F1} Kg){saturationBadge}\n" +
                     $"<size=85%>Birim Alış: <color=#FFD966>{buyUnit} Akçe</color>  |  Satış: <color=#FFD966>{sellUnit} Akçe</color>{profitBadge}</size>";
             }
         }
@@ -449,11 +451,12 @@ namespace Kervan.TradeAndTravel
                 int buyPrice = _cityMarket.GetBuyPrice(liveItem.Item.ItemId);
                 int sellPrice = _cityMarket.GetSellPrice(liveItem.Item.ItemId);
                 string tierBadge = FormatSupplyTierBadge(liveItem.SupplyTier);
+                string saturationBadge = FormatSaturationStatusBadge(liveItem);
                 bool isSelected = _selectedItem != null &&
                                   string.Equals(_selectedItem.ItemId, liveItem.Item.ItemId, StringComparison.Ordinal);
 
-                string titleLine = $"<b>{liveItem.Item.ItemName}</b>  {tierBadge}";
-                string subLine = $"Stok: <b>{liveItem.CurrentStock} Adet</b>  ·  Birim Ağırlık: {liveItem.Item.UnitWeightKg:F1} Kg";
+                string titleLine = $"<b>{liveItem.Item.ItemName}</b>  {tierBadge}{saturationBadge}";
+                string subLine = $"Stok: <b>{liveItem.CurrentStock}/{liveItem.InitialStock} Adet</b>  ·  Birim Ağırlık: {liveItem.Item.UnitWeightKg:F1} Kg";
                 string rightPriceLine =
                     $"<color=#FFD966>Alış: <b>{buyPrice}</b> Akçe</color>\n" +
                     $"<size=88%><color=#D8C3A5>Satış: {sellPrice} Akçe</color></size>";
@@ -687,6 +690,35 @@ namespace Kervan.TradeAndTravel
                 default:
                     return "<size=82%><color=#C8B8A6>[Standart]</color></size>";
             }
+        }
+
+        private static string FormatSaturationStatusBadge(LiveMarketItem liveItem)
+        {
+            if (liveItem == null) return string.Empty;
+
+            if (liveItem.Saturation >= 0.35f)
+            {
+                int satDropPct = Mathf.Max(1, Mathf.RoundToInt(Mathf.Clamp01(liveItem.Saturation * 0.50f) * 100f));
+                return $"  <size=80%><color=#E5534B>[Pazar Doygun · -%{satDropPct}]</color></size>";
+            }
+
+            if (liveItem.Saturation >= 0.03f)
+            {
+                int satDropPct = Mathf.Max(1, Mathf.RoundToInt(Mathf.Clamp01(liveItem.Saturation * 0.50f) * 100f));
+                return $"  <size=80%><color=#E69138>[Arz Fazlası · -%{satDropPct}]</color></size>";
+            }
+
+            if (liveItem.InitialStock > 0 && liveItem.CurrentStock < liveItem.InitialStock)
+            {
+                float scarcityBonus = CityMarket.CalculateScarcityBonus(liveItem);
+                int scarcityPct = Mathf.RoundToInt(scarcityBonus * 100f);
+                if (scarcityPct >= 2)
+                {
+                    return $"  <size=80%><color=#FFD966>[Azalan Stok · +%{scarcityPct}]</color></size>";
+                }
+            }
+
+            return string.Empty;
         }
 
         private static string BuildProfitComparisonText(CaravanItemSlot slot, int citySellPrice)

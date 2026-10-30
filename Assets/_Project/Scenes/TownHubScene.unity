@@ -5825,6 +5825,7 @@ MonoBehaviour:
   _tabDisabledTextColor: {r: 0.6, g: 0.56, b: 0.52, a: 0.55}
   _panelMarket: {fileID: 2041705754}
   _panelCaravanserai: {fileID: 815668848}
+  _caravanseraiInnUI: {fileID: 0}
   _panelDivan: {fileID: 1986031803}
   _reputationManager: {fileID: 0}
   _questManager: {fileID: 0}

@@ -6,6 +6,39 @@
 
 ---
 
+## 🏆 [31.10.2026] A4 — Şehir: Pazar, Kervansaray ve Şehir Merkezi (Aşama Özeti)
+- **Kapsam:** A4.1–A4.4 arasındaki 4 adım başarıyla tamamlandı.
+- **Kazanımlar:**
+  1. **3 Sekmeli Şehir Merkezi (`TownHubScene`):** Pazar, Kervansaray ve Divan için özel 14. yy minyatür arka planları (`UI_BG_*`), TopBar HUD, dinamik şehir sancağı ve haritaya güvenli dönüş akışı kuruldu.
+  2. **10 Emtialı Dinamik Pazar (`CityMarket` & `MarketUI`):** Yerel üretim/kıtlık kademeleri, ortalama alış maliyetiyle anlık `+%Kâr ▲` / `-%Zarar ▼` hesabı, miktar slider'ı ve güvenli ticaret döngüsü bağlandı.
+  3. **Pazar Doygunluğu & Kalıcı Piyasa:** Aynı şehre mal satıldıkça fiyatların düşmesi, azalan stokta kıtlık primi, `save_0.json` kalıcılığı ve günler geçtikçe (`DayPassedEvent`) pazarların başlangıç dengesine toparlanması (`ApplyDailyMarketRecovery`) sağlandı.
+  4. **Kervansaray Hizmetleri (`CaravanseraiInnUI`):** Handa 1 gün konaklayarak gün atlatma (şifa + moral), erzak ikmali, muhafız/okçu kiralama, katır/deve ile yük kapasitesi artırma, dedikodu dinleme ve 50 Akçe karşılığı casus tutma işlevleri tamamlandı.
+- **Önerilen Git Etiketi:** `v0.4.0-alpha`
+
+---
+
+## [31.10.2026] A4.4 — Kervansaray: Konaklama, Erzak İkmali, Muhafız/Hayvan Kiralama ve Casus Tutma
+- `CaravanseraiInnUI.cs`: Kervansarayın 3 hizmet kartını (`Card_RestAndSupply`, `Card_HireGuards`, `Card_HireMounts`) ve alt istihbarat barını (`BottomBar_InnMeta`) yöneten arayüz kontrolcüsü oluşturuldu; derin arama (`FindDeepChild`) ile buton ve metinlerin otomatik bağlanması, ses/kayıt entegrasyonu sağlandı.
+- `CaravanData.cs`: `PackAnimalType` enum'u, `RestAtInn` (gün atlatma + şifa + moral), `BuySupplies` (+10 erzak), `AddPackAnimal` (katır/deve ile `MaxWeightCapacity` artışı), `RecruitGuardWithCost`, `ClearGuards` ve `RestoreGuardRecord` API'leri eklendi.
+- `GameSession.cs`: `ApplySaveData` içine diskten yüklenen muhafız kayıtlarının (`CaravanSaveData.guards`) `_caravan.Guards` listesine eksiksiz geri yüklenmesi bağlandı.
+- `UnitDataSO.cs`: Boş veya dinamik birim oluşturulmasında `UnitName` ve `UnitId` için güvenli non-null fallback'ler ve `Initialize` metodu eklendi.
+- `InventorySidebarUI.cs`: Muhafız gruplama sözlüğünde `uName` için `StringComparer.Ordinal` ve `null` koruması eklenerek `ArgumentNullException` giderildi.
+- `TownHubUI.cs`: `EnsureCaravanseraiComponent` ile `CaravanseraiInnUI` bileşeninin `Panel_Caravanserai` üzerinde çalışma anında otomatik güvenceye alınması ve sekme geçişlerinde yenilenmesi sağlandı.
+- Commit: `feat(townhub): A4.4 Kervansaray konaklama, erzak, muhafiz-hayvan kiralama ve casusluk entegrasyonu ile A4 asama kapanisi`
+
+---
+
+## [31.10.2026] A4.3 — Pazar Doygunluğu (`MarketSaturation`), Kalıcı Kayıt ve Günlük Toparlanma
+- `SaveData.cs`: Şehir ve emtia bazlı pazar durumlarını saklayan `CityMarketNodeSaveData` ve `CityMarketItemSaveData` modelleri eklendi; `SaveData.cityMarkets` alanı tanımlandı.
+- `SaveService.cs`: `ValidateAndMigrate` içine eski kayıt dosyalarıyla geriye dönük uyumluluk için `data.cityMarkets` null koruması eklendi.
+- `GameSession.cs`: `_cityMarketStates` oturum sözlüğü (`TryGetMarketItemState`, `SetMarketItemState`) eklendi; `AdvanceDays` içine seyahat ve konaklamalarda tüm şehir pazarlarının doygunluğunu eriten ve stoklarını başlangıç dengesine yaklaştıran `ApplyDailyMarketRecovery` bağlandı; `ToSaveData` ve `ApplySaveData` kalıcı kayda entegre edildi.
+- `CityMarket.cs`: `LiveMarketItem.InitialStock` alanı eklendi; şehir pazarı kurulurken `GameSession`'dan kayıtlı stok/doygunluk verisi çekildi; alış/satış işlemlerinde anlık pazar durumu oturuma yazıldı; stok azaldıkça devreye giren kıtlık primi (`CalculateScarcityBonus`) ve gün geçişlerini anlık yakalayan `DayPassedEvent` aboneliği eklendi.
+- `MarketUI.cs`: Pazar emtia satırlarına başlangıç stoğu bilgisi (`Mevcut/Başlangıç Adet`) ve dinamik durum rozetleri (`[Arz Fazlası · -%X]`, `[Pazar Doygun · -%X]`, `[Azalan Stok · +%X]`) eklendi.
+- Unity'de elle yapılanlar: Yok (saf C# mantık ve mevcut pazar arayüzü güncellemesi).
+- Commit: `feat(market): A4.3 pazar doygunlugu, dinamik stok ve kalici kayit sistemi eklendi`
+
+---
+
 ## [30.10.2026] A4.2 — Pazar Sistemi, 4 Yeni `ItemDataSO`, `GameSession` Bağlantısı & Alış-Satış UI
 - `CaravanData.cs`: `FindSlot`, `ClearInventory` ve `RestoreInventorySlot` metotları eklendi; tüm `ItemId` karşılaştırmaları `StringComparison.Ordinal` standardına çekildi.
 - `GameSession.cs`: Diskten okunan `InventorySlotSaveData` kayıtlarının korunması ve `ResolveSavedInventoryItems` ile `CaravanData.Inventory` listesine dönüştürülmesi sağlandı.

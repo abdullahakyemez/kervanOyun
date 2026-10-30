@@ -50,11 +50,20 @@ namespace Kervan.Combat
         [SerializeField] private GameObject _unitPrefab;
 
         // Getters
-        public string UnitId => _unitId;
-        public string UnitName => _unitName;
+        public string UnitId => !string.IsNullOrEmpty(_unitId) ? _unitId : (!string.IsNullOrEmpty(name) ? name : "unit_muhafiz");
+        public string UnitName => !string.IsNullOrEmpty(_unitName) ? _unitName : (!string.IsNullOrEmpty(name) ? name : "Muhafız");
         public UnitCombatRole CombatRole => _combatRole;
         public FactionType Faction => _faction;
         public string Description => _description;
+
+        public void Initialize(string unitId, string unitName, int maxHealth = 100, int baseMorale = 100, Sprite portrait = null)
+        {
+            _unitId = unitId;
+            _unitName = unitName;
+            _maxHealth = maxHealth;
+            _baseMorale = baseMorale;
+            _portrait = portrait;
+        }
 
         public int MaxHealth => _maxHealth;
         public int MaxArmor => _maxArmor;
