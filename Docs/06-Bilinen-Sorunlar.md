@@ -49,7 +49,7 @@
 | AST-02 | ⚪ | Mükerrer dosyalar: `exitIcon.png` ×3; `Item_Akce`/`Item_Erzak` hem `Items/` hem `UI/Icons/`; `UI_BG_Button` ≈ `UI_Btn_Standard`; `Icon_MusicOn` / `Icon_Util_VolumeOn` / `Icon/MusicOn`. | A7 | Açık |
 | AST-03 | ⚪ | Yazım hataları: `Item_Healt`, `Mauhafiz_ProfileCard`, `UI_TollbarItemBG`, `BG_Travel_03_MidHiils`, (kod) `SeperatorContainer`. | A7 | Açık |
 | AST-04 | ⚪ | Önek kuralına uymayanlar: `BottomMenuBtn`, `Btn_Exit`, `sidebarBtnOnClick`, `SidebarBtnOffClick`, `toolbarAkceIcon`, `toolbarErzakIcon`, `BottomMenuIconBG`. | İlgili ekranın adımı (ör. A2.5 toolbar) | Açık |
-| AST-05 | 🟡 | Ham dosyalar `Assets/` içinde: `Art/SourceFiles/*.ai` (~14 MB), `Art/UI/Mockups` (~10 MB). Git LFS yok (repo pack ~70 MB). | A7 (KR-5 onaylandı) | Açık |
+| AST-05 | 🟡 | Ham dosyalar `Assets/` içinde: `Art/SourceFiles/*.ai` (~14 MB), `Art/UI/Mockups` (~10 MB). Git LFS yok (repo pack ~70 MB). | A7 (KR-5 onaylandı) | Çözüldü (02.11.2026 - A4.R1) |
 | AST-06 | 🟡 | Büyük dokular: `UI_WorldMapBackground` (5 MB), `UI_BG_MainMenu` (3.8 MB), `UI_BG_Paper` (2.6 MB) — Max Size/ASTC ayarları kontrol edilmeli. | A2.8 / A7 | Açık |
 | AST-07 | ⚪ | Şablon kalıntıları: `Assets/Scenes/SampleScene.unity`, `Assets/Welcome/`, `TextMesh Pro/Examples & Extras` (~30 örnek sahne). | A7 | Açık |
 | AST-08 | ⚪ | `WorldMapScene.unity` 1.6 MB (diğer sahnelerin ~12 katı); prefab'lanmamış çok sayıda UI objesi olabilir — merge çakışması riski. | A2.5–A2.7 (parçaları prefab'a alarak) | Açık |
@@ -77,3 +77,4 @@
 - `TD-14` — 25.10.2026 — A2.6 — `SceneIds` sabit sınıfı oluşturuldu; `Bootstrapper`, `MainMenuUI`, `WorldMapUI` ve `KervanSceneNavOverlay` içindeki dağınık string sahne adları sabitlere taşındı.
 - `TD-03` — 25.10.2026 — A2.7 — Sidebar kervan ve yük sekmeleri GameSession verisine bağlandı; sahte muhafız/emtia satırları kaldırıldı, boş durumlar ve esnek görev kartı eklendi.
 - `BUG-05` — 27.10.2026 — A3.2 / A3.3 — `TravelManager` içindeki ayrı `_caravanData` kopyası kaldırıldı; tüm erzak/akçe tüketimi ve gün ilerlemesi doğrudan `GameSession.Caravan` ve `GameSession.AdvanceDays` üzerine bağlandı.
+- `AST-05` — 02.11.2026 — A4.R1 — Projedeki tüm `.ai` dosyaları, `SourceFiles/`, `Mockups/`, mükerrer `yeniAssets/SettingsMenu` ve terk edilmiş eski UI klasörleri temizlendi (~49 MB alan kazanıldı).

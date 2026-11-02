@@ -6,7 +6,12 @@
 
 ---
 
-## [31.10.2026] A5.1 — Olay Penceresi: Kaç / Haraç Ver / Savaş Karar Kümesi
+## [02.11.2026] A4.R1 — UI Yenileme, Buton Rengi Korunması, Rota Grafiği Revizyonu ve Varlık Temizliği
+- `BottomNodeInfoCardUI.cs`: `_overrideButtonColors = false` serileştirilmiş alanı eklendi; `OpenCard` içerisinde butonun `Image.color` boyaması şartlı hale getirilerek varsayılan olarak `Color.white` (orijinal sprite rengi) kalması sağlandı.
+- `WorldMapScene.unity`: `BottomNodeInfoCard` hiyerarşisindeki `BottomTitle/TitleText` (`_nodeTitleText`) ve `DangerInfo` (`_dangerText`) referansları bağlandı.
+- `RouteDatabase.asset`: Coğrafi rota revizyonu yapıldı; mükerrer ve tutarsız rotalar silindi. Taşhan ↔ KaratayHan arasındaki mükerrer kayıt temizlenerek 23 çift yönlü rota ile 15 şehrin tamamı tek parça graf olarak bağlandı.
+- Proje Varlık Temizliği: Proje içerisindeki tüm ham Adobe Illustrator (`.ai`) kaynak dosyaları, taslak/mockup çizimleri (`Mockups/`, `SourceFiles/`), mükerrer `yeniAssets/SettingsMenu` klasörü ve eski terk edilmiş UI arka plan/ikonları temizlendi (proje genelinde ~49 MB alan kazanıldı).
+- Commit: `refactor(ui): A4.R1 arayuz yenileme, buton rengi korumasi, rota grafigi revizyonu ve varlik temizligi`
 - `RoadEventSO.cs`: `FleeChance` (%65 varsayılan), `TributeAkceCost` (30 akçe varsayılan) ve `CreateRuntimeInstance` parametreleri eklendi.
 - `TravelManager.cs`: Pusularda anlık hasarın oyuncu seçimi öncesinde uygulanması engellendi; `AmbushResolutionResult` veri yapısı ile `ResolveAmbushFlee()`, `ResolveAmbushTribute()` ve `ResolveAmbushFight()` metotları oluşturuldu.
 - `TravelUI.cs`: `EventModal` içine `_choiceContainer` 3'lü karar butonları (`_btnChoiceFlee`, `_btnChoiceTribute`, `_btnChoiceFight`), dinamik buton metinleri (% şans, akçe maliyeti, yabani hayvan koruması) ve sonuç bildirimleri bağlandı.

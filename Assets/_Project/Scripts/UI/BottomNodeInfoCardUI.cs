@@ -45,6 +45,8 @@ namespace Kervan.UI
         [SerializeField] private Sprite _hanIconSprite;
 
         [Header("Buton Renk Temaları")]
+        [Tooltip("İşaretlenirse buton rengi kod içerisindeki tematik renklerle (Yeşil/Kahverengi/Gri) boyanır; kapalıysa butonun orijinal görseli (Color.white) korunur.")]
+        [SerializeField] private bool _overrideButtonColors = false;
         [SerializeField] private Color _enterCityColor = new Color(0.20f, 0.55f, 0.30f); // Yeşil
         [SerializeField] private Color _travelColor = new Color(0.65f, 0.45f, 0.20f);    // Ahşap kahve / sarı
         [SerializeField] private Color _disabledRouteColor = new Color(0.38f, 0.35f, 0.32f, 0.85f); // Pasif / yol yok gri-kahve
@@ -346,17 +348,24 @@ namespace Kervan.UI
 
             if (_actionButtonImage != null)
             {
-                if (isCurrentLocation)
+                if (_overrideButtonColors)
                 {
-                    _actionButtonImage.color = _enterCityColor;
-                }
-                else if (canAct)
-                {
-                    _actionButtonImage.color = _travelColor;
+                    if (isCurrentLocation)
+                    {
+                        _actionButtonImage.color = _enterCityColor;
+                    }
+                    else if (canAct)
+                    {
+                        _actionButtonImage.color = _travelColor;
+                    }
+                    else
+                    {
+                        _actionButtonImage.color = _disabledRouteColor;
+                    }
                 }
                 else
                 {
-                    _actionButtonImage.color = _disabledRouteColor;
+                    _actionButtonImage.color = Color.white;
                 }
             }
 

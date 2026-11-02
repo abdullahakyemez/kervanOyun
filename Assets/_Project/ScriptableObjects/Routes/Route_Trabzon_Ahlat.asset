@@ -16,9 +16,10 @@ MonoBehaviour:
   _fromNode: {fileID: 11400000, guid: 72d9770750d91b849920a8b193f548e6, type: 2}
   _toNode: {fileID: 11400000, guid: fa84bb5620136a34cb53b240b37ad286, type: 2}
   _distanceDays: 5
-  _terrain: 0
+  _terrain: 2
   _roadQuality: 1
   _weather: 0
   _dangerLevel: 0.5
   _foodConsumptionMultiplier: 1.5
   _potentialEnemies: []
+  _roadEvents: []

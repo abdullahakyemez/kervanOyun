@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be9bde164701ddf4788d081701765ab1, type: 3}
+  m_Name: Route_Antalya_Izmir
+  m_EditorClassIdentifier: Kervan.Runtime::Kervan.TradeAndTravel.TravelRouteSO
+  _routeId: route_antalya_izmir
+  _fromNode: {fileID: 11400000, guid: 5129951f3e3dacb41b20fe516cb379fe, type: 2}
+  _toNode: {fileID: 11400000, guid: e388c6b6edd6b1d469eb5432843e69ed, type: 2}
+  _distanceDays: 5
+  _terrain: 2
+  _roadQuality: 1
+  _weather: 0
+  _dangerLevel: 0.5
+  _foodConsumptionMultiplier: 1.3
+  _potentialEnemies: []
+  _roadEvents: []

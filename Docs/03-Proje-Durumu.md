@@ -4,7 +4,7 @@
 
 **Proje:** Uç Beyliği Kervanı · 14. yy Anadolu · Taktiksel RPG & Ticaret
 **Motor:** Unity 6 (6000.6.3f1), URP 2D · **Platform:** Android, yatay (landscape)
-**Sürüm etiketi:** v0.4.0 Alpha · **Son güncelleme:** 31.10.2026
+**Sürüm etiketi:** v0.4.0 Alpha · **Son güncelleme:** 02.11.2026
 
 ---
 
@@ -12,13 +12,13 @@
 
 | Alan | Durum | Not |
 |---|---|---|
-| Görsel / UI | 🟢 | MainMenu, WorldMap, TravelScene, TownHubScene (Pazar + Kervansaray + Divan mizanpajı), TopBar HUD ve Sidebar hazır. |
-| Veri tanımları (SO) | 🟢 | 13 düğüm (`LocationNodeSO`), 10 ticaret malı (`ItemDataSO`), `CityMarketDataSO`, `RouteDatabaseSO` ve `RoadEventSO` bağlı. |
+| Görsel / UI | 🟢 | MainMenu, WorldMap, TravelScene, TownHubScene (Pazar + Kervansaray + Divan), TopBar HUD ve Sidebar yeni görsel varlıklarla (`yeniAssets`) güncellendi; ~49 MB atıl dosya temizlendi. |
+| Veri tanımları (SO) | 🟢 | 15 harita düğümü (`LocationNodeSO`), 23 çift yönlü rota (`RouteDatabaseSO`), 10 ticaret malı (`ItemDataSO`), `CityMarketDataSO` ve `RoadEventSO` bağlı ve senkron. |
 | Oyun döngüsü | 🟢 | `00_Boot` + `GameSession` + `RouteGraph` + `GameCalendar` + `TravelManager` + `TownHubUI` + `CityMarket` + `CaravanseraiInnUI` döngüsü tamamlandı (A2–A4). |
 | Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON: kervan envanteri, muhafız kadrosu, binek kapasitesi, pazar doygunlukları) devrede. |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), Android Geri tuşu, SafeArea ve ses kalıcılığı tamam (A2.0, A2.8). |
 
-**Özet:** A4 (Şehir: Pazar + Kervansaray + Divan) aşaması başarıyla tamamlandı. A5 (Olay & Pusu → Savaş) aşamasına geçildi; A5.1 kapsamında seyahatteki pusu ve tehlikeli olaylarda Kaç / Haraç Ver / Savaş karar mekanizması ve arayüzü kuruldu. Sırada A5.2 (Manuel / Otomatik savaş seçimi) var.
+**Özet:** A4 (Şehir) tamamlandı. A4.R1 ara adımıyla tüm sahnelerin UI tasarımları yeni varlıklarla revize edildi, kart buton rengi koruması sağlandı, rota veritabanı senkronize edildi ve 49 MB atıl dosya temizlendi. Sırada A5.2 (Manuel / Otomatik savaş seçimi) var.
 
 **Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene` ✅ A5.1 güncel · `TownHubScene` ✅ A4 tamamlandı · `CombatScene` ⚠️ A5'te yeniden ele alınacak · `MarketScene` ⚠️ arşiv/eski prototip.
 
@@ -59,7 +59,7 @@ A8 Android Sürüm & Test ................ ⬜
 
 ## 5. Kalıcı Notlar
 - **Tasarım yönetimi ilkesi:** Tasarım konularında değişikliklere doğrudan gidilmez; tasarım işlemleri tamamen proje sahibinin kontrolünde ilerler. Danışman olarak olması gerekenler ve profesyonellik önerileri sunulur; ayrıca hangi yapay zekâ araçlarının veya programların (ve iş akışlarının) kolaylık sağlayacağı belirtilir.
-- **Hatırlatma (Arayüz & Görsel Temizliği):** Son aşamalara doğru (A7) ufak arayüz temizlikleri (`kısicon.png` ASCII adı, mükerrer `Toolbar` klasörü, ham `Toolbar.ai` dosyası), `BG_Travel_03_MidHiils.png` yatay birleşim izi (`AST-09`) ve kervan konvoyu birimlerinin gerçek bacak yürüyüş animasyonu (`AST-10`) ele alınacaktır.
+- **Hatırlatma (Arayüz & Görsel Temizliği):** A4.R1 ile ham `.ai` dosyaları ve mükerrer klasörler temizlendi; son aşamalara doğru (A7) kalan ufak arayüz temizlikleri (`kısicon.png` ASCII adı), `BG_Travel_03_MidHiils.png` yatay birleşim izi (`AST-09`) ve kervan konvoyu birimlerinin gerçek bacak yürüyüş animasyonu (`AST-10`) ele alınacaktır.
 - **Esneklik ilkesi:** Tamamlanmış sahnelerde de her zaman revizyon yapılabilir; "bu aşama bitti, dönülmez" denmez. Revizyon yeni bir adım olarak eklenir (ör. `A1.R1`).
 - **Mobil test:** Her UI adımında Device Simulator ile 16:9, 19.5:9, 20:9 kontrolü.
 - **Açık kritik sorun sayısı:** 🔴 0 · 🟠 2 (bkz. `06`)

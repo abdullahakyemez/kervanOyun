@@ -15,10 +15,11 @@ MonoBehaviour:
   _routeId: route_eskisehir_karatay
   _fromNode: {fileID: 11400000, guid: 829224109666b8043889448a881007c3, type: 2}
   _toNode: {fileID: 11400000, guid: 212a54e26d83cf14bb1b11eb3aef06bc, type: 2}
-  _distanceDays: 4
+  _distanceDays: 3
   _terrain: 0
   _roadQuality: 1
   _weather: 0
   _dangerLevel: 0.25
   _foodConsumptionMultiplier: 1.1
   _potentialEnemies: []
+  _roadEvents: []

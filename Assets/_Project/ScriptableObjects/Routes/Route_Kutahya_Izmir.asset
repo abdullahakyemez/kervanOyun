@@ -15,10 +15,11 @@ MonoBehaviour:
   _routeId: route_kutahya_izmir
   _fromNode: {fileID: 11400000, guid: 2d4975513f6918b4294d6dced7d0b693, type: 2}
   _toNode: {fileID: 11400000, guid: e388c6b6edd6b1d469eb5432843e69ed, type: 2}
-  _distanceDays: 4
-  _terrain: 0
+  _distanceDays: 3
+  _terrain: 2
   _roadQuality: 1
   _weather: 0
   _dangerLevel: 0.3
   _foodConsumptionMultiplier: 1.1
   _potentialEnemies: []
+  _roadEvents: []

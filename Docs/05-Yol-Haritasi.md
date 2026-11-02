@@ -160,6 +160,12 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Test:** Kervansarayda "1 Gün Konakla" → akçe düşer, takvim 1 gün ilerler, yaralı muhafızların canı ve moral artar. Erzak al → erzak artar. Muhafız/Deve kirala → kadroya veya azami yük kapasitesine (`MaxWeightKg`) anında yansır.
 - **Uygulama notu:** `CaravanseraiInnUI.cs` oluşturuldu ve 3 kart (`Card_RestAndSupply`, `Card_HireGuards`, `Card_HireMounts`) ile `BottomBar_InnMeta` (`Btn_HireSpy` 50 Akçe casusluk istihbaratı) birbirine bağlandı. `CaravanData` içine `RestAtInn`, `BuySupplies`, `AddPackAnimal`, `RecruitGuardWithCost`, `RestoreGuardRecord` eklendi; kiralanan muhafızlar ve yük kapasitesi `GameSession` ve `save_0.json` ile kalıcı hale getirildi.
 
+### A4.R1 — Arayüz Tasarımı Yenileme, Buton Rengi Korunması & Varlık Temizliği ✅
+- **Amaç:** Sahne ölçekleme tutarsızlıklarını gidermek için tasarlanan yeni arayüz varlıklarının (`yeniAssets`) entegrasyonu, bilgi kartı buton renginin kod tarafından ezilmesinin engellenmesi, harita rota grafiğinin doğrulanması ve atıl dosyaların temizlenmesi.
+- **Dosyalar:** `UI/BottomNodeInfoCardUI.cs`, `WorldMapScene.unity`, `RouteDatabase.asset`.
+- **Unity'de elle:** `BottomNodeInfoCard` üzerindeki `_nodeTitleText` ve `_dangerText` referansları yeniden bağlandı; mükerrer `Route_Karatay_Tashan` kaldırıldı.
+- **Temizlik:** Projedeki tüm ham `.ai` dosyaları, taslak `Mockups/` ve `SourceFiles/`, mükerrer `SettingsMenu` ve terk edilmiş eski UI klasörleri silindi (~49 MB alan kazanıldı).
+
 ## A5 — Olay & Pusu → Savaş ⏳
 - **A5.1 Olay penceresi: Kaç / Haraç Ver / Savaş (GDD §11/5) ✅**
   - **Hedef:** Seyahat sırasında çıkan haydut pusularında ve tehlikeli yol olaylarında oyuncuya 3 seçenek sunan karar penceresinin (`EventModal`) kurulması: **Kaç** (çeviklik kontrolü), **Haraç Ver** (akçe kaybı) ve **Savaş** (muharebeye geçiş).

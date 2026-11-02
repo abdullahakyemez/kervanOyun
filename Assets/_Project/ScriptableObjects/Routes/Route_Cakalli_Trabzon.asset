@@ -15,10 +15,11 @@ MonoBehaviour:
   _routeId: route_cakalli_trabzon
   _fromNode: {fileID: 11400000, guid: 042bd5d6162e62f48b791726ebcb3b5a, type: 2}
   _toNode: {fileID: 11400000, guid: 72d9770750d91b849920a8b193f548e6, type: 2}
-  _distanceDays: 4
-  _terrain: 0
+  _distanceDays: 6
+  _terrain: 1
   _roadQuality: 1
   _weather: 0
   _dangerLevel: 0.45
   _foodConsumptionMultiplier: 1.3
   _potentialEnemies: []
+  _roadEvents: []
