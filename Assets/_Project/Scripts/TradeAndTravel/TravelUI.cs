@@ -114,6 +114,28 @@ namespace Kervan.TradeAndTravel
         [SerializeField] private GameObject _ambushPanelRoot;
         [SerializeField] private Button _enterCombatButton;
 
+        [Header("Savaş Seçim Kümesi (A5.2)")]
+        [Tooltip("Savaş seçildiğinde açılan Manuel / Otomatik savaş seçim konteyneri")]
+        [SerializeField] private GameObject _combatChoiceContainer;
+
+        [Tooltip("Manuel Taktik Savaş (CombatScene) butonu")]
+        [SerializeField] private Button _btnCombatManual;
+
+        [Tooltip("Otomatik Çözümle butonu")]
+        [SerializeField] private Button _btnCombatAuto;
+
+        [Tooltip("Karar kümesine geri dönme butonu")]
+        [SerializeField] private Button _btnCombatBack;
+
+        [Tooltip("Kuvvet dengesi ve istihbarat özeti metni")]
+        [SerializeField] private TextMeshProUGUI _combatOddsText;
+
+        [Tooltip("Manuel savaş ikonu görseli")]
+        [SerializeField] private Image _imgCombatManualIcon;
+
+        [Tooltip("Otomatik savaş ikonu görseli")]
+        [SerializeField] private Image _imgCombatAutoIcon;
+
         private bool _hasArrived;
         private bool _isFastForward;
         private bool _mustEnterCombat;
@@ -195,9 +217,29 @@ namespace Kervan.TradeAndTravel
                 _btnChoiceFight.onClick.AddListener(OnChoiceFightClicked);
             }
 
+            if (_btnCombatManual != null)
+            {
+                _btnCombatManual.onClick.AddListener(OnCombatManualClicked);
+            }
+
+            if (_btnCombatAuto != null)
+            {
+                _btnCombatAuto.onClick.AddListener(OnCombatAutoClicked);
+            }
+
+            if (_btnCombatBack != null)
+            {
+                _btnCombatBack.onClick.AddListener(OnCombatBackClicked);
+            }
+
             if (_eventModalRoot != null)
             {
                 _eventModalRoot.SetActive(false);
+            }
+
+            if (_combatChoiceContainer != null)
+            {
+                _combatChoiceContainer.SetActive(false);
             }
 
             if (_ambushPanelRoot != null)
@@ -261,6 +303,21 @@ namespace Kervan.TradeAndTravel
             if (_btnChoiceFight != null)
             {
                 _btnChoiceFight.onClick.RemoveListener(OnChoiceFightClicked);
+            }
+
+            if (_btnCombatManual != null)
+            {
+                _btnCombatManual.onClick.RemoveListener(OnCombatManualClicked);
+            }
+
+            if (_btnCombatAuto != null)
+            {
+                _btnCombatAuto.onClick.RemoveListener(OnCombatAutoClicked);
+            }
+
+            if (_btnCombatBack != null)
+            {
+                _btnCombatBack.onClick.RemoveListener(OnCombatBackClicked);
             }
         }
 
@@ -442,6 +499,21 @@ namespace Kervan.TradeAndTravel
                 {
                     _eventIconImage.sprite = eventIcon;
                 }
+            }
+
+            if (_combatChoiceContainer != null)
+            {
+                _combatChoiceContainer.SetActive(false);
+            }
+
+            if (_combatOddsText != null)
+            {
+                _combatOddsText.gameObject.SetActive(false);
+            }
+
+            if (_eventDescText != null)
+            {
+                _eventDescText.gameObject.SetActive(true);
             }
 
             bool isCombatChoice = roadEvent != null && roadEvent.RequiresCombatChoice;
@@ -680,17 +752,23 @@ namespace Kervan.TradeAndTravel
 
         private void OnCloseEventClicked()
         {
-            if (_eventModalRoot != null)
-            {
-                _eventModalRoot.SetActive(false);
-            }
-
             if (_mustEnterCombat)
             {
                 _mustEnterCombat = false;
+                if (_combatChoiceContainer != null)
+                {
+                    OpenCombatChoiceMode();
+                    return;
+                }
+
                 Debug.Log("[TravelUI] Kaçış başarısız oldu, savaşa geçiliyor -> CombatScene");
                 SceneLoader.Load(SceneIds.Combat);
                 return;
+            }
+
+            if (_eventModalRoot != null)
+            {
+                _eventModalRoot.SetActive(false);
             }
 
             if (_hasArrived)
@@ -717,6 +795,7 @@ namespace Kervan.TradeAndTravel
 
             if (_eventDescText != null)
             {
+                _eventDescText.gameObject.SetActive(true);
                 _eventDescText.text = result.Message;
             }
 
@@ -814,8 +893,191 @@ namespace Kervan.TradeAndTravel
                 _travelManager.ResolveAmbushFight();
             }
 
-            Debug.Log("[TravelUI] Pusu savaşı seçildi -> CombatScene");
+            if (_combatChoiceContainer != null)
+            {
+                OpenCombatChoiceMode();
+            }
+            else
+            {
+                Debug.Log("[TravelUI] CombatChoiceContainer atanmamış, doğrudan savaş sahnesine geçiliyor -> CombatScene");
+                SceneLoader.Load(SceneIds.Combat);
+            }
+        }
+
+        private void OpenCombatChoiceMode()
+        {
+            if (_choiceContainer != null)
+            {
+                _choiceContainer.SetActive(false);
+            }
+
+            if (_combatChoiceContainer != null)
+            {
+                _combatChoiceContainer.SetActive(true);
+            }
+
+            if (_eventCloseButton != null)
+            {
+                _eventCloseButton.gameObject.SetActive(false);
+            }
+
+            if (_eventTitleText != null)
+            {
+                _eventTitleText.text = "Meydan Savaşı: Çatışma Tarzı";
+            }
+
+            string oddsDesc = string.Empty;
+            string enemyDesc = string.Empty;
+            float caravanPower = 0f;
+            float enemyPower = 0f;
+
+            if (_travelManager != null)
+            {
+                _travelManager.GetAmbushCombatOdds(out caravanPower, out enemyPower, out oddsDesc, out enemyDesc);
+            }
+
+            if (_eventDescText != null)
+            {
+                _eventDescText.gameObject.SetActive(false);
+            }
+
+            if (_combatOddsText != null)
+            {
+                _combatOddsText.gameObject.SetActive(true);
+                _combatOddsText.text = $"{oddsDesc}   ·   <color=#D4AF37>{enemyDesc}</color>\n<size=12><color=#EDE3D2>Kervan Savunma Gücü: <b>{Mathf.RoundToInt(caravanPower)}</b>   |   Düşman Gücü: <b>{Mathf.RoundToInt(enemyPower)}</b></color></size>";
+            }
+
+            if (_eventOutcomeText != null)
+            {
+                _eventOutcomeText.gameObject.SetActive(false);
+            }
+        }
+
+        private void OnCombatManualClicked()
+        {
+            Debug.Log("[TravelUI] Manuel taktik savaş seçildi -> CombatScene");
             SceneLoader.Load(SceneIds.Combat);
+        }
+
+        private void OnCombatAutoClicked()
+        {
+            if (_travelManager == null)
+            {
+                return;
+            }
+
+            AutoCombatResult result = _travelManager.ResolveAmbushAutoCombat();
+
+            if (_combatChoiceContainer != null)
+            {
+                _combatChoiceContainer.SetActive(false);
+            }
+
+            if (_combatOddsText != null)
+            {
+                _combatOddsText.gameObject.SetActive(false);
+            }
+
+            if (_eventDescText != null)
+            {
+                _eventDescText.gameObject.SetActive(true);
+            }
+
+            if (_eventCloseButton != null)
+            {
+                _eventCloseButton.gameObject.SetActive(true);
+            }
+
+            if (_eventCloseButtonText != null)
+            {
+                _eventCloseButtonText.text = "Yola Devam Et";
+            }
+
+            _mustEnterCombat = false;
+
+            if (_eventTitleText != null)
+            {
+                _eventTitleText.text = result.Title;
+            }
+
+            if (_eventDescText != null)
+            {
+                _eventDescText.gameObject.SetActive(true);
+                _eventDescText.text = result.Message;
+            }
+
+            if (_eventOutcomeText != null)
+            {
+                _eventOutcomeText.gameObject.SetActive(true);
+
+                string outcomeColorHex;
+                switch (result.OutcomeType)
+                {
+                    case AutoCombatOutcomeType.DecisiveVictory:
+                        outcomeColorHex = "#2E7D32"; // Yeşil
+                        break;
+                    case AutoCombatOutcomeType.Victory:
+                        outcomeColorHex = "#5B8A3C"; // Zeytin yeşili
+                        break;
+                    case AutoCombatOutcomeType.CostlyVictory:
+                        outcomeColorHex = "#DAA520"; // Altın sarısı
+                        break;
+                    default:
+                        outcomeColorHex = "#D9534F"; // Koyu al / Kırmızı
+                        break;
+                }
+
+                _eventOutcomeText.text = $"<color={outcomeColorHex}><b>[{result.OutcomeSummary}]</b></color>";
+            }
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayParchment();
+            }
+
+            RefreshStaticStats();
+        }
+
+        private void OnCombatBackClicked()
+        {
+            if (_combatChoiceContainer != null)
+            {
+                _combatChoiceContainer.SetActive(false);
+            }
+
+            if (_combatOddsText != null)
+            {
+                _combatOddsText.gameObject.SetActive(false);
+            }
+
+            if (_eventDescText != null)
+            {
+                _eventDescText.gameObject.SetActive(true);
+            }
+
+            if (_choiceContainer != null)
+            {
+                _choiceContainer.SetActive(true);
+            }
+
+            if (_eventDescText != null)
+            {
+                _eventDescText.gameObject.SetActive(true);
+            }
+
+            RoadEventSO activeEvent = _travelManager != null ? _travelManager.ActiveRoadEvent : null;
+            if (activeEvent != null)
+            {
+                if (_eventTitleText != null)
+                {
+                    _eventTitleText.text = activeEvent.EventTitle;
+                }
+
+                if (_eventDescText != null)
+                {
+                    _eventDescText.text = activeEvent.EventDescription;
+                }
+            }
         }
 
         private void OnEnterCombatClicked()

@@ -289,11 +289,33 @@ namespace Kervan.TradeAndTravel
                 if (guard == null) continue;
 
                 int maxHealth = guard.UnitData != null ? guard.UnitData.MaxHealth : 100;
-                guard.CurrentHealth = Mathf.Min(maxHealth, guard.CurrentHealth + healAmount);
+                guard.CurrentHealth = Mathf.Clamp(guard.CurrentHealth + healAmount, 1, maxHealth);
 
                 int maxMorale = guard.UnitData != null ? guard.UnitData.BaseMorale : 100;
-                guard.CurrentMorale = Mathf.Min(maxMorale, guard.CurrentMorale + moraleBonus);
+                guard.CurrentMorale = Mathf.Clamp(guard.CurrentMorale + moraleBonus, 0, maxMorale);
             }
+
+            NotifyStatsChanged();
+        }
+
+        /// <summary>
+        /// Savaş veya pusu sonucunda tüm muhafızlara güvenli hasar uygular.
+        /// Can değeri minimum 1'e kenetlenerek ani silinmeler önlenir.
+        /// </summary>
+        public void ApplyGuardCombatDamage(int damagePerGuard)
+        {
+            if (damagePerGuard <= 0 || _guards == null || _guards.Count == 0) return;
+
+            for (int i = 0; i < _guards.Count; i++)
+            {
+                var guard = _guards[i];
+                if (guard == null) continue;
+
+                guard.CurrentHealth = Mathf.Max(1, guard.CurrentHealth - damagePerGuard);
+                guard.CurrentMorale = Mathf.Max(10, guard.CurrentMorale - Mathf.CeilToInt(damagePerGuard * 0.5f));
+            }
+
+            NotifyStatsChanged();
         }
 
         /// <summary>

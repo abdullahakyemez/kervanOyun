@@ -52,6 +52,52 @@ namespace Kervan.TradeAndTravel
     }
 
     /// <summary>
+    /// Otomatik savaş çözümlemesi neticesi kademeleri (GDD §11/5).
+    /// </summary>
+    public enum AutoCombatOutcomeType
+    {
+        DecisiveVictory = 0, // Büyük Zafer (Düşman ezildi, asgari hasar, yüksek ganimet)
+        Victory = 1,         // Zafer (Düşman püskürtüldü, orta hasar, standart ganimet)
+        CostlyVictory = 2,   // Pirus Zaferi (Ağır bedelle savuşturuldu, yüksek yıpranma, ganimet yok)
+        Defeat = 3           // Bozgun (Savunma yarıldı, kritik hasar, akçe/erzak kaybı)
+    }
+
+    /// <summary>
+    /// Otomatik savaşın sonucunu, kayıp ve kazançlarını taşıyan sonuç modeli.
+    /// </summary>
+    public readonly struct AutoCombatResult
+    {
+        public readonly bool IsVictory;
+        public readonly AutoCombatOutcomeType OutcomeType;
+        public readonly int DamagePerGuard;
+        public readonly int AkceDelta;
+        public readonly int FoodDelta;
+        public readonly string Title;
+        public readonly string Message;
+        public readonly string OutcomeSummary;
+
+        public AutoCombatResult(
+            bool isVictory,
+            AutoCombatOutcomeType outcomeType,
+            int damagePerGuard,
+            int akceDelta,
+            int foodDelta,
+            string title,
+            string message,
+            string outcomeSummary)
+        {
+            IsVictory = isVictory;
+            OutcomeType = outcomeType;
+            DamagePerGuard = damagePerGuard;
+            AkceDelta = akceDelta;
+            FoodDelta = foodDelta;
+            Title = title;
+            Message = message;
+            OutcomeSummary = outcomeSummary;
+        }
+    }
+
+    /// <summary>
     /// Kervanın seyahatini, yol şartlarını, erzak tüketimini ve
     /// pusu/olay zarlarını yöneten merkezi seyahat motoru.
     /// Tüm kervan ve takvim durumunu doğrudan <see cref="GameSession"/> üzerinden okur ve günceller (BUG-05).
@@ -532,6 +578,200 @@ namespace Kervan.TradeAndTravel
                 shouldEnterCombat: true,
                 message: "Kervan muhafızları kılıçlarını sıyırdı, kalkanlar birleşti. Meydan savaşı başlıyor!",
                 outcomeSummary: "Savaşa Giriliyor");
+        }
+
+        /// <summary>
+        /// Kervanın mevcut muhafız gücü ile düşman tehlike seviyesini kıyaslayarak
+        /// oyuncuya savaştan önce gösterilecek tahmini kuvvet dengesini üretir.
+        /// </summary>
+        public void GetAmbushCombatOdds(out float caravanPower, out float enemyPower, out string oddsDescription, out string enemyDescription)
+        {
+            caravanPower = CalculateCaravanPower();
+            enemyPower = CalculateEnemyPower();
+
+            float ratio = enemyPower > 0f ? caravanPower / enemyPower : 2f;
+
+            if (ratio >= 1.35f)
+            {
+                oddsDescription = "<color=#2A7B4C><b>Kuvvet Dengesi: Muhafızlar Üstün</b></color>";
+            }
+            else if (ratio >= 0.90f)
+            {
+                oddsDescription = "<color=#5B8A3C><b>Kuvvet Dengesi: Denk Kuvvetler</b></color>";
+            }
+            else if (ratio >= 0.60f)
+            {
+                oddsDescription = "<color=#DAA520><b>Kuvvet Dengesi: Çetin / Riskli Çatışma</b></color>";
+            }
+            else
+            {
+                oddsDescription = "<color=#C0392B><b>Kuvvet Dengesi: Çok Tehlikeli / Düşman Sayıca Fazla</b></color>";
+            }
+
+            RoadEventSO roadEvent = _activeRoadEvent;
+            if (roadEvent != null && roadEvent.Category == RoadEventCategory.WildBeastAttack)
+            {
+                enemyDescription = "Vahşi Hayvan Sürüsü (Ayı / Kurtlar) · Çevik ve Saldırgan";
+            }
+            else
+            {
+                enemyDescription = "Başıbozuk Eşkıya Çetesi · Pusu Düzeni";
+            }
+        }
+
+        public float CalculateCaravanPower()
+        {
+            if (Caravan == null || Caravan.Guards == null || Caravan.Guards.Count == 0)
+            {
+                return 15f; // Silahsız kervancı/tüccar taban savunması
+            }
+
+            float totalPower = 0f;
+            for (int i = 0; i < Caravan.Guards.Count; i++)
+            {
+                var guard = Caravan.Guards[i];
+                if (guard == null) continue;
+
+                int maxHealth = guard.UnitData != null ? guard.UnitData.MaxHealth : 100;
+                float healthRatio = Mathf.Clamp01((float)guard.CurrentHealth / Mathf.Max(1, maxHealth));
+
+                float baseDamage = guard.UnitData != null
+                    ? (guard.UnitData.MinDamage + guard.UnitData.MaxDamage) * 0.5f
+                    : 15f;
+
+                float armor = guard.UnitData != null ? guard.UnitData.MaxArmor : 10f;
+
+                float unitPower = (baseDamage * 2f + armor) * (0.4f + 0.6f * healthRatio);
+                totalPower += unitPower;
+            }
+
+            return Mathf.Max(15f, totalPower);
+        }
+
+        public float CalculateEnemyPower()
+        {
+            float basePower = 55f;
+            RoadEventSO roadEvent = _activeRoadEvent;
+            if (roadEvent != null && roadEvent.Category == RoadEventCategory.WildBeastAttack)
+            {
+                basePower = 45f;
+            }
+
+            float dangerLevel = _activeRoute != null ? _activeRoute.DangerLevel : 0.3f;
+            return basePower * (1f + dangerLevel * 0.6f);
+        }
+
+        /// <summary>
+        /// Pusu veya tehlikeli olayda 'Otomatik Çözümle' seçildiğinde savaş sonucunu
+        /// muhafız gücü, rota tehlikesi ve taktiksel zar katsayısıyla anında çözümler.
+        /// </summary>
+        public AutoCombatResult ResolveAmbushAutoCombat()
+        {
+            float caravanPower = CalculateCaravanPower();
+            float enemyPower = CalculateEnemyPower();
+
+            // Zar / Taktiksel sapma payı: 0.85 - 1.15
+            float tacticalRoll = UnityEngine.Random.Range(0.85f, 1.15f);
+            float effectivePower = caravanPower * tacticalRoll;
+            float ratio = effectivePower / Mathf.Max(1f, enemyPower);
+
+            bool isVictory;
+            AutoCombatOutcomeType outcomeType;
+            int damagePerGuard;
+            int akceDelta;
+            int foodDelta;
+            string title;
+            string message;
+            string outcomeSummary;
+
+            int guardCount = Caravan != null && Caravan.Guards != null ? Caravan.Guards.Count : 0;
+
+            if (ratio >= 1.35f)
+            {
+                // Büyük Zafer
+                isVictory = true;
+                outcomeType = AutoCombatOutcomeType.DecisiveVictory;
+                damagePerGuard = guardCount > 0 ? UnityEngine.Random.Range(4, 9) : 0;
+                akceDelta = UnityEngine.Random.Range(35, 55);
+                foodDelta = 1;
+                title = "BÜYÜK ZAFER!";
+                message = "Kervan muhafızları eşkıyaların pusu hattını anında yarıp dağıttı. Düşman arkasına bakmadan kaçtı!";
+                outcomeSummary = $"+{akceDelta} Akçe Ganimet · +1 Gün Erzak" + (damagePerGuard > 0 ? $" · Muhafızlarda -{damagePerGuard} Can" : "");
+            }
+            else if (ratio >= 0.90f)
+            {
+                // Zafer
+                isVictory = true;
+                outcomeType = AutoCombatOutcomeType.Victory;
+                damagePerGuard = guardCount > 0 ? UnityEngine.Random.Range(10, 20) : 0;
+                akceDelta = UnityEngine.Random.Range(20, 35);
+                foodDelta = 0;
+                title = "ZAFER!";
+                message = "Çetin bir kılıç vuruşmasının ardından muhafızlar kervan yükünü savundu ve saldırganları geri püskürttü.";
+                outcomeSummary = $"+{akceDelta} Akçe Ganimet" + (damagePerGuard > 0 ? $" · Muhafızlarda -{damagePerGuard} Can" : "");
+            }
+            else if (ratio >= 0.60f)
+            {
+                // Pirus Zaferi (Ağır Bedelli Savuşturma)
+                isVictory = true;
+                outcomeType = AutoCombatOutcomeType.CostlyVictory;
+                damagePerGuard = guardCount > 0 ? UnityEngine.Random.Range(22, 35) : 0;
+                akceDelta = 0;
+                foodDelta = -1;
+                title = "PİRUS ZAFERİ!";
+                message = "Düşman püskürtüldü ancak muhafızlar ağır darbeler aldı ve kervanın bazı erzak çuvalları yırtıldı.";
+                outcomeSummary = "-1 Gün Erzak Zayiatı" + (damagePerGuard > 0 ? $" · Muhafızlarda -{damagePerGuard} Can (Ağır)" : "");
+            }
+            else
+            {
+                // Bozgun
+                isVictory = false;
+                outcomeType = AutoCombatOutcomeType.Defeat;
+                damagePerGuard = guardCount > 0 ? UnityEngine.Random.Range(35, 50) : 0;
+                int currentAkce = Caravan != null ? Caravan.CurrentAkce : 0;
+                int stolenAkce = Mathf.Min(currentAkce, UnityEngine.Random.Range(30, 60));
+                akceDelta = -stolenAkce;
+                foodDelta = -2;
+                title = "BOZGUN!";
+                message = "Kervan savunması yarıldı! Muhafızlar yükleri korumakta zorlandı; saldırganlar yüklerin bir kısmını yağmaladı.";
+                outcomeSummary = (stolenAkce > 0 ? $"-{stolenAkce} Akçe Yağmalandı · " : "") + "-2 Gün Erzak" + (damagePerGuard > 0 ? $" · Muhafızlarda -{damagePerGuard} Can" : "");
+            }
+
+            // Etkileri kervana yansıt
+            if (Caravan != null)
+            {
+                if (damagePerGuard > 0)
+                {
+                    Caravan.ApplyGuardCombatDamage(damagePerGuard);
+                }
+
+                if (akceDelta != 0)
+                {
+                    Caravan.ModifyAkce(akceDelta);
+                }
+
+                if (foodDelta > 0)
+                {
+                    Caravan.AddFood(foodDelta);
+                }
+                else if (foodDelta < 0)
+                {
+                    Caravan.ConsumeFood(-foodDelta);
+                }
+            }
+
+            _activeRoadEvent = null;
+            Debug.Log($"[TravelManager] OTOMATİK SAVAŞ TAMAMLANDI: {title} (Güç Oranı: {ratio:F2}, Muhafız Hasarı: {damagePerGuard})");
+
+            return new AutoCombatResult(
+                isVictory,
+                outcomeType,
+                damagePerGuard,
+                akceDelta,
+                foodDelta,
+                title,
+                message,
+                outcomeSummary);
         }
 
         private void ApplyRoadEventEffects(RoadEventSO roadEvent)

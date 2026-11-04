@@ -171,7 +171,10 @@ A8 Android Sürüm (Release) & Test .................. ⬜
   - **Hedef:** Seyahat sırasında çıkan haydut pusularında ve tehlikeli yol olaylarında oyuncuya 3 seçenek sunan karar penceresinin (`EventModal`) kurulması: **Kaç** (çeviklik kontrolü), **Haraç Ver** (akçe kaybı) ve **Savaş** (muharebeye geçiş).
   - **Test:** Pusu çıktığında modal 3 seçenekle açılır. Kaç başarılı olursa hasarsız devam eder, başarısız olursa yıpranma bildirip savaşa yönlendirir. Haraç yeterli akçe varsa akçeyi düşüp yolu açar (yabani hayvanda haraç geçersizdir). Savaş seçilince savaşa geçilir.
   - **Uygulama notu:** `RoadEventSO.cs` (`FleeChance`, `TributeAkceCost`), `TravelManager.cs` (`ResolveAmbushFlee`, `ResolveAmbushTribute`, `ResolveAmbushFight`, `AmbushResolutionResult`) ve `TravelUI.cs` (`_choiceContainer`, `_btnChoiceFlee`, `_btnChoiceTribute`, `_btnChoiceFight`) güncellendi. Karar gerektiren pusularda anlık hasar oyuncu seçimi yapılana kadar ertelendi.
-- A5.2 Savaş seçimi: Manuel / Otomatik (otomatik çözümleme formülü).
+- **A5.2 Savaş seçimi: Manuel / Otomatik (GDD §11/5) ✅**
+  - **Hedef:** Pusu veya tehlikeli olayda "Savaş" seçildiğinde oyuncuya iki seçenek sunulması: **Manuel Taktik Savaş** (`CombatScene` üzerinde sıra tabanlı altıgen çatışma) veya **Otomatik Çözümleme** (kervanın muhafız sayısı/canı ile düşman gücünü kıyaslayan hızlı sonuç algoritması).
+  - **Test:** Pusu veya kaçış başarısızlığında iki kanatlı taktik seçim kartları açılır. "Taktik Savaş" tıklandığında `CombatScene` yüklenir; "Hızlı Çözümle" tıklandığında formül çalışır, zafer/bozgun durumuna göre hasar/ganimet kervana yansır ve rapor penceresi gösterilir. "Geri Dön" önceki karar kümesine döner.
+  - **Uygulama notu:** `CaravanData.cs` (`ApplyGuardCombatDamage`, `HealAllGuards` clamp), `TravelManager.cs` (`AutoCombatResult`, `GetAmbushCombatOdds`, `CalculateCaravanPower`, `CalculateEnemyPower`, `ResolveAmbushAutoCombat`) ve `TravelUI.cs` (`_combatChoiceContainer`, `_btnCombatManual`, `_btnCombatAuto`, `_btnCombatBack`, `_combatOddsText`) yazıldı; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` ve özel ikonlar bağlandı.
 - A5.3 CombatScene yeniden (mevcut `DamageCalculator`, `HexPathfinder` korunur), GDD Unit HUD + Action Cluster yerleşimi.
 - A5.4 Sonuç → kayıp/yaralanma → kervana yansıma → seyahate dönüş.
 

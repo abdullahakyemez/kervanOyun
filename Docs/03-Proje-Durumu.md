@@ -4,7 +4,7 @@
 
 **Proje:** Uç Beyliği Kervanı · 14. yy Anadolu · Taktiksel RPG & Ticaret
 **Motor:** Unity 6 (6000.6.3f1), URP 2D · **Platform:** Android, yatay (landscape)
-**Sürüm etiketi:** v0.4.0 Alpha · **Son güncelleme:** 02.11.2026
+**Sürüm etiketi:** v0.4.0 Alpha · **Son güncelleme:** 04.11.2026
 
 ---
 
@@ -12,15 +12,15 @@
 
 | Alan | Durum | Not |
 |---|---|---|
-| Görsel / UI | 🟢 | MainMenu, WorldMap, TravelScene, TownHubScene (Pazar + Kervansaray + Divan), TopBar HUD ve Sidebar yeni görsel varlıklarla (`yeniAssets`) güncellendi; ~49 MB atıl dosya temizlendi. |
+| Görsel / UI | 🟢 | MainMenu, WorldMap, TravelScene, TownHubScene (Pazar + Kervansaray + Divan), TopBar HUD, Sidebar ve Savaş Tarzı Seçim Kartları (`CombatModul`) güncel. |
 | Veri tanımları (SO) | 🟢 | 15 harita düğümü (`LocationNodeSO`), 23 çift yönlü rota (`RouteDatabaseSO`), 10 ticaret malı (`ItemDataSO`), `CityMarketDataSO` ve `RoadEventSO` bağlı ve senkron. |
-| Oyun döngüsü | 🟢 | `00_Boot` + `GameSession` + `RouteGraph` + `GameCalendar` + `TravelManager` + `TownHubUI` + `CityMarket` + `CaravanseraiInnUI` döngüsü tamamlandı (A2–A4). |
+| Oyun döngüsü | 🟢 | `00_Boot` + `GameSession` + `RouteGraph` + `GameCalendar` + `TravelManager` + `TownHubUI` + `CityMarket` + `CaravanseraiInnUI` + Savaş Seçimi döngüsü devrede (A2–A5.2). |
 | Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON: kervan envanteri, muhafız kadrosu, binek kapasitesi, pazar doygunlukları) devrede. |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), Android Geri tuşu, SafeArea ve ses kalıcılığı tamam (A2.0, A2.8). |
 
-**Özet:** A4 (Şehir) tamamlandı. A4.R1 ara adımıyla tüm sahnelerin UI tasarımları yeni varlıklarla revize edildi, kart buton rengi koruması sağlandı, rota veritabanı senkronize edildi ve 49 MB atıl dosya temizlendi. Sırada A5.2 (Manuel / Otomatik savaş seçimi) var.
+**Özet:** A5.2 (Manuel / Otomatik savaş seçimi ve taktik çözümleme formülü) tamamlandı. Sırada A5.3 (CombatScene yeniden: Hex Combat HUD + Action Cluster) var.
 
-**Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene` ✅ A5.1 güncel · `TownHubScene` ✅ A4 tamamlandı · `CombatScene` ⚠️ A5'te yeniden ele alınacak · `MarketScene` ⚠️ arşiv/eski prototip.
+**Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene` ✅ A5.2 güncel · `TownHubScene` ✅ A4 tamamlandı · `CombatScene` ⏳ A5.3'te yeniden ele alınacak · `MarketScene` ⚠️ arşiv/eski prototip.
 
 ---
 
@@ -32,7 +32,7 @@ A1 Ana Menü & UI Temelleri ............. ✅
 A2 Dünya Haritası & Oyun Omurgası ...... ✅
 A3 Seyahat (TravelScene) ............... ✅
 A4 Şehir: Pazar/Kervansaray/Divan ...... ✅
-A5 Olay & Pusu → Savaş ................. ⏳  ← ŞU AN (A5.1 bitti)
+A5 Olay & Pusu → Savaş ................. ⏳  ← ŞU AN (A5.2 bitti)
 A6 Meta: İstihbarat/İtibar/Dükkân ...... ⬜
 A7 Cila (Dil, Performans, Temizlik) .... ⬜
 A8 Android Sürüm & Test ................ ⬜
@@ -40,15 +40,15 @@ A8 Android Sürüm & Test ................ ⬜
 
 ### A5 Adımları (Olay & Pusu → Savaş ⏳)
 - [x] A5.1 Olay penceresi: **Kaç / Haraç Ver / Savaş** (`EventModal` 3'lü karar kümesi, `RoadEventSO` `FleeChance` & `TributeAkceCost`, anlık etki ertelemesi)
-- [ ] A5.2 Savaş seçimi: Manuel / Otomatik (otomatik çözümleme formülü)
+- [x] A5.2 Savaş seçimi: Manuel / Otomatik (otomatik çözümleme formülü, iki kanatlı taktik kartlar `CombatModul`)
 - [ ] A5.3 CombatScene yeniden (mevcut `DamageCalculator`, `HexPathfinder` korunur), GDD Unit HUD + Action Cluster yerleşimi
 - [ ] A5.4 Sonuç → kayıp/yaralanma → kervana yansıma → seyahate dönüş
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A5.2 — Savaş Seçimi: Manuel / Otomatik (GDD §11/5)
-- **Hedef:** Pusu veya tehlikeli olayda "Savaş" seçildiğinde oyuncuya iki seçenek sunulması: **Manuel Taktik Savaş** (`CombatScene` üzerinde sıra tabanlı altıgen çatışma) veya **Otomatik Çözümleme** (kervanın muhafız sayısı/canı ile düşman gücünü kıyaslayan hızlı sonuç algoritması).
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A5` / `### A5.2`
+## 3. ▶️ Sıradaki Adım: A5.3 — CombatScene Yeniden (Hex Combat HUD & Action Cluster)
+- **Hedef:** Altıgen savaş tahtasının (`CombatScene`) GDD §6 ve §11 standartlarına göre düzenlenmesi; sıra tabanlı çatışma arayüzü, Unit HUD (can/moral/stamina), Action Cluster (saldır/savun/menzilli) yerleşimi.
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A5` / `### A5.3`
 
 ---
 

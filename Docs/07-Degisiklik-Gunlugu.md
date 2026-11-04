@@ -6,6 +6,15 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
+---
+
 ## [02.11.2026] A4.R1 — UI Yenileme, Buton Rengi Korunması, Rota Grafiği Revizyonu ve Varlık Temizliği
 - `BottomNodeInfoCardUI.cs`: `_overrideButtonColors = false` serileştirilmiş alanı eklendi; `OpenCard` içerisinde butonun `Image.color` boyaması şartlı hale getirilerek varsayılan olarak `Color.white` (orijinal sprite rengi) kalması sağlandı.
 - `WorldMapScene.unity`: `BottomNodeInfoCard` hiyerarşisindeki `BottomTitle/TitleText` (`_nodeTitleText`) ve `DangerInfo` (`_dangerText`) referansları bağlandı.
@@ -42,6 +51,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [31.10.2026] A4.3 — Pazar Doygunluğu (`MarketSaturation`), Kalıcı Kayıt ve Günlük Toparlanma
 - `SaveData.cs`: Şehir ve emtia bazlı pazar durumlarını saklayan `CityMarketNodeSaveData` ve `CityMarketItemSaveData` modelleri eklendi; `SaveData.cityMarkets` alanı tanımlandı.
 - `SaveService.cs`: `ValidateAndMigrate` içine eski kayıt dosyalarıyla geriye dönük uyumluluk için `data.cityMarkets` null koruması eklendi.
@@ -53,6 +69,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [30.10.2026] A4.2 — Pazar Sistemi, 4 Yeni `ItemDataSO`, `GameSession` Bağlantısı & Alış-Satış UI
 - `CaravanData.cs`: `FindSlot`, `ClearInventory` ve `RestoreInventorySlot` metotları eklendi; tüm `ItemId` karşılaştırmaları `StringComparison.Ordinal` standardına çekildi.
 - `GameSession.cs`: Diskten okunan `InventorySlotSaveData` kayıtlarının korunması ve `ResolveSavedInventoryItems` ile `CaravanData.Inventory` listesine dönüştürülmesi sağlandı.
@@ -63,6 +86,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [29.10.2026] A4.1 — Şehir Hub Tasarımı & 3 Sekmeli Sahne İskeleti (`TownHubScene`)
 - `RouteDatabaseSO.cs`: Kayıtlı rotalar üzerinden ASCII `nodeId` (`StringComparison.Ordinal`) ile `LocationNodeSO` çözümleyen `FindNodeById(string nodeId)` metodu eklendi.
 - `TownHubUI.cs`: 3 sekmeli (`Market`, `Caravanserai`, `Divan`) merkez yapısına taşındı; sekmeye göre tam ekran arka plan (`_bgMarket`, `_bgCaravanserai`, `_bgDivan`) ve aktif/pasif sekme görseli değişimi, `GameSession.CurrentNodeId` üzerinden dinamik şehir/fraksiyon başlığı, kervansaray düğümlerinde tesis kilitleme (`!HasMarket`), `SceneLoader.Load(SceneIds.WorldMap)` ve Android Geri tuşu (`Escape`) desteği eklendi.
@@ -72,6 +102,13 @@
 - Commit: `feat(townhub): A4.1 3 sekmeli sehir merkezi iskeleti, ozel arka planlar ve TopBar cekmece entegrasyonu`
 
 ---
+
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
 
 ## 🏆 [28.10.2026] A3 — Seyahat (`TravelScene` Yeniden) (Aşama Özeti)
 - **Kapsam:** A3.1–A3.4 arasındaki 4 adım başarıyla tamamlandı.
@@ -84,6 +121,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [28.10.2026] A3.4 — Kamp/Mola Penceresi (`EventModal`) & Yol Olayları Altyapısı (`RoadEventSO`)
 - `RoadEventSO.cs`: ASCII `EventId`, 4 kategori (`Incident`, `Positive`, `BanditAmbush`, `WildBeastAttack`), akçe/erzak/şifa etkileri, ağırlıklı seçim ve A5 savaş hazırlık alanlarını içeren ScriptableObject eklendi.
 - `TravelRouteSO.cs`: Rotaya özel `_roadEvents` (`List<RoadEventSO>`) alanı eklendi; Türkçe karaktersiz açıklamalar düzeltildi (`TD-10`).
@@ -94,6 +138,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [27.10.2026] A3.2 & A3.3 — Kervan Konvoyu, Seyahat HUD ve `GameSession` Bağlantısı (`BUG-05`)
 - `CaravanConvoyUI.cs`: Yol üzerinde ilerleyen kervan birimlerine (`Unit_Travel_AlpMounted`, `Camel`, `Mule`, `Muhafiz`, `Okcu`) faz farkıyla adımlama yaylanması (`bobbing`), yürüyüş eğimi (`tilt`) ve yere basma esnemesi (`squash`) uygulayan görünüm bileşeni eklendi. Gerçek bacak adımlama animasyonu Cila aşaması (A7) için `AST-10` olarak not edildi.
 - `TravelManager.cs`: Ayrı `_caravanData` kopyası kaldırılıp doğrudan `GameSession.Caravan`'a bağlandı (`BUG-05` çözüldü); `RouteDatabaseSO` çift yönlü rota çözümleme, `1x/2x` hız çarpanı (`1.2s` varsayılan gün süresi) ve varışta `GameSession.CompleteTravel()` entegrasyonu tamamlandı.
@@ -103,6 +154,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [27.10.2026] A3.1 — Seyahat Tasarım Önerisi & Parallax Arka Plan Kurulumu
 - `TravelParallaxUI.cs`: 4 katmanlı minyatür seyahat arka planını `RawImage.uvRect` üzerinden sıfır GC ile kaydıran, mola (`SetPaused`) ve hız çarpanı (`SetSpeedMultiplier`) destekli UI bileşeni oluşturuldu.
 - Varlıklar: `BG_Travel_01_Sky.png`, `BG_Travel_02_Mountains.png`, `BG_Travel_03_MidHiils.png`, `BG_Travel_04_Roads.png` eklendi (`Sprite Mode: Single`, `Wrap Mode: Repeat`). `MidHiils` katmanındaki yatay döngü birleşim izi Cila aşaması (A7) için `AST-09` olarak kayıt altına alındı.
@@ -110,6 +168,13 @@
 - Commit: `feat(travel): A3.1 seyahat 4 katmanli parallax arka plan kurulumu ve TravelParallaxUI`
 
 ---
+
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
 
 ## [25.10.2026] A2.8 — Cihaz Testi & Aşama Kapanışı
 - `MainMenuUI.cs`: Yeni Input System (`Keyboard.current.escapeKey`) ile Android Geri tuşu dinlemesi eklendi; açık olan Ayarlar, Yeni Oyun onayı veya Çıkış onay popup'ları ve sağ alt çekmece sırayla kapatılıyor, pencereler kapalıyken çıkış onayı tetikleniyor.
@@ -119,6 +184,13 @@
 - Commit: `feat(input): A2.8 Android Geri tusu destegi ve cihaz testi ile A2 asama kapanisi`
 
 ---
+
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
 
 ## 🏆 [25.10.2026] A2 — Dünya Haritası & Oyun Omurgası (Aşama Özeti)
 - **Kapsam:** A2.0–A2.8 arasındaki 9 adım başarıyla tamamlandı.
@@ -135,6 +207,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [25.10.2026] A2.7 — Sidebar Gerçek Veri + Boş Durumlar
 - `InventorySidebarUI.cs`: Çekmece verileri `Services.TryGet<GameSession>` üzerinden gerçek `Caravan` oturumuna bağlandı; `EventBus.Subscribe<CaravanStatsChangedEvent>` canlı aboneliği eklendi (`TD-03`).
 - Sahte satır temizliği: Kervan sekmesinde sahte muhafızlar kaldırılıp lider (Gazi Alp) ve gerçek hayvanlar listelendi; Yük sekmesinde sahte emtialar kaldırılıp "Kervan ambarında henüz ticaret emtiası bulunmuyor..." boş durum metni eklendi (`TD-03`).
@@ -144,6 +223,13 @@
 - Commit: `feat(ui): A2.7 sidebar gerçek GameSession verisine bağlandı ve boş durumlar eklendi (TD-03, TD-05)`
 
 ---
+
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
 
 ## [25.10.2026] A2.6 — Sahne Geçiş Servisi (SceneLoader + ScreenFader)
 - `SceneIds.cs` (yeni): Projedeki tüm Unity sahne adlarını tek merkezde toplayan sabit sınıfı eklendi (`TD-14`).
@@ -157,6 +243,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [25.10.2026] A2.5 — TopBar HUD (Akçe, Erzak, Tarih, Mevsim)
 - `GameCalendar.cs` (yeni): 14 Mayıs 1326 başlangıç tarihinden gün hesaplayan, `SeasonType` ve Türkçe mevsim adları ("Bahar", "Yaz", "Güz", "Kış") üreten saf C# takvim sınıfı eklendi (`TD-02`).
 - `TopBarHUD.cs` (yeni): Akçe (sayaç akışı ve kapsül nabız animasyonu), Erzak (<= 3 gün için kırmızı uyarı rengi), Tarih ve Mevsim göstergelerini `GameSession` ve `EventBus` (`CaravanStatsChangedEvent`, `DayPassedEvent`) ile senkronize eden bağımsız HUD kontrolcüsü eklendi (`TD-02`).
@@ -165,6 +258,13 @@
 - Commit: `feat(ui): A2.5 TopBar HUD - GameCalendar takvim/mevsim motoru, sayaç animasyonu ve WorldMapUI ayrımı (TD-02)`
 
 ---
+
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
 
 ## [19.10.2026] A2.4 — Rota Grafiği + Gerçek Mesafe/Erzak
 - `RouteDatabaseSO.cs` (yeni): Haritadaki tüm `TravelRouteSO` varlıklarını tek bir listede toplayan ScriptableObject veri tabanı eklendi (`TD-04`).
@@ -177,6 +277,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [18.10.2026] A2.3 — Kayıt / Yükleme (JSON)
 - `SaveData.cs` (yeni): `saveVersion = 1` alanlı, SO referanslarını yalnızca ASCII ID olarak tutan serileştirilebilir kayıt veri modelleri (`SaveData`, `CaravanSaveData`, `InventorySlotSaveData`, `GuardSaveData`, `ActiveTravelSaveData`) eklendi (`TD-01`).
 - `SaveService.cs` (yeni): `Application.persistentDataPath/save_0.json` yoluna atomik yazma (`save_0.tmp` → `.bak` → `save_0.json`), bozuk JSON/sürüm doğrulama (`TryLoad`) ve `GameSavedEvent` yayını yapan servis eklendi (`TD-01`).
@@ -188,6 +295,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [18.10.2026] A2.2 — Boot Sahnesi + GameSession
 - `Services.cs` (yeni): Yeni Singleton açmadan kalıcı servisleri (`GameSession`, `AudioManager` vb.) kaydetmek ve sorgulamak için hafif servis bulucu eklendi (`TD-08`).
 - `GameSession.cs` (yeni): Sahnelerden bağımsız, oyun durumunu (akçe, erzak, gün sayısı, mevcut düğüm, seyahat durumu) tutan çalışma anı oturumu oluşturuldu; `EventBus` olayları (`LocationChangedEvent`, `DayPassedEvent`, `TravelStartedEvent`) ile bağlandı.
@@ -198,6 +312,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [16.10.2026] A2.1 — Kimlik Birliği (NodeId + MapNodeView)
 - `MapNodeView.cs` (yeni): Haritadaki 13 düğüm nesnesini `LocationNodeSO` referansına ve ASCII `NodeId`'ye bağlayan sahne görünüm bileşeni eklendi (`BUG-02`).
 - 13 harita düğümü için `LocationNodeSO` eksikleri (`Ahlat, Ankara, Antalya, Cakalli, Eskisehir, Izmir, Karatay, Kutahya, Tashan, Trabzon`) tamamlandı (`BUG-02`).
@@ -206,6 +327,13 @@
 - Commit: `fix(map): A2.1 harita dugumlerinde NodeId kimlik birligi ve LocationNodeSO baglantisi (BUG-02, BUG-03, TD-06)`
 
 ---
+
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
 
 ## [16.10.2026] A2.0 — Hijyen (Input System, DevOverlay, Ses Kalıcılığı)
 - `MapPanZoomController.cs`: Eski `UnityEngine.Input` çağrıları yeni Input System'e (`EnhancedTouch.Touch.activeTouches`) taşındı (`BUG-01`).
@@ -217,6 +345,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [14.10.2026] DOC — AI çalışma düzeni ve dokümantasyon yeniden yapılandırıldı
 - Salt okunur proje analizi yapıldı (rapor: `Docs/Arsiv/2026-10-14-Analiz-Raporu.md`).
 - `AGENTS.md` sadeleştirildi; doküman yönlendirme tablosu, token ekonomisi, Bitti Tanımı eklendi.
@@ -227,6 +362,13 @@
 - Commit: `docs(ai): AI çalışma düzeni, yol haritası ve bilinen sorunlar kaydı`
 
 ---
+
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
 
 ## [14.10.2026] A2-UI — Dünya Haritası arayüzü, SFX ve arayüz cilaları
 - **Varlık organizasyonu:** Ticaret emtiaları `Art/Sprites/Items/`; profil kartları (`Mauhafiz_ProfileCard`, `Okcu_ProfileCard`, `Ahi_ProfileCard`, `Horse_ProfileCard`, `Mule_ProfileCard`, `Camel_ProfileCard`, `Erzak_ProfileCard`) ve UI parçaları `Art/Sprites/UI/Portraits|Backgrounds|Buttons|Decorations/` altında toplandı.
@@ -245,6 +387,13 @@
 
 ---
 
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
+
 ## [~13.10.2026] A1 — Ana Menü & UI temelleri (tamamlandı + cilalandı)
 - `UI_BG_MainMenu` + `UI_Logo_GameTitle`, Yeni Oyun / Devam Et butonları.
 - Alt orta login seçenekleri (Google, Apple, Mail) — henüz işlevsiz (log basıyor).
@@ -256,6 +405,13 @@
 - Commit: `6a5270d feat(ui): Asama 1 tamamlandi - Ana Menu, Cekmece, Ayarlar Popupu ve Varlik Organizasyonu`
 
 ---
+
+## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
+- `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
+- `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.
+- `TravelUI.cs`: İki kanatlı taktik seçim kartları konteyneri (`_combatChoiceContainer`), manuel savaş (`_btnCombatManual`), otomatik çözümleme (`_btnCombatAuto`), geri dön butonu (`_btnCombatBack`) ve kuvvet dengesi metni (`_combatOddsText`) bağlandı. Savaş modunda arkadaki metin sızıntısını engelleyen görünürlük yönetimi yapıldı.
+- Unity'de elle: `TravelScene.unity` sahnesinde `ModalCard` içerisine `CombatChoiceContainer`, `Row_Cards`, `Btn_CombatManual`, `Btn_CombatAuto`, `Text_CombatOdds` ve `Btn_CombatBack` yerleştirildi; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` varlıkları ve `Icon_Combat_*` ikonları bağlandı.
+- Commit: `feat(travel): A5.2 manuel ve otomatik savas secimi ile taktik cozumleme kartlari eklendi`
 
 ## [≤07.10.2026] A0 — Hazırlık, mimari ve prototip sahneler
 - ScriptableObject veri yapıları (Item, Unit, Node, Route, Market, Intel, Audio).
