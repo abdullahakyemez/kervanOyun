@@ -3,12 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Kervan.Combat;
+using Kervan.Core;
 
 namespace Kervan.UI
 {
     /// <summary>
-    /// EKRAN.md standardinda Sol Basparmak Bolgesi: Aktif Birim Bilgi Karti (Unit HUD).
-    /// Portre, HP/Zirh barlari, 5'li Stamina hucreleri ve Moral hilalini yonetir.
+    /// GDD §2.A standardında Sol Başparmak Bölgesi: Aktif Birim Bilgi Kartı (Unit HUD).
+    /// Portre, Türkçe sınıf/mod bilgisi, Can/Zırh barları, 5'li Stamina yıldızları ve Moral hilalini yönetir.
     /// </summary>
     public class UnitHUD : MonoBehaviour
     {
@@ -17,38 +18,53 @@ namespace Kervan.UI
         [SerializeField] private TextMeshProUGUI _unitNameText;
         [SerializeField] private TextMeshProUGUI _roleText;
 
-        [Header("Can (HP) Bari - Koyu Al #8B261E")]
+        [Header("Can (HP) Barı - Koyu Al #8B261E")]
         [SerializeField] private Slider _healthSlider;
+        [SerializeField] private Image _healthFillImage;
         [SerializeField] private TextMeshProUGUI _healthValueText;
 
-        [Header("Zirh Bari - Celik Gri #4A4E51")]
+        [Header("Zırh Barı - Çelik Gri #4A4E51")]
         [SerializeField] private Slider _armorSlider;
+        [SerializeField] private Image _armorFillImage;
         [SerializeField] private TextMeshProUGUI _armorValueText;
 
-        [Header("Stamina Hucreleri - Kehribar Sarisi #DAA520")]
+        [Header("Stamina Hücreleri - Kehribar Sarısı #DAA520")]
         [SerializeField] private List<Image> _staminaDots = new List<Image>();
 
-        [Header("Moral Hilal Gostergesi")]
+        [Header("Moral Hilal Göstergesi")]
         [SerializeField] private Image _moraleIcon;
+        [SerializeField] private TextMeshProUGUI _moraleValueText;
 
-        [Header("Yoneticiler")]
+        [Header("Yöneticiler")]
         [SerializeField] private CombatTurnManager _turnManager;
 
         private CombatUnit _boundUnit;
 
-        // TASARİM.md Renk Kodlari
-        private static readonly Color ColorMoraleHigh = new Color(0.165f, 0.294f, 0.216f); // #2A4B37 Yesil
-        private static readonly Color ColorMoraleNormal = Color.white;
-        private static readonly Color ColorMoralePanic = new Color(0.545f, 0.149f, 0.118f); // #8B261E Koyu Al
-        private static readonly Color ColorStaminaActive = new Color(0.855f, 0.647f, 0.125f); // #DAA520 Kehribar
-        private static readonly Color ColorStaminaSpent = new Color(0.29f, 0.30f, 0.32f, 0.40f); // Sonuk Gri
+        // GDD §2 Renk Kodları
+        private static readonly Color ColorMoraleHigh = new Color(0.18f, 0.49f, 0.20f, 1f);     // #2E7D32 Yüksek Moral Yeşili
+        private static readonly Color ColorMoraleNormal = new Color(0.95f, 0.90f, 0.81f, 1f);   // #F2E6CE Parşömen Kremi
+        private static readonly Color ColorMoralePanic = new Color(0.72f, 0.11f, 0.11f, 1f);    // #B71C1C Panik Kırmızısı
+        private static readonly Color ColorStaminaActive = new Color(0.855f, 0.647f, 0.125f, 1f); // #DAA520 Kehribar Altını
+        private static readonly Color ColorStaminaSpent = new Color(0.29f, 0.30f, 0.32f, 0.38f);  // Sönük Gri
 
-        private void Start()
+        private void Awake()
         {
-            if (_turnManager == null) _turnManager = FindAnyObjectByType<CombatTurnManager>();
+            if (_turnManager == null)
+            {
+                _turnManager = FindAnyObjectByType<CombatTurnManager>();
+            }
+
             if (_turnManager != null)
             {
                 _turnManager.OnUnitSelected += BindUnit;
+            }
+        }
+
+        private void Start()
+        {
+            if (_turnManager != null && _turnManager.SelectedUnit != null)
+            {
+                BindUnit(_turnManager.SelectedUnit);
             }
         }
 
@@ -90,39 +106,68 @@ namespace Kervan.UI
         {
             if (unit == null || unit.Data == null) return;
 
-            // 1. Isim ve Rol
-            if (_unitNameText != null) _unitNameText.text = unit.Data.UnitName;
-            if (_roleText != null) _roleText.text = unit.Data.CombatRole.ToString();
+            // 1. İsim ve Türkçe Rol / Aktif Silah Modu
+            if (_unitNameText != null)
+            {
+                _unitNameText.text = unit.Data.UnitName;
+            }
+
+            if (_roleText != null)
+            {
+                string modeLabel = GetRoleAndWeaponLabel(unit);
+                if (unit.IsDefending)
+                {
+                    modeLabel += " · <color=#008B9B>[Siperde]</color>";
+                }
+                else if (unit.IsRouting)
+                {
+                    modeLabel += " · <color=#B71C1C>[Panik!]</color>";
+                }
+                _roleText.text = modeLabel;
+            }
 
             // 2. Portre
             if (_portraitImage != null)
             {
                 _portraitImage.sprite = unit.Data.Portrait != null ? unit.Data.Portrait : unit.Data.DefaultSprite;
+                _portraitImage.preserveAspect = true;
             }
 
-            // 3. Can (HP) Bari
+            // 3. Can (HP) Barı
+            int maxHp = Mathf.Max(1, unit.Data.MaxHealth);
             if (_healthSlider != null)
             {
-                _healthSlider.maxValue = unit.Data.MaxHealth;
+                _healthSlider.maxValue = maxHp;
                 _healthSlider.value = unit.CurrentHealth;
+            }
+            if (_healthFillImage != null)
+            {
+                _healthFillImage.fillAmount = Mathf.Clamp01((float)unit.CurrentHealth / maxHp);
             }
             if (_healthValueText != null)
             {
-                _healthValueText.text = $"{unit.CurrentHealth} / {unit.Data.MaxHealth}";
+                _healthValueText.text = $"{unit.CurrentHealth} / {maxHp}";
             }
 
-            // 4. Zirh Bari
+            // 4. Zırh Barı
+            int maxArmor = Mathf.Max(1, unit.Data.MaxArmor);
             if (_armorSlider != null)
             {
-                _armorSlider.maxValue = Mathf.Max(1, unit.Data.MaxArmor);
+                _armorSlider.maxValue = maxArmor;
                 _armorSlider.value = unit.CurrentArmor;
+            }
+            if (_armorFillImage != null)
+            {
+                _armorFillImage.fillAmount = unit.Data.MaxArmor > 0
+                    ? Mathf.Clamp01((float)unit.CurrentArmor / maxArmor)
+                    : 0f;
             }
             if (_armorValueText != null)
             {
                 _armorValueText.text = $"{unit.CurrentArmor} / {unit.Data.MaxArmor}";
             }
 
-            // 5. Stamina Hucreleri (5 adet)
+            // 5. Stamina Hücreleri (5 adet Selçuklu Yıldızı)
             for (int i = 0; i < _staminaDots.Count; i++)
             {
                 if (_staminaDots[i] != null)
@@ -132,14 +177,14 @@ namespace Kervan.UI
                 }
             }
 
-            // 6. Moral Hilal Gostergesi
+            // 6. Moral Hilal Göstergesi
             if (_moraleIcon != null)
             {
-                if (unit.IsRouting || unit.CurrentMorale < 30)
+                if (unit.IsRouting || unit.CurrentMorale < 35)
                 {
                     _moraleIcon.color = ColorMoralePanic;
                 }
-                else if (unit.CurrentMorale > 100)
+                else if (unit.CurrentMorale >= 90)
                 {
                     _moraleIcon.color = ColorMoraleHigh;
                 }
@@ -147,6 +192,26 @@ namespace Kervan.UI
                 {
                     _moraleIcon.color = ColorMoraleNormal;
                 }
+            }
+
+            if (_moraleValueText != null)
+            {
+                _moraleValueText.text = $"Moral: {unit.CurrentMorale}";
+            }
+        }
+
+        private static string GetRoleAndWeaponLabel(CombatUnit unit)
+        {
+            switch (unit.Data.CombatRole)
+            {
+                case UnitCombatRole.Hybrid:
+                    return unit.IsUsingRangedWeapon
+                        ? $"Yay Modu (Menzil: {unit.ActiveAttackRange})"
+                        : "Kılınç Modu (Yakın Dövüş)";
+                case UnitCombatRole.Ranged:
+                    return $"Okçu · Menzil: {unit.ActiveAttackRange}";
+                default:
+                    return "Ağır Piyade · Kalkan & Kılıç";
             }
         }
     }

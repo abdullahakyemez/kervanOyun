@@ -6,6 +6,25 @@
 
 ---
 
+## 🏆 [05.11.2026] A5 — Olay & Pusu → Savaş (Aşama Özeti)
+- **Kapsam:** A5.1–A5.4 arasındaki 4 adım başarıyla tamamlandı.
+- **Kazanımlar:**
+  1. **Pusu Karar Kümesi (`A5.1`):** Yol olayları ve haydut pusularında **Kaç / Haraç Ver / Savaş** seçenekleri (`EventModal`) ve çevre koşullarına duyarlı karar mekaniği kuruldu.
+  2. **Manuel / Otomatik Savaş Seçimi (`A5.2`):** İki kanatlı taktik seçim kartları (`CombatModul`), kuvvet dengesi istihbaratı ve kervan/düşman gücüne göre çalışan otomatik çözümleme algoritması devreye alındı.
+  3. **Altıgen Taktik Savaş Sahnesi (`A5.3` — `CombatScene`):** `UI_BG_Combat_Steppe` panoraması, `Tile_HexFrame` izometrik altıgen ızgara, orta hat kaya/barikat siperleri, `GameSession.Caravan.Guards` üzerinden dinamik birim dizilimi, baş üstü mini can/zırh çubukları, `UnitHUD`, `ActionCluster`, `CombatHeaderUI` ve `BGM_Combat.mp3` ses düzeni sıfırdan kuruldu.
+  4. **Savaş Sonucu & Kervan Senkronizasyonu (`A5.4`):** Zafer, bozgun ve geri çekilme durumlarında muhafızların kalan can/moral değerleri (`SyncGuardAfterCombat`), kayıplar ve ganimet (`+Akçe`, `+Erzak`) `GameSession.Caravan` ile `save_0.json` kaydına işlenip `SceneLoader` üzerinden `TravelScene`'e dönüş sağlandı.
+- **Önerilen Git Etiketi:** `v0.5.0-alpha`
+
+---
+
+## [05.11.2026] A5.3 & A5.4 — CombatScene Yeniden Kurulumu, Taktik HUD ve Savaş Sonucu Senkronizasyonu
+- `HexCoordinates.cs`, `HexTile.cs`, `HexGrid.cs`: `Tile_HexFrame.png` (`184x108`, `PPU=92`) izometrik kafes vektörlerine göre (`139/92`, `81/92`) dünya-altıgen dönüşümü kalibre edildi; 8x6 ızgara merkezleme ve orta sütunlarda (`q = 3, 4`) kaya/barikat siper üretimi (`GenerateTacticalObstacles`) eklendi.
+- `CombatUnit.cs`: Ayak altı seçim halkası (`SelectionRing`), baş üstü mini Can/Zırh çubukları (`WorldStatBars`), Kıdemli Alp için Kılıç ↔ Yay silah geçişi (`ToggleWeaponMode`), Cenk Narası moral takviyesi (`AddMoraleBoost`) ve vuruş hamlesi (`AttackLungeCoroutine`) eklendi.
+- `CombatTurnManager.cs`: `SpawnBattlefieldUnits` ile `GameSession.Caravan.Guards` kadrosundan dinamik birim yerleştirme, `FinalizeCombatCoroutine`, `ApplyCombatResultsToSession` ve `ApplyRetreatPenaltyToSession` metotları eklendi.
+- `CombatInputHandler.cs`, `UnitHUD.cs`, `ActionCluster.cs`, `CombatHeaderUI.cs`, `CombatPredictionUI.cs`, `CombatResultUI.cs`, `CaravanData.cs`: UI tıklama koruması (`IsPointerOverUI`), Türkçe rol/silah etiketleri, `Slider` + `Image` desteği, Cenk Narası/Siper/Silah değiştirme buton bağlantıları, `SyncGuardAfterCombat` kervan senkronizasyonu ve `SceneLoader.Load(SceneIds.Travel)` geçişi tamamlandı.
+- Unity'de elle: `Assets/_Project/Art/Sprites/yeniAssets/CombatScene` görsel varlıkları (`UI_BG_Combat_Steppe`, `Tile_HexFrame`, `UI_Unit_SelectionRing`, `Prop_Combat_Rock`, `Prop_Combat_Barricade`, `UI_UnitHud_BG`, `Header_BG`, `ActionCluster_BG`, `Result_BG`, `Icon_Combat_*`) üretilip `CombatScene.unity` içine bağlandı; `Main Camera` üzerine `AudioListener` eklendi.
+- Commit: `feat(combat): A5.3 ve A5.4 CombatScene altigen savas tahtasi, taktik HUD ve kervan sonuc senkronizasyonu tamamlandi`
+
 ## [04.11.2026] A5.2 — Savaş Seçimi: Manuel / Otomatik ve Taktik Çözümleme Formülü
 - `CaravanData.cs`: `ApplyGuardCombatDamage(int damagePerGuard)` güvenli hasar metodu eklendi (can 1'in altına düşürülmez, moral dengelenir); `HealAllGuards` metodu can ve moral sınırlarını taşmayacak şekilde `Mathf.Clamp` ile güvenli hale getirildi.
 - `TravelManager.cs`: `AutoCombatOutcomeType` ve `AutoCombatResult` veri yapıları tanımlandı; kervan muhafız gücünü (`CalculateCaravanPower`), rota tehlikesini (`CalculateEnemyPower`) ve kuvvet dengesi istihbaratını (`GetAmbushCombatOdds`) hesaplayan metotlar yazıldı; $\pm \%15$ taktiksel zar sapmasıyla Büyük Zafer, Zafer, Pirus Zaferi ve Bozgun sonuçlarını çözen `ResolveAmbushAutoCombat()` algoritması entegre edildi.

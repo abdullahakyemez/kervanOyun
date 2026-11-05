@@ -166,7 +166,7 @@ A8 Android Sürüm (Release) & Test .................. ⬜
 - **Unity'de elle:** `BottomNodeInfoCard` üzerindeki `_nodeTitleText` ve `_dangerText` referansları yeniden bağlandı; mükerrer `Route_Karatay_Tashan` kaldırıldı.
 - **Temizlik:** Projedeki tüm ham `.ai` dosyaları, taslak `Mockups/` ve `SourceFiles/`, mükerrer `SettingsMenu` ve terk edilmiş eski UI klasörleri silindi (~49 MB alan kazanıldı).
 
-## A5 — Olay & Pusu → Savaş ⏳
+## A5 — Olay & Pusu → Savaş ✅
 - **A5.1 Olay penceresi: Kaç / Haraç Ver / Savaş (GDD §11/5) ✅**
   - **Hedef:** Seyahat sırasında çıkan haydut pusularında ve tehlikeli yol olaylarında oyuncuya 3 seçenek sunan karar penceresinin (`EventModal`) kurulması: **Kaç** (çeviklik kontrolü), **Haraç Ver** (akçe kaybı) ve **Savaş** (muharebeye geçiş).
   - **Test:** Pusu çıktığında modal 3 seçenekle açılır. Kaç başarılı olursa hasarsız devam eder, başarısız olursa yıpranma bildirip savaşa yönlendirir. Haraç yeterli akçe varsa akçeyi düşüp yolu açar (yabani hayvanda haraç geçersizdir). Savaş seçilince savaşa geçilir.
@@ -175,10 +175,14 @@ A8 Android Sürüm (Release) & Test .................. ⬜
   - **Hedef:** Pusu veya tehlikeli olayda "Savaş" seçildiğinde oyuncuya iki seçenek sunulması: **Manuel Taktik Savaş** (`CombatScene` üzerinde sıra tabanlı altıgen çatışma) veya **Otomatik Çözümleme** (kervanın muhafız sayısı/canı ile düşman gücünü kıyaslayan hızlı sonuç algoritması).
   - **Test:** Pusu veya kaçış başarısızlığında iki kanatlı taktik seçim kartları açılır. "Taktik Savaş" tıklandığında `CombatScene` yüklenir; "Hızlı Çözümle" tıklandığında formül çalışır, zafer/bozgun durumuna göre hasar/ganimet kervana yansır ve rapor penceresi gösterilir. "Geri Dön" önceki karar kümesine döner.
   - **Uygulama notu:** `CaravanData.cs` (`ApplyGuardCombatDamage`, `HealAllGuards` clamp), `TravelManager.cs` (`AutoCombatResult`, `GetAmbushCombatOdds`, `CalculateCaravanPower`, `CalculateEnemyPower`, `ResolveAmbushAutoCombat`) ve `TravelUI.cs` (`_combatChoiceContainer`, `_btnCombatManual`, `_btnCombatAuto`, `_btnCombatBack`, `_combatOddsText`) yazıldı; `Assets/_Project/Art/Sprites/yeniAssets/CombatModul` ve özel ikonlar bağlandı.
-- A5.3 CombatScene yeniden (mevcut `DamageCalculator`, `HexPathfinder` korunur), GDD Unit HUD + Action Cluster yerleşimi.
-- A5.4 Sonuç → kayıp/yaralanma → kervana yansıma → seyahate dönüş.
+- **A5.3 CombatScene yeniden (mevcut `DamageCalculator`, `HexPathfinder` korunur), GDD Unit HUD + Action Cluster yerleşimi ✅**
+  - **Hedef:** `CombatScene` savaş alanının `UI_BG_Combat_Steppe` panoraması ve `Tile_HexFrame` altıgen çerçevesiyle sıfırdan kurulması; `GameSession.Caravan.Guards` üzerinden dinamik birim dizilimi, baş üstü mini can/zırh barları, ayak altı seçim halkası (`UI_Unit_SelectionRing`), `UnitHUD`, `ActionCluster` (Silah Değiştir / Siper Al / Cenk Narası / Turu Bitir) ve `CombatHeaderUI` yerleşimi.
+  - **Uygulama notu:** `HexCoordinates.cs` izometrik kafes vektörleri (`139/92`, `81/92`) kalibre edildi; `HexGrid.cs`, `HexTile.cs`, `CombatUnit.cs`, `CombatTurnManager.cs`, `CombatInputHandler.cs` (`IsPointerOverUI`), `UnitHUD.cs`, `ActionCluster.cs`, `CombatHeaderUI.cs` ve `CombatPredictionUI.cs` güncellendi; `Assets/_Project/Art/Sprites/yeniAssets/CombatScene` varlıkları ve `BGM_Combat.mp3` bağlandı.
+- **A5.4 Sonuç → kayıp/yaralanma → kervana yansıma → seyahate dönüş ✅**
+  - **Hedef:** Taktik savaş zafer, bozgun veya geri çekilmeyle sonuçlandığında hayatta kalan muhafızların kalan can/moral değerlerinin ve kayıpların `GameSession.Caravan`'a işlenmesi, ganimet/yağma uygulanması, otomatik kayıt (`SaveService`) ve `SceneLoader` ile `TravelScene`'e dönüş.
+  - **Uygulama notu:** `CaravanData.SyncGuardAfterCombat`, `CombatTurnManager.ApplyCombatResultsToSession` / `ApplyRetreatPenaltyToSession` ve `CombatResultUI.ShowCombatResult` entegre edildi (`v0.5.0-alpha`).
 
-## A6 — Meta: İstihbarat, İtibar, Dükkân ⬜
+## A6 — Meta: İstihbarat, İtibar, Dükkân ⏳
 - A6.1 `ReputationManager`/`QuestManager`/`ShopManager` → GameSession servislerine taşınması.
 - A6.2 Divan: istihbarat teslimi, ödüller. A6.3 Sabit dükkân / pasif gelir.
 

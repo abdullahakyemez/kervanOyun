@@ -281,6 +281,36 @@ namespace Kervan.TradeAndTravel
             NotifyStatsChanged();
         }
 
+        /// <summary>
+        /// Taktik savaş (CombatScene) bitiminde muhafızın kalan can ve moral değerini kervan kadrosuna işler.
+        /// Muhafız savaşta düştüyse kadrodan çıkarır.
+        /// </summary>
+        public void SyncGuardAfterCombat(string guardId, int remainingHealth, int remainingMorale, bool diedInCombat)
+        {
+            if (string.IsNullOrWhiteSpace(guardId) || _guards == null) return;
+
+            for (int i = _guards.Count - 1; i >= 0; i--)
+            {
+                var guard = _guards[i];
+                if (guard == null || guard.GuardId != guardId) continue;
+
+                if (diedInCombat || remainingHealth <= 0)
+                {
+                    _guards.RemoveAt(i);
+                }
+                else
+                {
+                    int maxHealth = guard.UnitData != null ? guard.UnitData.MaxHealth : 100;
+                    int maxMorale = guard.UnitData != null ? guard.UnitData.BaseMorale : 100;
+                    guard.CurrentHealth = Mathf.Clamp(remainingHealth, 1, maxHealth);
+                    guard.CurrentMorale = Mathf.Clamp(remainingMorale, 0, maxMorale);
+                }
+                break;
+            }
+
+            NotifyStatsChanged();
+        }
+
         public void HealAllGuards(int healAmount, int moraleBonus = 0)
         {
             for (int i = 0; i < _guards.Count; i++)

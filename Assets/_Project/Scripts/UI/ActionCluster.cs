@@ -7,26 +7,29 @@ using Kervan.Core;
 namespace Kervan.UI
 {
     /// <summary>
-    /// EKRAN.md standardinda Sag Basparmak Bolgesi: Eylem Komuta Kumesi.
-    /// "Turu Bitir", "Saldir/Mod Degistir", "Siper Al" ve "Ozel Yetenek" dugmelerini yonetir.
+    /// GDD §2.B standardında Sağ Başparmak Bölgesi: Eylem Komuta Kümesi.
+    /// "Turu Bitir", "Kılıç/Yay Mod Değiştir", "Siper Al" ve "Nara At (Özel Yetenek)" düğmelerini yönetir.
     /// </summary>
     public class ActionCluster : MonoBehaviour
     {
-        [Header("Yoneticiler")]
+        [Header("Yöneticiler")]
         [SerializeField] private CombatTurnManager _turnManager;
 
         [Header("Birincil Eylem")]
         [SerializeField] private Button _endTurnButton;
         [SerializeField] private TextMeshProUGUI _endTurnText;
 
-        [Header("Ikincil Eylemler")]
+        [Header("İkincil Eylemler (3 Madalyon Düğme)")]
         [SerializeField] private Button _attackModeButton;
+        [SerializeField] private TextMeshProUGUI _attackModeText;
         [SerializeField] private Button _defendButton;
+        [SerializeField] private TextMeshProUGUI _defendText;
         [SerializeField] private Button _skillButton;
+        [SerializeField] private TextMeshProUGUI _skillText;
 
         private CombatUnit _currentUnit;
 
-        private void Start()
+        private void Awake()
         {
             if (_turnManager == null)
             {
@@ -45,12 +48,25 @@ namespace Kervan.UI
             if (_skillButton != null) _skillButton.onClick.AddListener(OnSkillClicked);
         }
 
+        private void Start()
+        {
+            if (_turnManager != null && _turnManager.SelectedUnit != null)
+            {
+                HandleUnitSelected(_turnManager.SelectedUnit);
+            }
+        }
+
         private void OnDestroy()
         {
             if (_turnManager != null)
             {
                 _turnManager.OnUnitSelected -= HandleUnitSelected;
                 _turnManager.OnTurnChanged -= HandleTurnChanged;
+            }
+
+            if (_currentUnit != null)
+            {
+                _currentUnit.OnStatsChanged -= RefreshButtons;
             }
         }
 
@@ -76,31 +92,69 @@ namespace Kervan.UI
             bool isPlayerPhase = (phase == CombatTurnPhase.PlayerTurn);
 
             if (_endTurnButton != null) _endTurnButton.interactable = isPlayerPhase;
-            if (_defendButton != null) _defendButton.interactable = isPlayerPhase;
-            if (_attackModeButton != null) _attackModeButton.interactable = isPlayerPhase;
-            if (_skillButton != null) _skillButton.interactable = isPlayerPhase;
+            if (_endTurnText != null)
+            {
+                _endTurnText.text = isPlayerPhase ? "TURU BİTİR" : "DÜŞMAN TURU";
+            }
 
             if (isPlayerPhase)
             {
                 RefreshButtons(_currentUnit);
             }
+            else
+            {
+                SetActionButtonsInteractable(false);
+            }
         }
 
         private void RefreshButtons(CombatUnit unit)
         {
-            if (unit == null || unit.IsDead || _turnManager.CurrentState != CombatState.PlayerTurn)
+            if (unit == null || unit.IsDead || _turnManager == null || _turnManager.CurrentState != CombatState.PlayerTurn)
             {
                 SetActionButtonsInteractable(false);
                 return;
             }
 
-            // Stamina maliyeti kontrolleri
-            int attackCost = unit.Data != null ? unit.Data.StaminaCostAttack : 2;
+            bool isHybrid = unit.Data != null && unit.Data.CombatRole == UnitCombatRole.Hybrid;
             int defendCost = unit.Data != null ? unit.Data.StaminaCostDefend : 1;
+            const int skillCost = 3;
 
-            if (_attackModeButton != null) _attackModeButton.interactable = (unit.CurrentStamina >= attackCost);
-            if (_defendButton != null) _defendButton.interactable = (unit.CurrentStamina >= defendCost && !unit.IsDefending);
-            if (_skillButton != null) _skillButton.interactable = (unit.CurrentStamina >= 3);
+            // 1. Kılıç <-> Yay Mod Değiştirme (Yalnızca Hibrit Alp için aktif)
+            if (_attackModeButton != null)
+            {
+                _attackModeButton.interactable = isHybrid && !unit.IsRouting;
+            }
+            if (_attackModeText != null)
+            {
+                if (isHybrid)
+                {
+                    _attackModeText.text = unit.IsUsingRangedWeapon ? "Yay" : "Kılıç";
+                }
+                else
+                {
+                    _attackModeText.text = "Sabit";
+                }
+            }
+
+            // 2. Siper Al (1 Stamina)
+            if (_defendButton != null)
+            {
+                _defendButton.interactable = (unit.CurrentStamina >= defendCost && !unit.IsDefending && !unit.IsRouting);
+            }
+            if (_defendText != null)
+            {
+                _defendText.text = unit.IsDefending ? "Siperde" : "Siper";
+            }
+
+            // 3. Nara At / Moral Hamlesi (3 Stamina)
+            if (_skillButton != null)
+            {
+                _skillButton.interactable = (unit.CurrentStamina >= skillCost && !unit.IsRouting);
+            }
+            if (_skillText != null)
+            {
+                _skillText.text = "Nara";
+            }
         }
 
         private void SetActionButtonsInteractable(bool interactable)
@@ -117,22 +171,30 @@ namespace Kervan.UI
 
         private void OnDefendClicked()
         {
-            if (_currentUnit != null && _currentUnit.IsPlayerControlled)
+            if (_currentUnit != null && _currentUnit.IsPlayerControlled && _turnManager != null)
             {
                 _currentUnit.Defend();
+                // Kalan stamina ile menzil halkalarını yenile
+                _turnManager.SelectUnit(_currentUnit);
             }
         }
 
         private void OnAttackModeClicked()
         {
-            // Hibrit Alp icin Kilic <-> Yay gecisi veya saldiri hazirligi
-            Debug.Log("[ActionCluster] Saldiri modu / Silah degistirildi.");
+            if (_turnManager != null)
+            {
+                _turnManager.ToggleSelectedUnitWeaponMode();
+                RefreshButtons(_currentUnit);
+            }
         }
 
         private void OnSkillClicked()
         {
-            // Ozel Taktik Hamle / Nara At (Morale Boost)
-            Debug.Log("[ActionCluster] Ozel Yetenek kullanildi!");
+            if (_turnManager != null)
+            {
+                _turnManager.ExecuteSelectedUnitSkill();
+                RefreshButtons(_currentUnit);
+            }
         }
     }
 }

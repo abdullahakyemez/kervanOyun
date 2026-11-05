@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace Kervan.Combat
 {
     /// <summary>
-    /// Mobil dokunmatik ve masaustu fare tiklamalarini algilayip
-    /// altigen koordinata ceviren ve CombatTurnManager'a ileten bilesen.
+    /// Mobil dokunmatik ve masaüstü fare tıklamalarını algılayıp UI üzerinde değilse
+    /// altıgen koordinata çeviren ve CombatTurnManager'a ileten bileşen.
     /// </summary>
     public class CombatInputHandler : MonoBehaviour
     {
@@ -22,14 +23,15 @@ namespace Kervan.Combat
         {
             if (_turnManager == null || _mainCamera == null) return;
 
-            // Dokunmatik veya Fare Sol Tiklamasi
             bool pointerDown = false;
             Vector2 screenPos = Vector2.zero;
+            int pointerId = -1;
 
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
             {
                 pointerDown = true;
                 screenPos = Touchscreen.current.primaryTouch.position.ReadValue();
+                pointerId = Touchscreen.current.primaryTouch.touchId.ReadValue();
             }
             else if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
@@ -37,13 +39,22 @@ namespace Kervan.Combat
                 screenPos = Mouse.current.position.ReadValue();
             }
 
-            if (pointerDown)
-            {
-                Vector3 worldPos = _mainCamera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -_mainCamera.transform.position.z));
-                HexCoordinates clickedCoords = HexCoordinates.FromWorldPosition(worldPos);
+            if (!pointerDown) return;
 
-                _turnManager.HandleTileClicked(clickedCoords);
-            }
+            // Oyuncu HUD butonlarına veya panellerine dokunduysa arkadaki karoya tıklama gönderme
+            if (IsPointerOverUI(pointerId)) return;
+
+            Vector3 worldPos = _mainCamera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -_mainCamera.transform.position.z));
+            HexCoordinates clickedCoords = HexCoordinates.FromWorldPosition(worldPos);
+
+            _turnManager.HandleTileClicked(clickedCoords);
+        }
+
+        private static bool IsPointerOverUI(int pointerId)
+        {
+            if (EventSystem.current == null) return false;
+            if (pointerId >= 0 && EventSystem.current.IsPointerOverGameObject(pointerId)) return true;
+            return EventSystem.current.IsPointerOverGameObject();
         }
     }
 }
