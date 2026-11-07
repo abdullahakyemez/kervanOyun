@@ -21,6 +21,31 @@ namespace Kervan.Core.Save
         public ActiveTravelSaveData activeTravel = new ActiveTravelSaveData();
         public List<string> visitedNodeIds = new List<string>();
         public List<CityMarketNodeSaveData> cityMarkets = new List<CityMarketNodeSaveData>();
+        public List<FactionReputationSaveData> reputations = new List<FactionReputationSaveData>();
+        public List<string> collectedIntelIds = new List<string>();
+        public List<string> submittedIntelIds = new List<string>();
+        public List<ShopSaveData> shops = new List<ShopSaveData>();
+    }
+
+    /// <summary>
+    /// Bir fraksiyonun kalıcı itibar puanı kaydını tutar.
+    /// </summary>
+    [Serializable]
+    public class FactionReputationSaveData
+    {
+        public FactionType faction;
+        public int score;
+    }
+
+    /// <summary>
+    /// Bir şehirdeki han dükkânının mülkiyet ve kasa birikimi kaydını tutar.
+    /// </summary>
+    [Serializable]
+    public class ShopSaveData
+    {
+        public string nodeId = string.Empty;
+        public bool isOwned;
+        public int storedGoldInTill;
     }
 
     /// <summary>

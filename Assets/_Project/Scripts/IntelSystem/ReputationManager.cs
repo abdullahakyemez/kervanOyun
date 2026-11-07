@@ -2,14 +2,18 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Kervan.Core;
+using Kervan.Core.Save;
 
 namespace Kervan.IntelSystem
 {
-    public struct ReputationChangedEvent : IGameEvent
+    /// <summary>
+    /// Bir fraksiyon nezdindeki itibar puanı veya kademesi değiştiğinde yayınlanır.
+    /// </summary>
+    public readonly struct ReputationChangedEvent : IGameEvent
     {
-        public FactionType Faction;
-        public int NewScore;
-        public ReputationLevel Level;
+        public readonly FactionType Faction;
+        public readonly int NewScore;
+        public readonly ReputationLevel Level;
 
         public ReputationChangedEvent(FactionType faction, int newScore, ReputationLevel level)
         {
@@ -20,49 +24,48 @@ namespace Kervan.IntelSystem
     }
 
     /// <summary>
-    /// Beylikler ve fraksiyonlar arasındaki nüfuz, güven ve itibar motoru.
+    /// Beylikler ve fraksiyonlar arasındaki nüfuz, güven ve itibar motoru (saf C# servisi).
     /// Vergileri, şehir giriş izinlerini ve özel ayrıcalıkları yönetir.
     /// </summary>
-    public class ReputationManager : MonoBehaviour
+    public class ReputationManager
     {
-        public static ReputationManager Instance { get; private set; }
+        public const int MinReputationScore = -100;
+        public const int MaxReputationScore = 100;
 
-        [System.Serializable]
+        /// <summary>
+        /// Servis bulucu (<see cref="Services"/>) üzerinden aktif <see cref="ReputationManager"/> örneğine erişim sağlar.
+        /// </summary>
+        public static ReputationManager Instance =>
+            Services.TryGet<ReputationManager>(out var manager) ? manager : null;
+
+        [Serializable]
         public class FactionRepEntry
         {
             public FactionType faction;
             [Range(-100, 100)] public int score;
         }
 
-        [SerializeField] private List<FactionRepEntry> _initialReputations = new List<FactionRepEntry>
-        {
-            new FactionRepEntry { faction = FactionType.Ottoman, score = 30 },       // Dost başlangıç
-            new FactionRepEntry { faction = FactionType.Steppe, score = 10 },        // Nötr (Germiyan)
-            new FactionRepEntry { faction = FactionType.SeljukLegacy, score = 5 },   // Nötr (Karaman)
-            new FactionRepEntry { faction = FactionType.Byzantine, score = -15 },    // Şüpheli (Tekfurlar)
-            new FactionRepEntry { faction = FactionType.Bandit, score = -100 }       // Düşman (Haydutlar)
-        };
-
         private readonly Dictionary<FactionType, int> _repScores = new Dictionary<FactionType, int>();
 
-        private void Awake()
+        public ReputationManager()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-            InitializeScores();
+            ResetToDefaults();
         }
 
-        private void InitializeScores()
+        /// <summary>
+        /// Tüm fraksiyon itibar puanlarını yeni oyun başlangıç değerlerine sıfırlar.
+        /// </summary>
+        public void ResetToDefaults()
         {
             _repScores.Clear();
-            foreach (var entry in _initialReputations)
-            {
-                _repScores[entry.faction] = Mathf.Clamp(entry.score, -100, 100);
-            }
+            _repScores[FactionType.Ottoman] = 30;        // Dost başlangıç (Osmanlı Uç Beyliği)
+            _repScores[FactionType.Byzantine] = -15;     // Şüpheli (Bizans Tekfurları)
+            _repScores[FactionType.Bandit] = -100;       // Düşman (Dağ Eşkıyaları)
+            _repScores[FactionType.WildAnimals] = -100;  // Doğal Tehdit (Vahşi Hayvanlar)
+
+            // Geriye dönük ScriptableObject uyumu (Anadolu Beylikleri)
+            _repScores[FactionType.Steppe] = 10;         // Nötr (Germiyan / Bozkır)
+            _repScores[FactionType.SeljukLegacy] = 5;    // Nötr (Karaman / Selçuklu Mirası)
         }
 
         public int GetReputation(FactionType faction)
@@ -83,13 +86,13 @@ namespace Kervan.IntelSystem
         public void AddReputation(FactionType faction, int amount)
         {
             int current = GetReputation(faction);
-            int updated = Mathf.Clamp(current + amount, -100, 100);
+            int updated = Mathf.Clamp(current + amount, MinReputationScore, MaxReputationScore);
             _repScores[faction] = updated;
 
             var level = GetReputationLevel(faction);
             EventBus.Publish(new ReputationChangedEvent(faction, updated, level));
 
-            Debug.Log($"[Kervan-İtibar] {faction} itibarı değişti: {current} -> {updated} ({level})");
+            Debug.Log($"[ReputationManager] {faction} itibarı değişti: {current} -> {updated} ({level})");
         }
 
         /// <summary>
@@ -125,7 +128,41 @@ namespace Kervan.IntelSystem
                 case FactionType.SeljukLegacy: return "Karamanoğlu & Selçuklu";
                 case FactionType.Byzantine: return "Doğu Roma (Bizans)";
                 case FactionType.Bandit: return "Dağ Eşkıyası";
+                case FactionType.WildAnimals: return "Vahşi Hayvanlar";
                 default: return faction.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Mevcut itibar puanlarını JSON kaydı için serileştirilebilir listeye dönüştürür.
+        /// </summary>
+        public List<FactionReputationSaveData> ToSaveData()
+        {
+            var list = new List<FactionReputationSaveData>(_repScores.Count);
+            foreach (var pair in _repScores)
+            {
+                list.Add(new FactionReputationSaveData
+                {
+                    faction = pair.Key,
+                    score = Mathf.Clamp(pair.Value, MinReputationScore, MaxReputationScore)
+                });
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Diskten okunan itibar kayıtlarını çalışma anı sözlüğüne uygular.
+        /// </summary>
+        public void ApplySaveData(List<FactionReputationSaveData> savedReputations)
+        {
+            ResetToDefaults();
+            if (savedReputations == null || savedReputations.Count == 0) return;
+
+            for (int i = 0; i < savedReputations.Count; i++)
+            {
+                var entry = savedReputations[i];
+                if (entry == null) continue;
+                _repScores[entry.faction] = Mathf.Clamp(entry.score, MinReputationScore, MaxReputationScore);
             }
         }
     }

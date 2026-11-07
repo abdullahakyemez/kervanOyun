@@ -1,12 +1,17 @@
 namespace Kervan.Core
 {
+    /// <summary>
+    /// Oyundaki temel tarafları (fraksiyonları) tanımlar (GDD §11/4: Osmanlı, Bizans, Eşkıya, Vahşi Hayvanlar).
+    /// Mevcut ScriptableObject (.asset) serileştirme indekslerini (0..4) korumak için değerler sabitlenmiştir.
+    /// </summary>
     public enum FactionType
     {
-        Ottoman,        // Erken Osmanlı & Gazi Uç Beylikleri
-        Steppe,         // Bozkır Türkmenleri
-        SeljukLegacy,   // Selçuklu Mirası & Kervansaraylar
-        Byzantine,      // Doğu Roma & Pontus Rum
-        Bandit          // Eşkıya / Dağ Haydutları
+        Ottoman = 0,        // Erken Osmanlı & Gazi Uç Beylikleri
+        Steppe = 1,         // Bozkır Türkmenleri / Anadolu Beylikleri (Geriye dönük SO uyumu)
+        SeljukLegacy = 2,   // Selçuklu Mirası & Kervansaraylar (Geriye dönük SO uyumu)
+        Byzantine = 3,      // Doğu Roma (Bizans Tekfurları & Pontus Rum)
+        Bandit = 4,         // Eşkıya / Dağ Haydutları
+        WildAnimals = 5     // Vahşi Hayvanlar (Kurt Sürüleri vb.)
     }
 
     public enum UnitCombatRole

@@ -4,7 +4,7 @@
 
 **Proje:** Uç Beyliği Kervanı · 14. yy Anadolu · Taktiksel RPG & Ticaret
 **Motor:** Unity 6 (6000.6.3f1), URP 2D · **Platform:** Android, yatay (landscape)
-**Sürüm etiketi:** v0.5.0 Alpha · **Son güncelleme:** 05.11.2026
+**Sürüm etiketi:** v0.5.0 Alpha · **Son güncelleme:** 08.11.2026
 
 ---
 
@@ -13,12 +13,12 @@
 | Alan | Durum | Not |
 |---|---|---|
 | Görsel / UI | 🟢 | MainMenu, WorldMap, TravelScene, TownHubScene, CombatScene (Altıgen Taktik Savaş + UnitHUD + ActionCluster + CombatHeaderUI + CombatResultUI), TopBar HUD ve Sidebar güncel. |
-| Veri tanımları (SO) | 🟢 | 15 harita düğümü (`LocationNodeSO`), 23 çift yönlü rota (`RouteDatabaseSO`), 10 ticaret malı (`ItemDataSO`), `CityMarketDataSO`, `RoadEventSO` ve `UnitDataSO` bağlı ve senkron. |
-| Oyun döngüsü | 🟢 | `00_Boot` + `GameSession` + `RouteGraph` + `GameCalendar` + `TravelManager` + `TownHubUI` + `CityMarket` + `CaravanseraiInnUI` + Pusu/Taktik Savaş (`CombatTurnManager`) döngüsü tam devrede (A2–A5). |
-| Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON: kervan envanteri, muhafız kadrosu/can/moral senkronu, binek kapasitesi, pazar doygunlukları) devrede. |
+| Veri tanımları (SO) | 🟢 | 15 harita düğümü (`LocationNodeSO`), 23 çift yönlü rota (`RouteDatabaseSO`), 10 ticaret malı (`ItemDataSO`), `CityMarketDataSO`, `RoadEventSO`, `UnitDataSO` ve `IntelDataSO` bağlı ve senkron. |
+| Oyun döngüsü | 🟢 | `00_Boot` + `GameSession` + `RouteGraph` + `GameCalendar` + `TravelManager` + `TownHubUI` + `CityMarket` + `CaravanseraiInnUI` + Pusu/Taktik Savaş + Meta servisleri (`ReputationManager`, `QuestManager`, `ShopManager`) devrede (A2–A6.1). |
+| Kalıcı durum / Kayıt | 🟢 | `GameSession` + `SaveService` (`save_0.json` atomik JSON: kervan envanteri, muhafız kadrosu/can/moral, binek kapasitesi, pazar doygunlukları, fraksiyon itibarları, istihbaratlar ve han dükkânları) devrede. |
 | Mobil teknik | 🟢 | Input System (`EnhancedTouch`), Android Geri tuşu, SafeArea ve ses kalıcılığı tamam (A2.0, A2.8). |
 
-**Özet:** A5 aşaması (A5.1–A5.4: Olay/Pusu kararları, Manuel/Otomatik savaş seçimi, `CombatScene` altıgen taktik savaş yenilemesi ve savaş sonuçlarının kervana/kayda yansıyıp seyahate dönüşü) tamamlandı (`v0.5.0-alpha`). Sırada A6 (Meta: İstihbarat, İtibar, Dükkân) var.
+**Özet:** A6.1 adımı (`ReputationManager`, `QuestManager`, `ShopManager` saf C# servislerine dönüşümü, `GameSession` ve `SaveData` kalıcılığı) tamamlandı. Sırada A6.2 (Divan: İtibar göstergeleri, istihbarat toplama/teslimi ve ödüller) var.
 
 **Sahneler:** `00_Boot` ✅ güncel · `MainMenuScene` ✅ güncel · `WorldMapScene` ✅ güncel · `TravelScene` ✅ A5 güncel · `TownHubScene` ✅ A4 tamamlandı · `CombatScene` ✅ A5.3–A5.4 tamamlandı · `MarketScene` ⚠️ arşiv/eski prototip.
 
@@ -33,22 +33,21 @@ A2 Dünya Haritası & Oyun Omurgası ...... ✅
 A3 Seyahat (TravelScene) ............... ✅
 A4 Şehir: Pazar/Kervansaray/Divan ...... ✅
 A5 Olay & Pusu → Savaş ................. ✅
-A6 Meta: İstihbarat/İtibar/Dükkân ...... ⏳  ← ŞU AN (A6.1 sırada)
+A6 Meta: İstihbarat/İtibar/Dükkân ...... ⏳  ← ŞU AN (A6.2 sırada)
 A7 Cila (Dil, Performans, Temizlik) .... ⬜
 A8 Android Sürüm & Test ................ ⬜
 ```
 
-### A5 Adımları (Olay & Pusu → Savaş ✅)
-- [x] A5.1 Olay penceresi: **Kaç / Haraç Ver / Savaş** (`EventModal` 3'lü karar kümesi, `RoadEventSO` `FleeChance` & `TributeAkceCost`, anlık etki ertelemesi)
-- [x] A5.2 Savaş seçimi: Manuel / Otomatik (otomatik çözümleme formülü, iki kanatlı taktik kartlar `CombatModul`)
-- [x] A5.3 CombatScene yeniden (`HexCoordinates` izometrik kafes kalibrasyonu, `HexGrid` siper/engel üretimi, dinamik birim dizilimi, `UnitHUD`, `ActionCluster`, `CombatHeaderUI`)
-- [x] A5.4 Sonuç → kayıp/yaralanma → kervana yansıma → seyahate dönüş (`CaravanData.SyncGuardAfterCombat`, `CombatTurnManager.ApplyCombatResultsToSession`, `CombatResultUI`)
+### A6 Adımları (Meta: İstihbarat, İtibar, Dükkân ⏳)
+- [x] A6.1 Meta yöneticilerinin (`ReputationManager`, `QuestManager`, `ShopManager`) `GameSession` servislerine ve `SaveData` kalıcılığına taşınması (`TD-08`, `TD-11`, `TD-17`)
+- [ ] A6.2 Divan: beylik itibar göstergeleri, istihbarat toplama/teslimi ve ödüller
+- [ ] A6.3 Sabit han dükkânı / pazar tezgâhı satın alma ve pasif gelir tahsilatı
 
 ---
 
-## 3. ▶️ Sıradaki Adım: A6.1 — Meta Yöneticilerinin (`ReputationManager`, `QuestManager`, `ShopManager`) `GameSession` Servislerine Taşınması
-- **Hedef:** Dağınık Singleton olan `ReputationManager`, `QuestManager` ve `ShopManager` yapılarının `GameSession` / `Services` mimarisine ve `SaveData` kalıcılığına bağlanması (`TD-08`, `TD-11`, `TD-17`).
-- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A6` / `### A6.1`
+## 3. ▶️ Sıradaki Adım: A6.2 — Divan: Beylik İtibar Göstergeleri, İstihbarat Toplama/Teslimi ve Ödüller
+- **Hedef:** `TownHubScene` içindeki Divan sekmesinin (`Panel_Divan`) ve Kervansaray casusluk (`Btn_HireSpy`) akışının bağlanması; oyuncunun şehirlerden istihbarat (`IntelDataSO`) toplayıp Divan'da arz ederek Akçe ve Beylik İtibarı kazanması, itibar kademesine göre pazar vergi indirimi/cezasının uygulanması.
+- **Detay & test senaryosu:** `05-Yol-Haritasi.md` → `## A6` / `### A6.2`
 
 ---
 

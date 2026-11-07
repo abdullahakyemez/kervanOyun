@@ -30,16 +30,16 @@
 | TD-05 | 🟠 | `Resources.Load` 7 yerde çağrılıyor ama `_Project` altında `Resources` klasörü yok → fallback'ler ölü kod (`AudioManager`, `WorldMapUI`, `BottomNodeInfoCardUI`, `InventorySidebarUI` A2.0–A2.7'de temizlendi; kalan: `UIButtonSound`). | `UIButtonSound` | A7 | Açık (çoğu temizlendi) |
 | TD-06 | 🟡 | İsim tabanlı bağlama: `GameObject.Find("Btn_Inventory") ?? ...`, `name.StartsWith("Node_")`. Obje adı değişince sessizce bozulur. | `WorldMapUI.cs` (`FindMissingReferences`, `SetupNodeViews`) | A2.1 | Çözüldü (16.10.2026) |
 | TD-07 | 🟡 | Sahne geçişleri tutarsız: sadece MainMenu'de `ScreenFader` var; diğer geçişler sert `LoadScene`, async/yükleme ekranı yok. | `ScreenFader.cs`, tüm `SceneManager.LoadScene` çağrıları | A2.6 | Çözüldü (25.10.2026) |
-| TD-08 | 🟡 | Singleton yoğunluğu: `AudioManager`, `CaravanManager`, `QuestManager`, `ReputationManager`, `ShopManager`, `ScreenFader`. (`00_Boot` + `Services` + `GameSession` A2.2'de kuruldu; kalan yöneticiler A6.1'de servise taşınacak.) | Çoklu | A6.1 | Açık |
+| TD-08 | 🟡 | Singleton yoğunluğu: `AudioManager`, `CaravanManager`, `QuestManager`, `ReputationManager`, `ShopManager`, `ScreenFader`. (`00_Boot` + `Services` + `GameSession` A2.2'de kuruldu; kalan yöneticiler A6.1'de servise taşınacak.) | Çoklu | A6.1 | Çözüldü (08.11.2026) |
 | TD-09 | 🟡 | EventBus sadece 7 olay tipiyle az kullanılıyor; `TravelManager` C# `event` + EventBus karışık. `EventBus.ClearAll()` hiç çağrılmıyor (Domain Reload kapalıysa eski abonelik riski). | `Core/EventBus.cs`, `Core/Bootstrapper.cs`, `Core/GameSession.cs` | A2.2 | Çözüldü (18.10.2026) |
 | TD-10 | ⚪ | Eski dosyalarda yorumlar Türkçe karaktersiz (`Kervanin seyahatini...`). Dosyaya dokunuldukça düzeltilir. | A0 dönemi script'ler | Fırsatçı | Açık |
-| TD-11 | 🟡 | `FactionType` enum'u (Ottoman, Steppe, SeljukLegacy, Byzantine, Bandit) GDD'deki 4 fraksiyonla (Osmanlı, Bizans, Eşkıya, Vahşi Hayvan) uyuşmuyor (`LocationNodeSO.GetFactionDisplayName` eklendi; enum sadeleştirmesi `ReputationManager`/`TownHubUI` ile A6.1'de). | `Core/GameEnums.cs` | A6.1 (KR-2 onaylandı) | Açık |
+| TD-11 | 🟡 | `FactionType` enum'u (Ottoman, Steppe, SeljukLegacy, Byzantine, Bandit) GDD'deki 4 fraksiyonla (Osmanlı, Bizans, Eşkıya, Vahşi Hayvan) uyuşmuyor (`LocationNodeSO.GetFactionDisplayName` eklendi; enum sadeleştirmesi `ReputationManager`/`TownHubUI` ile A6.1'de). | `Core/GameEnums.cs` | A6.1 (KR-2 onaylandı) | Çözüldü (08.11.2026) |
 | TD-12 | 🟡 | "Yeni Oyun" mevcut kaydı onaysız eziyor; intro/kervan gibi durumları sıfırlamıyor. | `MainMenuUI.cs` (`OnNewGameClicked`) | A2.3 | Çözüldü (18.10.2026) |
 | TD-13 | 🟡 | `InventorySidebarUI.cs` ~1084 satır "god class": sekme, layout, prosedürel `new GameObject` UI üretimi, safe-area, ses bir arada. | `UI/InventorySidebarUI.cs` | A2.7 (başlangıç), A7 | Açık |
 | TD-14 | ⚪ | Sahne adları string olarak 13 yerde dağınık. | Çoklu | A2.6 | Çözüldü (25.10.2026) |
 | TD-15 | ⚪ | Çok sayıda `Debug.Log`; release'de kapatılmıyor. | Çoklu | A8 | Açık |
 | TD-16 | ⚪ | Sürüm iki kaynakta: `PlayerSettings.bundleVersion=1.0`, UI'da sabit `v0.1.0 Alpha`. | `MainMenuUI.cs` (`_versionString`) | A8 | Açık |
-| TD-17 | ⚪ | `QuestManager`, `ReputationManager`, `ShopManager` hiçbir sahnede yok → TownHub özellikleri çalışmaz. | `IntelSystem/*` | A6.1 | Açık |
+| TD-17 | ⚪ | `QuestManager`, `ReputationManager`, `ShopManager` hiçbir sahnede yok → TownHub özellikleri çalışmaz. | `IntelSystem/*` | A6.1 | Çözüldü (08.11.2026) |
 
 ## AST — Varlık (Asset) Hijyeni
 
@@ -78,3 +78,6 @@
 - `TD-03` — 25.10.2026 — A2.7 — Sidebar kervan ve yük sekmeleri GameSession verisine bağlandı; sahte muhafız/emtia satırları kaldırıldı, boş durumlar ve esnek görev kartı eklendi.
 - `BUG-05` — 27.10.2026 — A3.2 / A3.3 — `TravelManager` içindeki ayrı `_caravanData` kopyası kaldırıldı; tüm erzak/akçe tüketimi ve gün ilerlemesi doğrudan `GameSession.Caravan` ve `GameSession.AdvanceDays` üzerine bağlandı.
 - `AST-05` — 02.11.2026 — A4.R1 — Projedeki tüm `.ai` dosyaları, `SourceFiles/`, `Mockups/`, mükerrer `yeniAssets/SettingsMenu` ve terk edilmiş eski UI klasörleri temizlendi (~49 MB alan kazanıldı).
+- `TD-08` — 08.11.2026 — A6.1 — `ReputationManager`, `QuestManager` ve `ShopManager` sınıfları `MonoBehaviour` Singleton yapısından çıkarılarak saf C# servislerine dönüştürüldü ve `Services` / `GameSession` üzerine taşındı.
+- `TD-11` — 08.11.2026 — A6.1 — `FactionType` enum'una GDD §11/4 (`KR-2`) uyarınca `WildAnimals = 5` eklendi; mevcut `.asset` serileştirme sıra numaraları (`0..4`) korundu.
+- `TD-17` — 08.11.2026 — A6.1 — `ReputationManager`, `QuestManager` ve `ShopManager` servisleri `Bootstrapper.EnsureCoreServices` ile her sahnede otomatik kurulacak ve `SaveData` (`save_0.json`) ile kalıcı saklanacak şekilde bağlandı.

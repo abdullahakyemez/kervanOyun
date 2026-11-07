@@ -2,25 +2,49 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Kervan.Core;
+using Kervan.Core.Save;
 using Kervan.TradeAndTravel;
 
 namespace Kervan.IntelSystem
 {
-    public struct ShopProfitCollectedEvent : IGameEvent
+    /// <summary>
+    /// Bir şehirdeki han dükkânı satın alındığında yayınlanır.
+    /// </summary>
+    public readonly struct ShopPurchasedEvent : IGameEvent
     {
-        public string CityName;
-        public int CollectedAmount;
+        public readonly string NodeId;
+        public readonly string CityName;
+        public readonly int CostAkce;
 
-        public ShopProfitCollectedEvent(string cityName, int amount)
+        public ShopPurchasedEvent(string nodeId, string cityName, int costAkce)
         {
+            NodeId = nodeId;
+            CityName = cityName;
+            CostAkce = costAkce;
+        }
+    }
+
+    /// <summary>
+    /// Bir han dükkânının kasasında biriken kâr tahsil edildiğinde yayınlanır.
+    /// </summary>
+    public readonly struct ShopProfitCollectedEvent : IGameEvent
+    {
+        public readonly string NodeId;
+        public readonly string CityName;
+        public readonly int CollectedAmount;
+
+        public ShopProfitCollectedEvent(string nodeId, string cityName, int amount)
+        {
+            NodeId = nodeId;
             CityName = cityName;
             CollectedAmount = amount;
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     public class HanShop
     {
+        public string nodeId;
         public string cityName;
         public FactionType faction;
         public bool isOwned;
@@ -36,48 +60,85 @@ namespace Kervan.IntelSystem
     }
 
     /// <summary>
-    /// Güvenli şehirlerde sabit han dükkânı / pazar tezgâhı açma ve seyahat esnasında pasif akçe geliri toplama sistemi.
+    /// Güvenli şehirlerde sabit han dükkânı / pazar tezgâhı açma ve gün geçtikçe pasif akçe geliri toplama sistemi (saf C# servisi).
     /// </summary>
-    public class ShopManager : MonoBehaviour
+    public class ShopManager
     {
-        public static ShopManager Instance { get; private set; }
+        /// <summary>
+        /// Servis bulucu (<see cref="Services"/>) üzerinden aktif <see cref="ShopManager"/> örneğine erişim sağlar.
+        /// </summary>
+        public static ShopManager Instance =>
+            Services.TryGet<ShopManager>(out var manager) ? manager : null;
 
         private CaravanData _caravanData;
-
-        [Header("Şehir Dükkânları")]
-        [SerializeField] private List<HanShop> _shops = new List<HanShop>
-        {
-            new HanShop { cityName = "Söğüt", faction = FactionType.Ottoman, purchaseCost = 200, minReputationRequired = 20, isOwned = false },
-            new HanShop { cityName = "Bilecik", faction = FactionType.Ottoman, purchaseCost = 350, minReputationRequired = 35, isOwned = false },
-            new HanShop { cityName = "Bursa", faction = FactionType.Ottoman, purchaseCost = 600, minReputationRequired = 50, isOwned = false }
-        };
+        private readonly List<HanShop> _shops = new List<HanShop>();
 
         public IReadOnlyList<HanShop> Shops => _shops;
 
-        private void Awake()
+        public ShopManager()
         {
-            if (Instance != null && Instance != this)
+            ResetToDefaults();
+        }
+
+        /// <summary>
+        /// Şehir dükkânlarını yeni oyun başlangıç değerlerine sıfırlar.
+        /// </summary>
+        public void ResetToDefaults()
+        {
+            _caravanData = null;
+            _shops.Clear();
+            _shops.Add(new HanShop
             {
-                Destroy(gameObject);
-                return;
+                nodeId = "node_sogut",
+                cityName = "Söğüt",
+                faction = FactionType.Ottoman,
+                purchaseCost = 200,
+                minReputationRequired = 20,
+                dailyBaseIncome = 25,
+                dailyApprenticeWage = 5,
+                isOwned = false,
+                storedGoldInTill = 0
+            });
+            _shops.Add(new HanShop
+            {
+                nodeId = "node_bilecik",
+                cityName = "Bilecik",
+                faction = FactionType.Ottoman,
+                purchaseCost = 350,
+                minReputationRequired = 35,
+                dailyBaseIncome = 35,
+                dailyApprenticeWage = 5,
+                isOwned = false,
+                storedGoldInTill = 0
+            });
+            _shops.Add(new HanShop
+            {
+                nodeId = "node_bursa",
+                cityName = "Bursa",
+                faction = FactionType.Ottoman,
+                purchaseCost = 600,
+                minReputationRequired = 50,
+                dailyBaseIncome = 55,
+                dailyApprenticeWage = 10,
+                isOwned = false,
+                storedGoldInTill = 0
+            });
+        }
+
+        private CaravanData ResolveCaravanData()
+        {
+            if (Services.TryGet<GameSession>(out var session) && session.Caravan != null)
+            {
+                _caravanData = session.Caravan;
+                return _caravanData;
             }
-            Instance = this;
 
-            ResolveCaravanData();
-            EventBus.Subscribe<TravelCompletedEvent>(OnTravelCompleted);
-        }
-
-        private void OnDestroy()
-        {
-            EventBus.Unsubscribe<TravelCompletedEvent>(OnTravelCompleted);
-        }
-
-        private void ResolveCaravanData()
-        {
             if (_caravanData == null && CaravanManager.Instance != null)
             {
                 _caravanData = CaravanManager.Instance.Caravan;
             }
+
+            return _caravanData;
         }
 
         public void SetCaravanData(CaravanData caravanData)
@@ -85,19 +146,42 @@ namespace Kervan.IntelSystem
             _caravanData = caravanData;
         }
 
-        public HanShop GetShop(string cityName)
+        /// <summary>
+        /// ASCII düğüm kimliği (<c>node_sogut</c>) veya görünen şehir adı ile ilgili han dükkânını bulur.
+        /// </summary>
+        public HanShop GetShop(string nodeIdOrCityName)
         {
-            return _shops.Find(s => s.cityName.Equals(cityName, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrWhiteSpace(nodeIdOrCityName)) return null;
+
+            for (int i = 0; i < _shops.Count; i++)
+            {
+                var shop = _shops[i];
+                if (shop == null) continue;
+
+                if (!string.IsNullOrWhiteSpace(shop.nodeId) &&
+                    string.Equals(shop.nodeId, nodeIdOrCityName, StringComparison.Ordinal))
+                {
+                    return shop;
+                }
+
+                if (!string.IsNullOrWhiteSpace(shop.cityName) &&
+                    string.Equals(shop.cityName, nodeIdOrCityName, StringComparison.Ordinal))
+                {
+                    return shop;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
-        /// Şehirde yeni bir han dükkânı / tezgâh satın alır veya kiralar.
+        /// Şehirde yeni bir han dükkânı / tezgâh satın alır.
         /// </summary>
-        public bool TryPurchaseShop(string cityName, out string message)
+        public bool TryPurchaseShop(string nodeIdOrCityName, out string message)
         {
-            ResolveCaravanData();
+            var caravan = ResolveCaravanData();
 
-            var shop = GetShop(cityName);
+            var shop = GetShop(nodeIdOrCityName);
             if (shop == null)
             {
                 message = "Bu şehirde satılık dükkân bulunmuyor.";
@@ -110,70 +194,112 @@ namespace Kervan.IntelSystem
                 return false;
             }
 
-            if (ReputationManager.Instance != null)
+            if (Services.TryGet<ReputationManager>(out var repManager))
             {
-                int currentRep = ReputationManager.Instance.GetReputation(shop.faction);
+                int currentRep = repManager.GetReputation(shop.faction);
                 if (currentRep < shop.minReputationRequired)
                 {
-                    message = $"Bu şehirde dükkân açmak için {shop.faction} nezdinde en az {shop.minReputationRequired} itibar gerekir (Mevcut: {currentRep}).";
+                    string factionLabel = repManager.GetFactionDisplayName(shop.faction);
+                    message = $"Bu şehirde dükkân açmak için {factionLabel} nezdinde en az {shop.minReputationRequired} itibar gerekir (Mevcut: {currentRep}).";
                     return false;
                 }
             }
 
-            if (_caravanData != null && !_caravanData.ModifyAkce(-shop.purchaseCost))
+            if (caravan != null && !caravan.ModifyAkce(-shop.purchaseCost))
             {
                 message = $"Yeterli akçeniz yok! Gerekli bedel: {shop.purchaseCost} Akçe.";
                 return false;
             }
 
             shop.isOwned = true;
-            message = $"{cityName} hanında dükkân mülkiyeti alındı! Kalfa tezgâh başına geçti.";
-            Debug.Log($"[Kervan-Dükkân] {message}");
+            message = $"{shop.cityName} hanında dükkân mülkiyeti alındı! Kalfa tezgâh başına geçti.";
+            EventBus.Publish(new ShopPurchasedEvent(shop.nodeId, shop.cityName, shop.purchaseCost));
+            Debug.Log($"[ShopManager] {message}");
             return true;
         }
 
         /// <summary>
-        /// Her seyahat veya gün geçişinde sahip olunan dükkânların kasasına kâr ekler.
+        /// Her gün geçişinde (<see cref="GameSession.AdvanceDays"/>) sahip olunan dükkânların kasasına net kâr ekler.
         /// </summary>
         public void SimulateDailyProfits(int daysPassed)
         {
-            foreach (var shop in _shops)
+            if (daysPassed <= 0) return;
+
+            for (int i = 0; i < _shops.Count; i++)
             {
-                if (!shop.isOwned) continue;
+                var shop = _shops[i];
+                if (shop == null || !shop.isOwned) continue;
 
                 int profit = shop.NetDailyProfit * daysPassed;
                 shop.storedGoldInTill += profit;
-                Debug.Log($"[Kervan-Dükkân] {shop.cityName} dükkânı {daysPassed} günde {profit} Akçe kâr üretti. Kasada biriken: {shop.storedGoldInTill} Akçe.");
+                Debug.Log($"[ShopManager] {shop.cityName} ({shop.nodeId}) dükkânı {daysPassed} günde {profit} Akçe kâr üretti. Kasada biriken: {shop.storedGoldInTill} Akçe.");
             }
         }
 
         /// <summary>
-        /// Şehre varıldığında dükkân kasasındaki birikmiş kârı kervan hazinesine aktarır.
+        /// Şehirdeki dükkân kasasında birikmiş kârı kervan hazinesine aktarır.
         /// </summary>
-        public int CollectShopProfit(string cityName)
+        public int CollectShopProfit(string nodeIdOrCityName)
         {
-            ResolveCaravanData();
+            var caravan = ResolveCaravanData();
 
-            var shop = GetShop(cityName);
+            var shop = GetShop(nodeIdOrCityName);
             if (shop == null || !shop.isOwned || shop.storedGoldInTill <= 0) return 0;
 
             int collected = shop.storedGoldInTill;
             shop.storedGoldInTill = 0;
 
-            if (_caravanData != null)
+            if (caravan != null)
             {
-                _caravanData.ModifyAkce(collected);
+                caravan.ModifyAkce(collected);
             }
 
-            EventBus.Publish(new ShopProfitCollectedEvent(cityName, collected));
-            Debug.Log($"[Kervan-Dükkân] {cityName} kasasından {collected} Akçe kervan hazinesine aktarıldı.");
+            EventBus.Publish(new ShopProfitCollectedEvent(shop.nodeId, shop.cityName, collected));
+            Debug.Log($"[ShopManager] {shop.cityName} ({shop.nodeId}) kasasından {collected} Akçe kervan hazinesine aktarıldı.");
             return collected;
         }
 
-        private void OnTravelCompleted(TravelCompletedEvent evt)
+        /// <summary>
+        /// Sahip olunan veya kasasında para bulunan dükkânları JSON kaydı için serileştirir.
+        /// </summary>
+        public List<ShopSaveData> ToSaveData()
         {
-            int days = evt.Route != null ? Mathf.Max(1, evt.Route.DistanceDays) : 1;
-            SimulateDailyProfits(days);
+            var list = new List<ShopSaveData>(_shops.Count);
+            for (int i = 0; i < _shops.Count; i++)
+            {
+                var shop = _shops[i];
+                if (shop == null || string.IsNullOrWhiteSpace(shop.nodeId)) continue;
+
+                list.Add(new ShopSaveData
+                {
+                    nodeId = shop.nodeId,
+                    isOwned = shop.isOwned,
+                    storedGoldInTill = Mathf.Max(0, shop.storedGoldInTill)
+                });
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Diskten okunan dükkân mülkiyet ve kasa kayıtlarını çalışma anı listesine uygular.
+        /// </summary>
+        public void ApplySaveData(List<ShopSaveData> savedShops)
+        {
+            ResetToDefaults();
+            if (savedShops == null || savedShops.Count == 0) return;
+
+            for (int i = 0; i < savedShops.Count; i++)
+            {
+                var entry = savedShops[i];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.nodeId)) continue;
+
+                var shop = GetShop(entry.nodeId);
+                if (shop != null)
+                {
+                    shop.isOwned = entry.isOwned;
+                    shop.storedGoldInTill = Mathf.Max(0, entry.storedGoldInTill);
+                }
+            }
         }
     }
 }

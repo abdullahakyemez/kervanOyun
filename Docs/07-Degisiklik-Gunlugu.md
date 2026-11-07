@@ -6,6 +6,16 @@
 
 ---
 
+## [08.11.2026] A6.1 — Meta Yöneticilerinin (`ReputationManager`, `QuestManager`, `ShopManager`) `GameSession` Servislerine ve `SaveData` Kalıcılığına Taşınması
+- `GameEnums.cs`: `FactionType` enum'una GDD §11/4 (`KR-2`) doğrultusunda `WildAnimals = 5` eklendi (`0..4` serileştirme indeksleri korundu).
+- `SaveData.cs`: `FactionReputationSaveData`, `ShopSaveData`, `collectedIntelIds` ve `submittedIntelIds` kalıcı kayıt modelleri eklendi.
+- `ReputationManager.cs`, `QuestManager.cs`, `ShopManager.cs`: `MonoBehaviour` Singleton yapısından çıkarılarak saf C# servislerine dönüştürüldü; ASCII `nodeId` (`node_sogut`, `node_bilecik`, `node_bursa`) ve `IntelId` (`StringComparison.Ordinal`) disipliniyle `ToSaveData` / `ApplySaveData` / `ResetToDefaults` metotları eklendi.
+- `GameSession.cs`, `Bootstrapper.cs`, `TownHubUI.cs`: `Reputation`, `Quests` ve `Shops` servisleri `GameSession` ve `Bootstrapper.EnsureCoreServices` içine bağlandı; `AdvanceDays` ile günlük dükkân pasif kâr üretimi ve meta olaylarda otomatik kayıt (`TryAutoSave`) devreye alındı.
+- Unity'de elle: Yok (servisler çalışma anında otomatik kurulur).
+- Commit: `refactor(meta): A6.1 ReputationManager, QuestManager ve ShopManager GameSession servislerine ve SaveData kaliciligina tasindi (TD-08, TD-11, TD-17)`
+
+---
+
 ## 🏆 [05.11.2026] A5 — Olay & Pusu → Savaş (Aşama Özeti)
 - **Kapsam:** A5.1–A5.4 arasındaki 4 adım başarıyla tamamlandı.
 - **Kazanımlar:**

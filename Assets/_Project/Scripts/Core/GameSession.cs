@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Kervan.Core.Save;
+using Kervan.IntelSystem;
 using Kervan.TradeAndTravel;
 
 namespace Kervan.Core
@@ -100,12 +101,30 @@ namespace Kervan.Core
             new Dictionary<string, Dictionary<string, CityMarketItemSaveData>>(StringComparer.Ordinal);
         private bool _hasSeenIntro;
         private bool _isSessionActive;
+        private ReputationManager _reputation;
+        private QuestManager _quests;
+        private ShopManager _shops;
 
         public string CurrentNodeId => _currentNodeId;
         public int DayCount => _dayCount;
         public CaravanData Caravan => _caravan;
         public ActiveTravelState ActiveTravel => _activeTravel;
         public IReadOnlyCollection<string> VisitedNodeIds => _visitedNodeIds;
+        public ReputationManager Reputation => _reputation ??= ResolveOrCreateService(() => new ReputationManager());
+        public QuestManager Quests => _quests ??= ResolveOrCreateService(() => new QuestManager());
+        public ShopManager Shops => _shops ??= ResolveOrCreateService(() => new ShopManager());
+
+        private static T ResolveOrCreateService<T>(Func<T> factory) where T : class
+        {
+            if (Services.TryGet<T>(out var existing) && existing != null)
+            {
+                return existing;
+            }
+
+            var created = factory();
+            Services.Register(created);
+            return created;
+        }
 
         /// <summary>
         /// Oyuncunun Yeni Oyun veya Devam Et ile aktif bir oturum başlatıp başlatmadığını belirtir.
@@ -143,6 +162,9 @@ namespace Kervan.Core
             _visitedNodeIds.Add(_currentNodeId);
             _pendingSavedItems.Clear();
             _cityMarketStates.Clear();
+            Reputation.ResetToDefaults();
+            Quests.ResetToDefaults();
+            Shops.ResetToDefaults();
 
             ClearLegacyPlayerPrefs();
 
@@ -284,6 +306,11 @@ namespace Kervan.Core
                 }
             }
 
+            data.reputations = Reputation.ToSaveData();
+            data.collectedIntelIds = Quests.GetCollectedIntelIdsForSave();
+            data.submittedIntelIds = Quests.GetSubmittedIntelIdsForSave();
+            data.shops = Shops.ToSaveData();
+
             return data;
         }
 
@@ -405,6 +432,10 @@ namespace Kervan.Core
                     }
                 }
             }
+
+            Reputation.ApplySaveData(data.reputations);
+            Quests.ApplySaveData(data.collectedIntelIds, data.submittedIntelIds);
+            Shops.ApplySaveData(data.shops);
 
             if (!string.Equals(previousNodeId, _currentNodeId, StringComparison.Ordinal))
             {
@@ -599,6 +630,7 @@ namespace Kervan.Core
             }
 
             ApplyDailyMarketRecovery(days);
+            Shops.SimulateDailyProfits(days);
             EventBus.Publish(new DayPassedEvent(_dayCount, days));
         }
 

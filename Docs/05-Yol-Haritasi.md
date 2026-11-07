@@ -183,8 +183,13 @@ A8 Android Sürüm (Release) & Test .................. ⬜
   - **Uygulama notu:** `CaravanData.SyncGuardAfterCombat`, `CombatTurnManager.ApplyCombatResultsToSession` / `ApplyRetreatPenaltyToSession` ve `CombatResultUI.ShowCombatResult` entegre edildi (`v0.5.0-alpha`).
 
 ## A6 — Meta: İstihbarat, İtibar, Dükkân ⏳
-- A6.1 `ReputationManager`/`QuestManager`/`ShopManager` → GameSession servislerine taşınması.
-- A6.2 Divan: istihbarat teslimi, ödüller. A6.3 Sabit dükkân / pasif gelir.
+- **A6.1 `ReputationManager`/`QuestManager`/`ShopManager` → GameSession servislerine taşınması ✅**
+  - **Hedef:** Dağınık `MonoBehaviour` Singleton olan `ReputationManager`, `QuestManager` ve `ShopManager` sınıflarının saf C# servislerine dönüştürülüp `Services` / `GameSession` mimarisine ve `SaveData` (`save_0.json`) kalıcılığına bağlanması (`TD-08`, `TD-11`, `TD-17`).
+  - **Uygulama notu:** `GameEnums.cs` (`FactionType.WildAnimals = 5`), `SaveData.cs` (`FactionReputationSaveData`, `ShopSaveData`, `collectedIntelIds`, `submittedIntelIds`), `ReputationManager.cs`, `QuestManager.cs`, `ShopManager.cs` (`nodeId` tabanlı `HanShop`), `GameSession.cs`, `Bootstrapper.cs` ve `TownHubUI.cs` güncellendi. Gün ilerlediğinde (`AdvanceDays`) dükkânların günlük pasif kâr üretimi otomatik bağlandı.
+- **A6.2 Divan: istihbarat teslimi, ödüller ve itibar etkisi ⏳**
+  - **Hedef:** `TownHubScene` Divan sekmesinde (`Panel_Divan`) beylik itibar durumunun, vergi indirimi/cezası oranlarının ve toplanan istihbaratların (`IntelDataSO`) divana arz edilip ödül (`+Akçe`, `+İtibar`) alınmasının devreye alınması; Kervansaraydaki "Casus Tut" (`CaravanseraiInnUI`) aksiyonunun şehir istihbarat havuzuna ve Sidebar Görevler sekmesine bağlanması.
+- **A6.3 Sabit dükkân / pasif gelir ⬜**
+  - **Hedef:** Güvenli şehirlerde yeterli itibara ulaşıldığında han dükkânı / tezgâh satın alma ve seyahat/konaklama sonrası kasada biriken pasif geliri tahsil etme arayüzünün (`Panel_Divan` / `TownHubUI`) tamamlanması.
 
 ## A7 — Cila ⬜
 - Unity Localization (TR/EN), UI tema token'ları (`UIThemeSO`), Sprite Atlas + ASTC, Android Back tuşu tam akış, haptic, erişilebilirlik (metin boyutu), varlık temizliği (AST-xx kayıtları).

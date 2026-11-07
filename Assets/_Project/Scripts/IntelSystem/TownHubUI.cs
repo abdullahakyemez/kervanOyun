@@ -87,9 +87,6 @@ namespace Kervan.IntelSystem
         [SerializeField] private GameObject _panelDivan;
 
         [Header("Divan, İstihbarat & Dükkân Elemanları (A6 Hazırlığı)")]
-        [SerializeField] private ReputationManager _reputationManager;
-        [SerializeField] private QuestManager _questManager;
-        [SerializeField] private ShopManager _shopManager;
         [SerializeField] private TextMeshProUGUI _repOttomanText;
         [SerializeField] private TextMeshProUGUI _repSteppeText;
         [SerializeField] private TextMeshProUGUI _repSeljukText;
@@ -105,6 +102,9 @@ namespace Kervan.IntelSystem
 
         private GameSession _gameSession;
         private CaravanData _caravanData;
+        private ReputationManager _reputationManager;
+        private QuestManager _questManager;
+        private ShopManager _shopManager;
         private LocationNodeSO _currentNode;
         private TownHubTab _activeTab = TownHubTab.Market;
         private bool _isMarketAvailable = true;
@@ -125,9 +125,14 @@ namespace Kervan.IntelSystem
         {
             ResolveSessionAndNode();
 
-            if (_reputationManager == null) _reputationManager = ReputationManager.Instance;
-            if (_questManager == null) _questManager = QuestManager.Instance;
-            if (_shopManager == null) _shopManager = ShopManager.Instance;
+            _reputationManager = _gameSession != null ? _gameSession.Reputation : ReputationManager.Instance;
+            _questManager = _gameSession != null ? _gameSession.Quests : QuestManager.Instance;
+            _shopManager = _gameSession != null ? _gameSession.Shops : ShopManager.Instance;
+
+            if (_questManager != null && _availableLocalIntels != null && _availableLocalIntels.Count > 0)
+            {
+                _questManager.ResolveSavedIntels(_availableLocalIntels);
+            }
 
             EnsureCaravanseraiComponent();
 
@@ -505,15 +510,8 @@ namespace Kervan.IntelSystem
                     {
                         var capturedIntel = intel;
                         btn.onClick.AddListener(() => TryGatherIntelFromUI(capturedIntel));
-                        bool hasIntel = false;
-                        foreach (var collected in _questManager.CollectedIntels)
-                        {
-                            if (string.Equals(collected.IntelId, intel.IntelId, StringComparison.Ordinal))
-                            {
-                                hasIntel = true;
-                                break;
-                            }
-                        }
+                        bool hasIntel = _questManager.HasCollectedIntel(intel.IntelId) ||
+                                        _questManager.HasSubmittedIntel(intel.IntelId);
                         btn.interactable = !hasIntel;
                     }
                 }
@@ -543,11 +541,28 @@ namespace Kervan.IntelSystem
             return $"<b>{factionName}</b>: {score} [{level}] {taxDesc}";
         }
 
+        private string ResolveCurrentCityShopKey()
+        {
+            if (_currentNode != null && !string.IsNullOrWhiteSpace(_currentNode.NodeId))
+            {
+                return _currentNode.NodeId;
+            }
+
+            if (_gameSession != null && !string.IsNullOrWhiteSpace(_gameSession.CurrentNodeId))
+            {
+                return _gameSession.CurrentNodeId;
+            }
+
+            return _currentNode != null && !string.IsNullOrWhiteSpace(_currentNode.NodeName)
+                ? _currentNode.NodeName
+                : GameSession.DefaultStartNodeId;
+        }
+
         private void UpdateShopTab()
         {
             if (_shopManager == null) return;
 
-            string cityKey = _currentNode != null ? _currentNode.NodeName : "Söğüt";
+            string cityKey = ResolveCurrentCityShopKey();
             var shop = _shopManager.GetShop(cityKey);
             if (shop == null)
             {
@@ -611,7 +626,7 @@ namespace Kervan.IntelSystem
         private void OnBuyShopClicked()
         {
             if (_shopManager == null) return;
-            string cityKey = _currentNode != null ? _currentNode.NodeName : "Söğüt";
+            string cityKey = ResolveCurrentCityShopKey();
             _shopManager.TryPurchaseShop(cityKey, out string msg);
             ShowNotification(msg);
             RefreshAllViews();
@@ -620,7 +635,7 @@ namespace Kervan.IntelSystem
         private void OnCollectIncomeClicked()
         {
             if (_shopManager == null) return;
-            string cityKey = _currentNode != null ? _currentNode.NodeName : "Söğüt";
+            string cityKey = ResolveCurrentCityShopKey();
             int amount = _shopManager.CollectShopProfit(cityKey);
             if (amount > 0)
             {

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Kervan.Audio;
 using Kervan.Core.Save;
+using Kervan.IntelSystem;
 using Kervan.TradeAndTravel;
 using Kervan.UI;
 
@@ -55,13 +56,16 @@ namespace Kervan.Core
             {
                 var session = new GameSession();
                 Services.Register(session);
+                _ = session.Reputation;
+                _ = session.Quests;
+                _ = session.Shops;
             }
 
             // Kalıcı ScreenFader ve SceneLoader servislerini güvenceye al
             ScreenFader.EnsureInstance();
             SceneLoader.EnsureInstance();
 
-            Debug.Log("[Bootstrapper] Çekirdek servisler (SaveService, GameSession, ScreenFader, SceneLoader) hazır.");
+            Debug.Log("[Bootstrapper] Çekirdek servisler (SaveService, GameSession, ReputationManager, QuestManager, ShopManager, ScreenFader, SceneLoader) hazır.");
         }
 
         /// <summary>
@@ -112,6 +116,11 @@ namespace Kervan.Core
             EventBus.Subscribe<LocationChangedEvent>(OnLocationChanged);
             EventBus.Subscribe<DayPassedEvent>(OnDayPassed);
             EventBus.Subscribe<CaravanStatsChangedEvent>(OnCaravanStatsChanged);
+            EventBus.Subscribe<ReputationChangedEvent>(OnReputationChanged);
+            EventBus.Subscribe<IntelGatheredEvent>(OnIntelGathered);
+            EventBus.Subscribe<IntelSubmittedEvent>(OnIntelSubmitted);
+            EventBus.Subscribe<ShopPurchasedEvent>(OnShopPurchased);
+            EventBus.Subscribe<ShopProfitCollectedEvent>(OnShopProfitCollected);
         }
 
         private void OnDisable()
@@ -119,6 +128,11 @@ namespace Kervan.Core
             EventBus.Unsubscribe<LocationChangedEvent>(OnLocationChanged);
             EventBus.Unsubscribe<DayPassedEvent>(OnDayPassed);
             EventBus.Unsubscribe<CaravanStatsChangedEvent>(OnCaravanStatsChanged);
+            EventBus.Unsubscribe<ReputationChangedEvent>(OnReputationChanged);
+            EventBus.Unsubscribe<IntelGatheredEvent>(OnIntelGathered);
+            EventBus.Unsubscribe<IntelSubmittedEvent>(OnIntelSubmitted);
+            EventBus.Unsubscribe<ShopPurchasedEvent>(OnShopPurchased);
+            EventBus.Unsubscribe<ShopProfitCollectedEvent>(OnShopProfitCollected);
         }
 
         private void Start()
@@ -164,6 +178,34 @@ namespace Kervan.Core
         private void OnCaravanStatsChanged(CaravanStatsChangedEvent evt)
         {
             TryAutoSave("CaravanStatsChanged");
+        }
+
+        private void OnReputationChanged(ReputationChangedEvent evt)
+        {
+            TryAutoSave("ReputationChanged");
+        }
+
+        private void OnIntelGathered(IntelGatheredEvent evt)
+        {
+            if (evt.Succeeded)
+            {
+                TryAutoSave("IntelGathered");
+            }
+        }
+
+        private void OnIntelSubmitted(IntelSubmittedEvent evt)
+        {
+            TryAutoSave("IntelSubmitted");
+        }
+
+        private void OnShopPurchased(ShopPurchasedEvent evt)
+        {
+            TryAutoSave("ShopPurchased");
+        }
+
+        private void OnShopProfitCollected(ShopProfitCollectedEvent evt)
+        {
+            TryAutoSave("ShopProfitCollected");
         }
 
         private static void TryAutoSave(string reason)
